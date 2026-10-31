@@ -10,8 +10,6 @@
     <ProjectReference Include="..\..\Modules\Webhooks\Webhooks.Infrastructure\SwiftDrop.Webhooks.Infrastructure.csproj" />
     <ProjectReference Include="..\..\Modules\Notifications\Notifications.Infrastructure\SwiftDrop.Notifications.Infrastructure.csproj" />
     <ProjectReference Include="..\..\Modules\Reporting\Reporting.Infrastructure\SwiftDrop.Reporting.Infrastructure.csproj" />
-    <ProjectReference Include="..\..\Modules\Realtime\Realtime\SwiftDrop.Realtime.csproj" />
-    <ProjectReference Include="..\..\Modules\AIAssistant\AIAssistant\SwiftDrop.AIAssistant.csproj" />
   </ItemGroup>
 
   <PropertyGroup>

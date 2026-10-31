@@ -4,10 +4,10 @@
     <Project Path="src/Host/SwiftDrop.Host/SwiftDrop.Host.csproj" />
   </Folder>
   <Folder Name="/src/Modules/" />
-  <Folder Name="/src/Modules/AIAssistant/" />
-  <Folder Name="/src/Modules/AIAssistant/AIAssistant/">
-    <Project Path="src/Modules/AIAssistant/AIAssistant/SwiftDrop.AIAssistant.csproj" />
+  <Folder Name="/src/Modules/AIAssistant/">
+    <Project Path="src/Modules/AIAssistant/SwiftDrop.AIAssistant.csproj" />
   </Folder>
+  <Folder Name="/src/Modules/AIAssistant/AIAssistant/" />
   <Folder Name="/src/Modules/Dispatch/" />
   <Folder Name="/src/Modules/Dispatch/Dispatch.Api/">
     <Project Path="src/Modules/Dispatch/Dispatch.Api/SwiftDrop.Dispatch.Api.csproj" />
@@ -98,10 +98,10 @@
   <Folder Name="/src/Modules/Pricing/Pricing.Infrastructure/">
     <Project Path="src/Modules/Pricing/Pricing.Infrastructure/SwiftDrop.Pricing.Infrastructure.csproj" />
   </Folder>
-  <Folder Name="/src/Modules/Realtime/" />
-  <Folder Name="/src/Modules/Realtime/Realtime/">
-    <Project Path="src/Modules/Realtime/Realtime/SwiftDrop.Realtime.csproj" />
+  <Folder Name="/src/Modules/Realtime/">
+    <Project Path="src/Modules/Realtime/SwiftDrop.Realtime.csproj" />
   </Folder>
+  <Folder Name="/src/Modules/Realtime/Realtime/" />
   <Folder Name="/src/Modules/Reporting/" />
   <Folder Name="/src/Modules/Reporting/Reporting.Contracts/">
     <Project Path="src/Modules/Reporting/Reporting.Contracts/SwiftDrop.Reporting.Contracts.csproj" />
