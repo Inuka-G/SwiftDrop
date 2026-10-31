@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\Pricing.Domain\SwiftDrop.Pricing.Domain.csproj" />
+    <ProjectReference Include="..\Pricing.Contracts\SwiftDrop.Pricing.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\SharedKernel\SwiftDrop.SharedKernel\SwiftDrop.SharedKernel.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+</Project>

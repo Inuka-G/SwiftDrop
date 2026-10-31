@@ -1,0 +1,128 @@
+<Solution>
+  <Folder Name="/src/" />
+  <Folder Name="/src/Host/">
+    <Project Path="src/Host/SwiftDrop.Host/SwiftDrop.Host.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/" />
+  <Folder Name="/src/Modules/AIAssistant/" />
+  <Folder Name="/src/Modules/AIAssistant/AIAssistant/">
+    <Project Path="src/Modules/AIAssistant/AIAssistant/SwiftDrop.AIAssistant.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Dispatch/" />
+  <Folder Name="/src/Modules/Dispatch/Dispatch.Api/">
+    <Project Path="src/Modules/Dispatch/Dispatch.Api/SwiftDrop.Dispatch.Api.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Dispatch/Dispatch.Application/">
+    <Project Path="src/Modules/Dispatch/Dispatch.Application/SwiftDrop.Dispatch.Application.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Dispatch/Dispatch.Contracts/">
+    <Project Path="src/Modules/Dispatch/Dispatch.Contracts/SwiftDrop.Dispatch.Contracts.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Dispatch/Dispatch.Domain/">
+    <Project Path="src/Modules/Dispatch/Dispatch.Domain/SwiftDrop.Dispatch.Domain.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Dispatch/Dispatch.Infrastructure/">
+    <Project Path="src/Modules/Dispatch/Dispatch.Infrastructure/SwiftDrop.Dispatch.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Identity/" />
+  <Folder Name="/src/Modules/Identity/Identity.Api/">
+    <Project Path="src/Modules/Identity/Identity.Api/SwiftDrop.Identity.Api.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Identity/Identity.Application/">
+    <Project Path="src/Modules/Identity/Identity.Application/SwiftDrop.Identity.Application.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Identity/Identity.Contracts/">
+    <Project Path="src/Modules/Identity/Identity.Contracts/SwiftDrop.Identity.Contracts.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Identity/Identity.Domain/">
+    <Project Path="src/Modules/Identity/Identity.Domain/SwiftDrop.Identity.Domain.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Identity/Identity.Infrastructure/">
+    <Project Path="src/Modules/Identity/Identity.Infrastructure/SwiftDrop.Identity.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Merchants/" />
+  <Folder Name="/src/Modules/Merchants/Merchants.Api/">
+    <Project Path="src/Modules/Merchants/Merchants.Api/SwiftDrop.Merchants.Api.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Merchants/Merchants.Application/">
+    <Project Path="src/Modules/Merchants/Merchants.Application/SwiftDrop.Merchants.Application.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Merchants/Merchants.Contracts/">
+    <Project Path="src/Modules/Merchants/Merchants.Contracts/SwiftDrop.Merchants.Contracts.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Merchants/Merchants.Domain/">
+    <Project Path="src/Modules/Merchants/Merchants.Domain/SwiftDrop.Merchants.Domain.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Merchants/Merchants.Infrastructure/">
+    <Project Path="src/Modules/Merchants/Merchants.Infrastructure/SwiftDrop.Merchants.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Notifications/" />
+  <Folder Name="/src/Modules/Notifications/Notifications.Contracts/">
+    <Project Path="src/Modules/Notifications/Notifications.Contracts/SwiftDrop.Notifications.Contracts.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Notifications/Notifications.Core/">
+    <Project Path="src/Modules/Notifications/Notifications.Core/SwiftDrop.Notifications.Core.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Notifications/Notifications.Infrastructure/">
+    <Project Path="src/Modules/Notifications/Notifications.Infrastructure/SwiftDrop.Notifications.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Parcels/" />
+  <Folder Name="/src/Modules/Parcels/Parcels.Api/">
+    <Project Path="src/Modules/Parcels/Parcels.Api/SwiftDrop.Parcels.Api.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Parcels/Parcels.Application/">
+    <Project Path="src/Modules/Parcels/Parcels.Application/SwiftDrop.Parcels.Application.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Parcels/Parcels.Contracts/">
+    <Project Path="src/Modules/Parcels/Parcels.Contracts/SwiftDrop.Parcels.Contracts.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Parcels/Parcels.Domain/">
+    <Project Path="src/Modules/Parcels/Parcels.Domain/SwiftDrop.Parcels.Domain.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Parcels/Parcels.Infrastructure/">
+    <Project Path="src/Modules/Parcels/Parcels.Infrastructure/SwiftDrop.Parcels.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Pricing/" />
+  <Folder Name="/src/Modules/Pricing/Pricing.Api/">
+    <Project Path="src/Modules/Pricing/Pricing.Api/SwiftDrop.Pricing.Api.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Pricing/Pricing.Application/">
+    <Project Path="src/Modules/Pricing/Pricing.Application/SwiftDrop.Pricing.Application.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Pricing/Pricing.Contracts/">
+    <Project Path="src/Modules/Pricing/Pricing.Contracts/SwiftDrop.Pricing.Contracts.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Pricing/Pricing.Domain/">
+    <Project Path="src/Modules/Pricing/Pricing.Domain/SwiftDrop.Pricing.Domain.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Pricing/Pricing.Infrastructure/">
+    <Project Path="src/Modules/Pricing/Pricing.Infrastructure/SwiftDrop.Pricing.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Realtime/" />
+  <Folder Name="/src/Modules/Realtime/Realtime/">
+    <Project Path="src/Modules/Realtime/Realtime/SwiftDrop.Realtime.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Reporting/" />
+  <Folder Name="/src/Modules/Reporting/Reporting.Contracts/">
+    <Project Path="src/Modules/Reporting/Reporting.Contracts/SwiftDrop.Reporting.Contracts.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Reporting/Reporting.Core/">
+    <Project Path="src/Modules/Reporting/Reporting.Core/SwiftDrop.Reporting.Core.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Reporting/Reporting.Infrastructure/">
+    <Project Path="src/Modules/Reporting/Reporting.Infrastructure/SwiftDrop.Reporting.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Webhooks/" />
+  <Folder Name="/src/Modules/Webhooks/Webhooks.Contracts/">
+    <Project Path="src/Modules/Webhooks/Webhooks.Contracts/SwiftDrop.Webhooks.Contracts.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Webhooks/Webhooks.Core/">
+    <Project Path="src/Modules/Webhooks/Webhooks.Core/SwiftDrop.Webhooks.Core.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Webhooks/Webhooks.Infrastructure/">
+    <Project Path="src/Modules/Webhooks/Webhooks.Infrastructure/SwiftDrop.Webhooks.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/SharedKernel/">
+    <Project Path="src/SharedKernel/SwiftDrop.SharedKernel/SwiftDrop.SharedKernel.csproj" />
+  </Folder>
+</Solution>
