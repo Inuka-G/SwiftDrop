@@ -20,7 +20,7 @@ project.lock.json
 *.userosscache
 *.sln.docstates
 launchSettings.local.json
-
+scripts/
 # =========================
 # Code coverage
 # =========================
