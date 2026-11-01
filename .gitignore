@@ -74,9 +74,7 @@ pgdata/
 # =========================
 # Docker / Kubernetes
 # =========================
-docker-compose.override.yml
-k8s/**/secret*.yaml
-!k8s/**/secret*.example.yaml
+
 
 # =========================
 # IDEs and editors
