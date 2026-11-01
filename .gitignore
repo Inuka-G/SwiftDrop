@@ -67,9 +67,9 @@ pnpm-debug.log*
 # =========================
 uploads/
 storage/
-*.db
-*.sqlite
-pgdata/
+# *.db
+# *.sqlite
+# pgdata/
 
 # =========================
 # Docker / Kubernetes
