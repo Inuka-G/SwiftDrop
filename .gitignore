@@ -85,3 +85,5 @@ storage/
 !.vscode/tasks.json
 !.vscode/launch.json
 !.v
+# Local SQLite file for the Identity module (contains user data)
+backend/src/Host/SwiftDrop.Host/identity.db*

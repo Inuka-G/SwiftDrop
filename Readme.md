@@ -114,6 +114,25 @@ dotnet run --project src/Host/SwiftDrop.Host
 
 In development each module creates its own SQLite file (for example `pricing.db`) next to the Host and seeds sample data.
 
+### Demo logins (Development only)
+
+The Identity module seeds these accounts into `identity.db` when the app runs in the Development environment.
+
+| Role               | Username    | Password    |
+| ------------------ | ----------- | ----------- |
+| Dispatcher / Admin | `admin`     | `admin`     |
+| Customer           | `customer1` | `customer1` |
+| Courier            | `courier1`  | `courier1`  |
+| Merchant           | `merchant1` | `merchant1` |
+
+Log in with `POST /api/v1/auth/login` in Swagger (http://localhost:5017/swagger), then paste the `accessToken` into **Authorize**.
+
+## Configuration
+
+| Environment variable | Purpose                                                                                                     |
+| -------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `Jwt__Key`           | Secret that signs login tokens, at least 32 bytes. Required outside Development; generated at startup in Development. |
+
 ### Run the frontend
 
 ```bash
