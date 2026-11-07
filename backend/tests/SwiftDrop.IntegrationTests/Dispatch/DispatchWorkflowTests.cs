@@ -6,8 +6,9 @@ using SwiftDrop.Dispatch.Business.Consumers;
 using SwiftDrop.Dispatch.Contracts;
 using SwiftDrop.Dispatch.Data.Entities;
 using SwiftDrop.Dispatch.Data.Persistence;
+using SwiftDrop.IntegrationTests.Auth;
 
-namespace SwiftDrop.IntegrationTests.Auth;
+namespace SwiftDrop.IntegrationTests.Dispatch;
 
 [Collection(ApiCollection.Name)]
 public sealed class DispatchWorkflowTests(SwiftDropApiFactory factory)

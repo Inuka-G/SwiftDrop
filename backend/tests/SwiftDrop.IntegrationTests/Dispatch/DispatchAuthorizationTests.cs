@@ -1,6 +1,7 @@
 using System.Net;
+using SwiftDrop.IntegrationTests.Auth;
 
-namespace SwiftDrop.IntegrationTests.Auth;
+namespace SwiftDrop.IntegrationTests.Dispatch;
 
 [Collection(ApiCollection.Name)]
 public sealed class DispatchAuthorizationTests(SwiftDropApiFactory factory)
