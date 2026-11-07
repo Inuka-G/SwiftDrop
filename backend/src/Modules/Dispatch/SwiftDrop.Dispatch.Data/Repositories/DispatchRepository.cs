@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using SwiftDrop.Dispatch.Data.Entities;
 using SwiftDrop.Dispatch.Data.Persistence;
+using SwiftDrop.SharedKernel.Authorization;
 
 namespace SwiftDrop.Dispatch.Data.Repositories;
 
@@ -22,6 +23,42 @@ internal sealed class DispatchRepository(DispatchDbContext db) : IDispatchReposi
     public Task<ParcelAssignment?> GetAsync(Guid parcelId, CancellationToken ct) =>
         db.Assignments.SingleOrDefaultAsync(x => x.ParcelId == parcelId, ct);
 
+    public Task<CourierProfile?> GetCourierProfileAsync(Guid courierId, CancellationToken ct) =>
+        db.CourierProfiles.SingleOrDefaultAsync(x => x.CourierId == courierId, ct);
+
+    public async Task AddCourierProfileAsync(CourierProfile profile, CancellationToken ct) =>
+        await db.CourierProfiles.AddAsync(profile, ct);
+
+    public async Task<(IReadOnlyList<CourierProfile> Items, int Total)> ListCouriersAsync(Guid? zoneId, bool? isAvailable,
+        int page, int pageSize, CancellationToken ct)
+    {
+        var query = db.CourierProfiles.AsNoTracking();
+        if (zoneId.HasValue) query = query.Where(x => x.ZoneId == zoneId.Value);
+        if (isAvailable.HasValue) query = query.Where(x => x.IsAvailable == isAvailable.Value);
+        var total = await query.CountAsync(ct);
+        var items = await query.OrderBy(x => x.CourierId).Skip((page - 1) * pageSize).Take(pageSize).ToListAsync(ct);
+        return (items, total);
+    }
+
+    public async Task<IReadOnlyDictionary<Guid, int>> GetWorkloadsAsync(IReadOnlyCollection<Guid> courierIds, CancellationToken ct)
+    {
+        if (courierIds.Count == 0) return new Dictionary<Guid, int>();
+        return await db.Assignments.AsNoTracking().Where(x => x.CourierId.HasValue && courierIds.Contains(x.CourierId.Value)
+                && x.State == AssignmentStates.Assigned)
+            .GroupBy(x => x.CourierId!.Value).Select(g => new { CourierId = g.Key, Count = g.Count() })
+            .ToDictionaryAsync(x => x.CourierId, x => x.Count, ct);
+    }
+
+    public async Task<(int Total, int Available, int Unavailable, int ActiveDeliveries)> GetCourierSummaryAsync(CancellationToken ct)
+    {
+        var total = await db.CourierProfiles.CountAsync(ct);
+        var available = await db.CourierProfiles.CountAsync(x => x.IsAvailable, ct);
+        var active = await db.Assignments.CountAsync(x => x.State == AssignmentStates.Assigned, ct);
+        return (total, available, total - available, active);
+    }
+
+    public Task SaveChangesAsync(CancellationToken ct) => db.SaveChangesAsync(ct);
+
     public Task SaveAsync(CancellationToken ct) => db.SaveChangesAsync(ct);
 
     public async Task AddFromEventAsync(Guid eventId, ParcelAssignment assignment, CancellationToken ct)
@@ -33,4 +70,56 @@ internal sealed class DispatchRepository(DispatchDbContext db) : IDispatchReposi
         await db.SaveChangesAsync(ct);
         await tx.CommitAsync(ct);
     }
+
+    public async Task ApplyParcelStatusChangedAsync(Guid eventId, Guid parcelId, string status, CancellationToken ct)
+    {
+        await using var tx = await db.Database.BeginTransactionAsync(ct);
+        if (await db.ProcessedEvents.AnyAsync(x => x.EventId == eventId, ct)) return;
+        var assignment = await db.Assignments.SingleOrDefaultAsync(x => x.ParcelId == parcelId, ct)
+            ?? throw new DispatchEventRetryException("Parcel assignment has not arrived yet.");
+        db.ProcessedEvents.Add(new ProcessedEvent { EventId = eventId, ProcessedAt = DateTimeOffset.UtcNow });
+        if (status is "DELIVERED" or "FAILED")
+        {
+            assignment.State = AssignmentStates.Completed;
+            assignment.Version++;
+        }
+        await db.SaveChangesAsync(ct);
+        await tx.CommitAsync(ct);
+    }
+
+    public async Task ApplyUserRoleChangedAsync(Guid eventId, Guid userId, string role, CancellationToken ct)
+    {
+        await using var tx = await db.Database.BeginTransactionAsync(ct);
+        if (await db.ProcessedEvents.AnyAsync(x => x.EventId == eventId, ct)) return;
+        var profile = await db.CourierProfiles.SingleOrDefaultAsync(x => x.CourierId == userId, ct);
+        if (string.Equals(role, Roles.Courier, StringComparison.OrdinalIgnoreCase))
+        {
+            profile ??= db.CourierProfiles.Add(new CourierProfile { CourierId = userId, IsAvailable = false }).Entity;
+        }
+        else if (profile is not null)
+        {
+            profile.IsAvailable = false;
+            profile.Version++;
+        }
+        db.ProcessedEvents.Add(new ProcessedEvent { EventId = eventId, ProcessedAt = DateTimeOffset.UtcNow });
+        await db.SaveChangesAsync(ct);
+        await tx.CommitAsync(ct);
+    }
+
+    public async Task ApplyUserStatusChangedAsync(Guid eventId, Guid userId, bool isActive, CancellationToken ct)
+    {
+        await using var tx = await db.Database.BeginTransactionAsync(ct);
+        if (await db.ProcessedEvents.AnyAsync(x => x.EventId == eventId, ct)) return;
+        var profile = await db.CourierProfiles.SingleOrDefaultAsync(x => x.CourierId == userId, ct);
+        if (!isActive && profile is not null)
+        {
+            profile.IsAvailable = false;
+            profile.Version++;
+        }
+        db.ProcessedEvents.Add(new ProcessedEvent { EventId = eventId, ProcessedAt = DateTimeOffset.UtcNow });
+        await db.SaveChangesAsync(ct);
+        await tx.CommitAsync(ct);
+    }
 }
+
+internal sealed class DispatchEventRetryException(string message) : Exception(message);

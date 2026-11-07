@@ -6,6 +6,7 @@ namespace SwiftDrop.Dispatch.Data.Persistence;
 internal sealed class DispatchDbContext(DbContextOptions<DispatchDbContext> options) : DbContext(options)
 {
     internal DbSet<ParcelAssignment> Assignments => Set<ParcelAssignment>();
+    internal DbSet<CourierProfile> CourierProfiles => Set<CourierProfile>();
     internal DbSet<ProcessedEvent> ProcessedEvents => Set<ProcessedEvent>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -25,6 +26,16 @@ internal sealed class DispatchDbContext(DbContextOptions<DispatchDbContext> opti
                 value => value.HasValue ? DateTimeOffset.FromUnixTimeMilliseconds(value.Value) : (DateTimeOffset?)null);
             e.Property(x => x.Version).IsConcurrencyToken();
             e.HasIndex(x => new { x.State, x.ZoneId, x.CreatedAt });
+            e.HasIndex(x => new { x.CourierId, x.State });
+        });
+        modelBuilder.Entity<CourierProfile>(e =>
+        {
+            e.ToTable("courier_profiles");
+            e.HasKey(x => x.CourierId);
+            e.Property(x => x.VehicleType).HasMaxLength(64);
+            e.Property(x => x.LicensePlate).HasMaxLength(32);
+            e.Property(x => x.Version).IsConcurrencyToken();
+            e.HasIndex(x => new { x.ZoneId, x.IsAvailable });
         });
         modelBuilder.Entity<ProcessedEvent>(e =>
         {

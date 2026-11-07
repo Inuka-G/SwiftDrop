@@ -15,6 +15,9 @@ public static class DispatchModule
         services.AddControllers().AddApplicationPart(typeof(DispatchModule).Assembly);
         services.AddScoped<IValidator<ListUnassignedRequest>, ListUnassignedValidator>();
         services.AddScoped<IValidator<AssignCourierRequest>, AssignCourierValidator>();
+        services.AddScoped<IValidator<RegisterCourierRequest>, RegisterCourierValidator>();
+        services.AddScoped<IValidator<UpdateCourierRequest>, UpdateCourierValidator>();
+        services.AddScoped<IValidator<ListCouriersRequest>, ListCouriersValidator>();
         services.AddDispatchBusiness(config);
         return services;
     }

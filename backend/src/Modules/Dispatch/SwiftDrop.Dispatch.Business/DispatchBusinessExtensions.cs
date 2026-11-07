@@ -14,10 +14,14 @@ public static class DispatchBusinessExtensions
         services.AddDispatchData(config);
         services.AddScoped<IDispatchService, DispatchService>();
         services.AddScoped<ParcelCreatedConsumer>();
+        services.AddScoped<ParcelStatusChangedConsumer>();
+        services.AddScoped<UserRoleChangedConsumer>();
+        services.AddScoped<UserStatusChangedConsumer>();
         services.AddScoped<UnconfiguredDispatchAdapters>();
         services.AddScoped<ICourierEligibilityGateway>(sp => sp.GetRequiredService<UnconfiguredDispatchAdapters>());
         services.AddScoped<IParcelAssignmentGateway>(sp => sp.GetRequiredService<UnconfiguredDispatchAdapters>());
         services.AddScoped<IDispatchEventPublisher>(sp => sp.GetRequiredService<UnconfiguredDispatchAdapters>());
+        services.AddScoped<IZoneLookup>(sp => sp.GetRequiredService<UnconfiguredDispatchAdapters>());
         return services;
     }
 }
