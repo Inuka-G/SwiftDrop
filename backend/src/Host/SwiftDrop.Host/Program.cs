@@ -1,5 +1,6 @@
 using SwiftDrop.Host.Extensions;
 using SwiftDrop.Identity.Api;
+using SwiftDrop.Dispatch.Api;
 using SwiftDrop.Pricing.Api;
 using SwiftDrop.SharedKernel.Middleware;
 
@@ -9,12 +10,14 @@ builder.Services.AddOpenApi();
 builder.Services.AddProblemDetails();
 builder.Services.AddIdentityModule(builder.Configuration);
 builder.Services.AddPricingModule(builder.Configuration);
+builder.Services.AddDispatchModule(builder.Configuration);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerWithJwt();
 var app = builder.Build();
 await app.InitializeIdentityModuleAsync();
 await app.InitializePricingModuleAsync();
+await app.InitializeDispatchModuleAsync();
 app.UseMiddleware<ExceptionHandlingMiddleware>();   // first, so it catches errors from everything after it
 app.UseStatusCodePages();                           // gives empty 401/403/404 responses the same JSON error format
 app.UseSwagger();
