@@ -88,3 +88,8 @@ storage/
 # Temporary SQLite files for the Identity module
 backend/src/Host/SwiftDrop.Host/identity.db-shm
 backend/src/Host/SwiftDrop.Host/identity.db-wal
+
+# SQLite database files
+backend/src/Host/SwiftDrop.Host/*.db
+backend/src/Host/SwiftDrop.Host/*.db-shm
+backend/src/Host/SwiftDrop.Host/*.db-wal
