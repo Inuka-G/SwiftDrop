@@ -10,10 +10,9 @@ internal sealed class FakeUserRepository : IUserRepository
     public static readonly Role CustomerRole = new(1, Roles.Customer);
     public static readonly Role MerchantRole = new(2, Roles.Merchant);
     public static readonly Role CourierRole = new(3, Roles.Courier);
-    public static readonly Role DispatcherRole = new(4, Roles.Dispatcher);
-    public static readonly Role AdminRole = new(5, Roles.Admin);
+    public static readonly Role AdminRole = new(4, Roles.Admin);
 
-    private static readonly Role[] AllRoles = [CustomerRole, MerchantRole, CourierRole, DispatcherRole, AdminRole];
+    private static readonly Role[] AllRoles = [CustomerRole, MerchantRole, CourierRole, AdminRole];
 
     public List<User> Users { get; } = [];
     public int SaveCount { get; private set; }
