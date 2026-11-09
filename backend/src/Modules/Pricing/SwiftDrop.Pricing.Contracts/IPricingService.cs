@@ -4,5 +4,5 @@ public record FeeEstimateDto(Guid ZoneId, string ZoneName, decimal BaseFee, deci
 
 public interface IPricingService
 {
-    Task<FeeEstimateDto?> EstimateAsync(Guid zoneId, decimal weightKg, CancellationToken ct = default);
+    Task<FeeEstimateDto?> EstimateAsync(Guid zoneId, decimal weightKg, ServiceType serviceType, CancellationToken ct = default);
 }

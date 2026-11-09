@@ -18,7 +18,7 @@ public class ZonesController(IZoneService zones, IPricingService pricing) : Cont
     [HttpGet("{id:guid}")]
     [ProducesResponseType<ZoneDto>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Get(Guid id, CancellationToken ct)
+    public async Task<IActionResult> GetById(Guid id, CancellationToken ct)
     {
         var zone = await zones.GetAsync(id, ct);
         return zone is null ? NotFound() : Ok(zone);
@@ -28,16 +28,22 @@ public class ZonesController(IZoneService zones, IPricingService pricing) : Cont
     [ProducesResponseType<ZoneDto>(StatusCodes.Status201Created)]
     public async Task<IActionResult> Create(CreateZoneRequest req, CancellationToken ct)
     {
-        var created = await zones.CreateAsync(new CreateZoneCommand(req.Name, req.BaseFee, req.PerKgRate), ct);
-        return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
+        var created = await zones.CreateAsync(new CreateZoneCommand(req.ZoneName, req.Description), ct);
+        return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
     }
 
     [HttpGet("{id:guid}/estimate")]
     [ProducesResponseType<FeeEstimateDto>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Estimate(Guid id, [FromQuery] decimal weightKg, CancellationToken ct)
+    public async Task<IActionResult> Estimate(Guid id, [FromQuery] decimal weightKg, [FromQuery] ServiceType serviceType, CancellationToken ct)
     {
-        var fee = await pricing.EstimateAsync(id, weightKg, ct);
+        if (weightKg <= 0)
+            return BadRequest ("Parcel weight must be greater than zero,");
+
+        if (!Enum.IsDefined(serviceType))
+            return BadRequest("Invalid service type. Use Standard or Express.");
+
+        var fee = await pricing.EstimateAsync(id, weightKg, serviceType, ct);
         return fee is null ? NotFound() : Ok(fee);
     }
 }
