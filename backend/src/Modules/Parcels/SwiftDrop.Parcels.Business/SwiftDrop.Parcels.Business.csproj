@@ -4,6 +4,7 @@
     <ProjectReference Include="..\SwiftDrop.Parcels.Data\SwiftDrop.Parcels.Data.csproj" />
     <ProjectReference Include="..\SwiftDrop.Parcels.Contracts\SwiftDrop.Parcels.Contracts.csproj" />
     <ProjectReference Include="..\..\..\SharedKernel\SwiftDrop.SharedKernel\SwiftDrop.SharedKernel.csproj" />
+    <ProjectReference Include="..\..\Pricing\SwiftDrop.Pricing.Contracts\SwiftDrop.Pricing.Contracts.csproj" />
   </ItemGroup>
 
   <ItemGroup>

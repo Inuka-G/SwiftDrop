@@ -10,9 +10,9 @@ internal sealed class ZoneConfiguration : IEntityTypeConfiguration<Zone>
     {
         b.ToTable("zones");
         b.HasKey(z => z.Id);
-        b.Property(z => z.Name).HasMaxLength(100).IsRequired();
-        b.HasIndex(z => z.Name).IsUnique();
-        b.Property(z => z.BaseFee).HasPrecision(10, 2);
-        b.Property(z => z.PerKgRate).HasPrecision(10, 2);
+        b.Property(z => z.ZoneName).HasMaxLength(100).IsRequired();
+        b.HasIndex(z => z.ZoneName).IsUnique();
+        b.Property(z=> z.Description).HasMaxLength(500);
+        b.Property(z=> z.IsActive).IsRequired();
     }
 }

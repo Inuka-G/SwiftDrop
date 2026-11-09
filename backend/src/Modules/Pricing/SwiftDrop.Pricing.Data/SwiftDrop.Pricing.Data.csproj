@@ -21,4 +21,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="SwiftDrop.Pricing.UnitTests"/>
+  </ItemGroup>
+
 </Project>

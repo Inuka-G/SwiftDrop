@@ -16,11 +16,11 @@ internal sealed class ZoneService(IZoneRepository repo) : IZoneService
 
     public async Task<ZoneDto> CreateAsync(CreateZoneCommand cmd, CancellationToken ct)
     {
-        var zone = new Zone(cmd.Name, cmd.BaseFee, cmd.PerKgRate);
+        var zone = new Zone(cmd.ZoneName, cmd.Description);
         await repo.AddAsync(zone, ct);
         await repo.SaveChangesAsync(ct);
         return ToDto(zone);
     }
 
-    private static ZoneDto ToDto(Zone z) => new(z.Id, z.Name, z.BaseFee, z.PerKgRate, z.IsActive);
+    private static ZoneDto ToDto(Zone z) => new(z.Id, z.ZoneName, z.Description, z.IsActive);
 }
