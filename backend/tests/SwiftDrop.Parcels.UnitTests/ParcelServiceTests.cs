@@ -41,10 +41,11 @@ public sealed class ParcelServiceTests
         var request = CreateSampleRequest(zoneId);
 
         _pricingService
-            .Setup(p => p.EstimateAsync(
-                zoneId,
-                request.WeightKg,
-                It.IsAny<CancellationToken>()))
+        .Setup(p => p.EstimateAsync(
+            zoneId,
+            request.WeightKg,
+            ServiceType.Standard,
+            It.IsAny<CancellationToken>()))
             .ReturnsAsync(new FeeEstimateDto(
                 zoneId,
                 "Colombo to Kandy",
@@ -101,11 +102,12 @@ public sealed class ParcelServiceTests
         var request = CreateSampleRequest(zoneId);
 
         _pricingService
-            .Setup(p => p.EstimateAsync(
-                zoneId,
-                request.WeightKg,
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync((FeeEstimateDto?)null);
+         .Setup(p => p.EstimateAsync(
+            zoneId,
+            request.WeightKg,
+            ServiceType.Standard,
+            It.IsAny<CancellationToken>()))
+         .ReturnsAsync((FeeEstimateDto?)null);
 
         var service = CreateService();
 
