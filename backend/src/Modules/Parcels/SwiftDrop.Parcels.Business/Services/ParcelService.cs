@@ -13,7 +13,7 @@ internal sealed class ParcelService(
     public async Task<ParcelCreatedResponse> CreateParcelAsync(Guid customerId, CreateParcelRequest req, CancellationToken ct)
     {
         // 1. Calculate fee using Part 10's Pricing Service
-        var estimate = await pricingService.EstimateAsync(req.ZoneId, req.WeightKg, ct)
+        var estimate = await pricingService.EstimateAsync(req.ZoneId, req.WeightKg, ServiceType.Standard, ct)
             ?? throw new BadRequestException("Invalid zone or pricing could not be calculated.");
 
         // 2. Generate unique tracking number: e.g. SD-261108-A9B2
