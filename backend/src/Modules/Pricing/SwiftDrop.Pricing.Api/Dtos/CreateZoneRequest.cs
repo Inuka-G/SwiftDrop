@@ -3,6 +3,6 @@ using System.ComponentModel.DataAnnotations;
 namespace SwiftDrop.Pricing.Api.Dtos;
 
 public record CreateZoneRequest(
-    [Required, StringLength(100)] string Name,
-    [Range(0, 100000)] decimal BaseFee,
-    [Range(0, 100000)] decimal PerKgRate);
+    [Required, StringLength(100)] string ZoneName,
+    [StringLength(250)] string? Description
+    );
