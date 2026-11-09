@@ -25,6 +25,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Modules\Identity\SwiftDrop.Identity.Business\SwiftDrop.Identity.Business.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Identity\SwiftDrop.Identity.Api\SwiftDrop.Identity.Api.csproj" />
     <ProjectReference Include="..\..\src\Modules\Identity\SwiftDrop.Identity.Data\SwiftDrop.Identity.Data.csproj" />
   </ItemGroup>
 

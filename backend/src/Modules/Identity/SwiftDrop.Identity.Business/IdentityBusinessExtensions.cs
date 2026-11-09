@@ -5,6 +5,7 @@ using SwiftDrop.Identity.Business.Services;
 using SwiftDrop.Identity.Data;
 using SwiftDrop.Identity.Data.Entities;
 using SwiftDrop.Identity.Data.Repositories;
+using SwiftDrop.Identity.Contracts;
 using SwiftDrop.SharedKernel.Authorization;
 
 namespace SwiftDrop.Identity.Business;
@@ -18,6 +19,8 @@ public static class IdentityBusinessExtensions
         services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();   // PBKDF2 with a random salt per user
         services.AddScoped<ITokenService, JwtTokenService>();
         services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<IUserAdministrationService, UserAdministrationService>();
+        services.AddScoped<IIdentityEventPublisher, UnconfiguredIdentityEventPublisher>();
         return services;
     }
 
