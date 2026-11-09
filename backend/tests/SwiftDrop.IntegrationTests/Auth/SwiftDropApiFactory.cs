@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using SwiftDrop.Dispatch.Business.Services;
 
 namespace SwiftDrop.IntegrationTests.Auth;
 
@@ -21,8 +23,41 @@ public sealed class SwiftDropApiFactory : WebApplicationFactory<Program>
     {
         builder.UseEnvironment("Development");   // seeds the four demo logins
         builder.ConfigureTestServices(services =>
-            services.AddControllers().AddApplicationPart(typeof(ThrowingTestController).Assembly));
+        {
+            services.AddControllers().AddApplicationPart(typeof(ThrowingTestController).Assembly);
+            services.RemoveAll<ICourierEligibilityGateway>();
+            services.RemoveAll<IParcelAssignmentGateway>();
+            services.RemoveAll<IDispatchEventPublisher>();
+            services.RemoveAll<IZoneLookup>();
+            services.AddScoped<ICourierEligibilityGateway, TestCourierIdentityGateway>();
+            services.AddScoped<IParcelAssignmentGateway, TestParcelAssignmentGateway>();
+            services.AddScoped<IDispatchEventPublisher, TestDispatchEventPublisher>();
+            services.AddScoped<IZoneLookup, TestZoneLookup>();
+        });
     }
+}
+
+internal sealed class TestCourierIdentityGateway : ICourierEligibilityGateway
+{
+    public Task<bool> IsEligibleAsync(Guid courierId, CancellationToken ct) => Task.FromResult(true);
+    public Task<bool> IsActiveCourierAsync(Guid userId, CancellationToken ct) => Task.FromResult(true);
+    public Task<IReadOnlyDictionary<Guid, string>> GetNamesAsync(IReadOnlyCollection<Guid> userIds, CancellationToken ct) =>
+        Task.FromResult<IReadOnlyDictionary<Guid, string>>(userIds.ToDictionary(id => id, _ => "Test Courier"));
+}
+
+internal sealed class TestParcelAssignmentGateway : IParcelAssignmentGateway
+{
+    public Task<bool> AssignAsync(Guid parcelId, Guid courierId, CancellationToken ct) => Task.FromResult(true);
+}
+
+internal sealed class TestDispatchEventPublisher : IDispatchEventPublisher
+{
+    public Task PublishAsync(SwiftDrop.Dispatch.Contracts.CourierAssignedEvent message, CancellationToken ct) => Task.CompletedTask;
+}
+
+internal sealed class TestZoneLookup : IZoneLookup
+{
+    public Task<bool> ExistsAsync(Guid zoneId, CancellationToken ct) => Task.FromResult(true);
 }
 
 [CollectionDefinition(Name)]

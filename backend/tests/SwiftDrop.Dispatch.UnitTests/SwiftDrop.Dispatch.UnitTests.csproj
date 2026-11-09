@@ -25,6 +25,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Modules\Dispatch\SwiftDrop.Dispatch.Business\SwiftDrop.Dispatch.Business.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Dispatch\SwiftDrop.Dispatch.Api\SwiftDrop.Dispatch.Api.csproj" />
     <ProjectReference Include="..\..\src\Modules\Dispatch\SwiftDrop.Dispatch.Data\SwiftDrop.Dispatch.Data.csproj" />
   </ItemGroup>
 

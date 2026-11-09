@@ -17,4 +17,5 @@ internal static class AssignmentStates
 {
     public const string Unassigned = "UNASSIGNED";
     public const string Assigned = "ASSIGNED";
+    public const string Completed = "COMPLETED";
 }
