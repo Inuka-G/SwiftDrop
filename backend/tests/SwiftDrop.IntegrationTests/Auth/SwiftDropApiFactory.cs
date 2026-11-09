@@ -17,6 +17,7 @@ public sealed class SwiftDropApiFactory : WebApplicationFactory<Program>
         Environment.SetEnvironmentVariable("ConnectionStrings__Identity", $"Data Source={Path.Combine(folder, "identity.db")}");
         Environment.SetEnvironmentVariable("ConnectionStrings__Pricing", $"Data Source={Path.Combine(folder, "pricing.db")}");
         Environment.SetEnvironmentVariable("ConnectionStrings__Dispatch", $"Data Source={Path.Combine(folder, "dispatch.db")}");
+        Environment.SetEnvironmentVariable("ConnectionStrings__Reporting", $"Data Source={Path.Combine(folder, "reporting.db")}");
     }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
