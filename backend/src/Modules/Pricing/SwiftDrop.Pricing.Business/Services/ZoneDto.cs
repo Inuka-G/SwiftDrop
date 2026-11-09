@@ -1,7 +1,7 @@
 namespace SwiftDrop.Pricing.Business.Services;
 
-public record ZoneDto(Guid Id, string Name, decimal BaseFee, decimal PerKgRate, bool IsActive);
-public record CreateZoneCommand(string Name, decimal BaseFee, decimal PerKgRate);
+public record ZoneDto(Guid Id, string ZoneName, string? Description, bool IsActive);
+public record CreateZoneCommand(string ZoneName, string? Description);
 
 public interface IZoneService
 {
