@@ -19,7 +19,7 @@ public static class DispatchBusinessExtensions
         services.AddScoped<UserStatusChangedConsumer>();
         services.AddScoped<UnconfiguredDispatchAdapters>();
         services.AddScoped<ICourierEligibilityGateway>(sp => sp.GetRequiredService<UnconfiguredDispatchAdapters>());
-        services.AddScoped<IParcelAssignmentGateway>(sp => sp.GetRequiredService<UnconfiguredDispatchAdapters>());
+        services.AddScoped<IParcelAssignmentGateway, ParcelAssignmentGateway>();
         services.AddScoped<IDispatchEventPublisher>(sp => sp.GetRequiredService<UnconfiguredDispatchAdapters>());
         services.AddScoped<IZoneLookup>(sp => sp.GetRequiredService<UnconfiguredDispatchAdapters>());
         return services;

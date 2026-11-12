@@ -1,9 +1,11 @@
+using System.Collections.Concurrent;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using SwiftDrop.Dispatch.Business.Services;
+using SwiftDrop.SharedKernel.Messaging;
 
 namespace SwiftDrop.IntegrationTests.Auth;
 
@@ -18,7 +20,13 @@ public sealed class SwiftDropApiFactory : WebApplicationFactory<Program>
         Environment.SetEnvironmentVariable("ConnectionStrings__Pricing", $"Data Source={Path.Combine(folder, "pricing.db")}");
         Environment.SetEnvironmentVariable("ConnectionStrings__Dispatch", $"Data Source={Path.Combine(folder, "dispatch.db")}");
         Environment.SetEnvironmentVariable("ConnectionStrings__Reporting", $"Data Source={Path.Combine(folder, "reporting.db")}");
+        Environment.SetEnvironmentVariable("ConnectionStrings__Parcels", $"Data Source={Path.Combine(folder, "parcels.db")}");
+        Environment.SetEnvironmentVariable("Parcels__ProofStoragePath", Path.Combine(folder, "proofs"));
+        Environment.SetEnvironmentVariable("Parcels__Outbox__PollingIntervalMs", "100");
     }
+
+    /// Captures what the Parcels outbox publishes, standing in for RabbitMQ.
+    public RecordingEventPublisher Events { get; } = new();
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
@@ -34,7 +42,20 @@ public sealed class SwiftDropApiFactory : WebApplicationFactory<Program>
             services.AddScoped<IParcelAssignmentGateway, TestParcelAssignmentGateway>();
             services.AddScoped<IDispatchEventPublisher, TestDispatchEventPublisher>();
             services.AddScoped<IZoneLookup, TestZoneLookup>();
+            services.RemoveAll<IIntegrationEventPublisher>();
+            services.AddSingleton<IIntegrationEventPublisher>(Events);
         });
+    }
+}
+
+public sealed class RecordingEventPublisher : IIntegrationEventPublisher
+{
+    public ConcurrentQueue<(Guid EventId, string RoutingKey, string Payload)> Published { get; } = new();
+
+    public Task PublishAsync(Guid eventId, string routingKey, string payloadJson, CancellationToken ct)
+    {
+        Published.Enqueue((eventId, routingKey, payloadJson));
+        return Task.CompletedTask;
     }
 }
 
