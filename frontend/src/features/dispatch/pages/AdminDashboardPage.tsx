@@ -4,7 +4,6 @@ import { useDispatchSummary } from '../hooks/useDispatchSummary'
 import { useDeliveriesPerDay, useReportSummary } from '../../reporting'
 import { formatCount, formatPercent, getBarHeight, getDayLabel, getLoadPerCourier, getRateDifference, getRelativeUpdatedAt, getWeeklyTotals } from '../../reporting/utils/dashboard.utils'
 import type { DailyDeliveryCountDto } from '../../reporting/types/reporting.types'
-import './AdminDashboardPage.css'
 
 function RetryButton({ onClick }: { onClick: () => void }) { return <button className="dashboard-retry" onClick={onClick}>Try again</button> }
 function SectionError({ retry }: { retry: () => void }) { return <div className="dashboard-section-error" role="alert"><span>We could not load this section.</span><RetryButton onClick={retry} /></div> }
