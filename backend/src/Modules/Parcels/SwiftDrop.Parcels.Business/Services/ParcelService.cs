@@ -1,7 +1,10 @@
+using SwiftDrop.Parcels.Business.Lifecycle;
 using SwiftDrop.Parcels.Contracts.Dtos;
+using SwiftDrop.Parcels.Contracts.Events;
 using SwiftDrop.Parcels.Data.Entities;
 using SwiftDrop.Parcels.Data.Repositories;
 using SwiftDrop.Pricing.Contracts;
+using SwiftDrop.SharedKernel.Authorization;
 using SwiftDrop.SharedKernel.Exceptions;
 
 namespace SwiftDrop.Parcels.Business.Services;
@@ -36,8 +39,16 @@ internal sealed class ParcelService(
             req.PaymentMethod
         );
 
-        // 4. Save to DB
+        // 4. Save to DB, with the first status history row and the ParcelCreated event
+        //    (Dispatch consumes it to list the parcel as unassigned)
         await repository.AddAsync(parcel, ct);
+        repository.AddHistory(new ParcelStatusHistory(parcel.Id, null, parcel.CurrentStatus, null,
+            customerId, Roles.Customer, parcel.CreatedAtUtc));
+        var eventId = Guid.NewGuid();
+        repository.StageEvent(eventId, ParcelEventRoutingKeys.Created,
+            new ParcelCreatedIntegrationEvent(eventId, parcel.Id, parcel.TrackingNumber, customerId, parcel.ZoneId,
+                parcel.CreatedAtUtc),
+            parcel.CreatedAtUtc);
         await repository.SaveChangesAsync(ct);
 
         return new ParcelCreatedResponse(parcel.Id, parcel.TrackingNumber, parcel.EstimatedFee, parcel.CurrentStatus, parcel.CreatedAtUtc);

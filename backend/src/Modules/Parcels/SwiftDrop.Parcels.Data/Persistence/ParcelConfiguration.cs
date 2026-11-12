@@ -40,6 +40,9 @@ internal sealed class ParcelConfiguration : IEntityTypeConfiguration<Parcel>
         b.Property(p => p.PaymentMethod).HasMaxLength(50).IsRequired();
         b.Property(p => p.PaymentStatus).HasMaxLength(50).IsRequired();
 
+        // Courier assignment: indexed for the courier's daily delivery list
+        b.HasIndex(p => new { p.CourierId, p.CurrentStatus });
+
         // Concurrency token
         b.Property(p => p.Version).IsConcurrencyToken();
     }

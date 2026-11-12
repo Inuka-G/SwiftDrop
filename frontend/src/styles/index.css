@@ -1,13 +1,32 @@
+/* Design tokens taken from the SwiftDrop Stitch screens */
 :root {
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  color: #172033;
-  background: #f5f7fb;
+  --text: #121826;
+  --muted: #5b6475;
+  --border: #e4e8f1;
+  --surface: #fff;
+  --surface-soft: #eef1fb;
+  --page: #f6f7fb;
+  --primary: #1f5ae0;
+  --primary-dark: #1747b8;
+  --primary-soft: #e6ebfc;
+  --success: #15803d;
+  --success-soft: #dcf5e7;
+  --mint: #b9f2d4;
+  --danger: #b42318;
+  --danger-soft: #fde4e2;
+  --warning: #c2410c;
+  --warning-soft: #ffedd5;
+  --orange: #f97316;
+  --radius: 16px;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  color: var(--text);
+  background: var(--page);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  font-optical-sizing: auto;
-  font-weight: 400;
 }
 
 * {
@@ -26,23 +45,58 @@ a {
 }
 
 button,
-input {
+input,
+select,
+textarea {
   font: inherit;
 }
 
+h1,
+h2,
+h3,
+p {
+  margin-top: 0;
+}
+
+.mono {
+  font-family: var(--font-mono);
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.small {
+  font-size: 0.8rem;
+}
+
+.center {
+  text-align: center;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* App header (sign-in and non-courier pages) */
 .app-shell {
   min-height: 100vh;
 }
 
 .app-header {
   display: flex;
-  min-height: 72px;
+  min-height: 64px;
   align-items: center;
   justify-content: space-between;
   gap: 24px;
-  padding: 0 clamp(20px, 6vw, 88px);
-  border-bottom: 1px solid #e6eaf1;
-  background: #fff;
+  padding: 0 clamp(16px, 5vw, 64px);
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
 }
 
 .brand,
@@ -53,8 +107,9 @@ input {
 
 .brand {
   gap: 10px;
-  font-weight: 750;
-  letter-spacing: -0.03em;
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
 .brand-mark {
@@ -62,90 +117,193 @@ input {
   width: 34px;
   height: 34px;
   place-items: center;
-  border-radius: 11px;
-  background: #2457e6;
+  border-radius: 10px;
+  background: var(--primary);
   color: #fff;
 }
 
 .app-header nav {
-  gap: 24px;
-  color: #536078;
+  gap: 20px;
+  color: var(--muted);
   font-size: 0.9rem;
 }
 
-.app-header nav a:hover {
-  color: #2457e6;
+.app-header nav a:hover,
+.app-header nav a.active {
+  color: var(--primary);
+}
+
+.nav-user {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.link-button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  cursor: pointer;
 }
 
 .page-content {
-  width: min(100% - 40px, 1100px);
-  margin: 48px auto;
-}
-
-.welcome-card {
-  max-width: 760px;
-  padding: clamp(24px, 5vw, 48px);
-  border: 1px solid #e6eaf1;
-  border-radius: 20px;
-  background: #fff;
-  box-shadow: 0 16px 40px rgb(26 43 84 / 6%);
+  width: min(100% - 32px, 1200px);
+  margin: 40px auto;
 }
 
 .eyebrow {
-  margin: 0 0 10px;
-  color: #2457e6;
-  font-size: 0.8rem;
+  margin: 0 0 8px;
+  color: var(--primary);
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
-h1,
-h2,
-p {
-  margin-top: 0;
-}
-
-h1 {
-  margin-bottom: 14px;
-  font-size: clamp(2rem, 5vw, 3rem);
-  letter-spacing: -0.05em;
-}
-
 .intro {
-  max-width: 620px;
-  color: #5e6a80;
-  line-height: 1.7;
+  color: var(--muted);
+  line-height: 1.6;
 }
 
-.next-steps {
-  margin-top: 32px;
-  padding-top: 24px;
-  border-top: 1px solid #e9edf4;
+/* Sign-in card */
+.auth-card {
+  max-width: 420px;
+  margin: 0 auto;
+  padding: clamp(24px, 5vw, 40px);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--surface);
+  box-shadow: 0 12px 32px rgb(18 24 38 / 6%);
 }
 
-.next-steps h2 {
+.auth-card h1 {
+  margin-bottom: 20px;
+  font-size: 1.75rem;
+  letter-spacing: -0.03em;
+}
+
+/* Forms */
+.form-stack {
+  display: grid;
+  gap: 16px;
+}
+
+.field {
+  display: grid;
+  gap: 6px;
+  font-size: 0.85rem;
+}
+
+.field > span {
+  font-weight: 600;
+}
+
+.input,
+.field input,
+.field select,
+.field textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  background: var(--surface-soft);
+  color: var(--text);
   font-size: 1rem;
 }
 
-.next-steps ul {
-  display: grid;
-  gap: 12px;
-  padding-left: 20px;
-  color: #536078;
+textarea.input {
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.input:focus,
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+  border-color: var(--primary);
+  outline: 3px solid rgb(31 90 224 / 18%);
+}
+
+.form-error {
+  margin: 0;
+  color: var(--danger);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.required {
+  color: var(--danger);
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  min-height: 46px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 18px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  font-weight: 650;
+  text-align: center;
+  cursor: pointer;
+}
+
+.btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.btn-block {
+  width: 100%;
+}
+
+.btn-lg {
+  min-height: 54px;
+  font-size: 1.05rem;
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: #fff;
+}
+
+.btn-success {
+  background: var(--success);
+  color: #fff;
+}
+
+.btn-danger {
+  background: var(--danger);
+  color: #fff;
+}
+
+.btn-warning {
+  background: var(--orange);
+  color: #fff;
+}
+
+.btn-soft {
+  background: var(--primary-soft);
+  color: var(--text);
+}
+
+.btn-soft-danger {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.btn:not(:disabled):hover {
+  filter: brightness(0.95);
 }
 
 @media (max-width: 560px) {
   .app-header {
     align-items: flex-start;
     flex-direction: column;
-    gap: 12px;
-    padding-block: 16px;
-  }
-
-  .app-header nav {
-    flex-wrap: wrap;
-    gap: 16px;
+    gap: 10px;
+    padding-block: 14px;
   }
 
   .page-content {

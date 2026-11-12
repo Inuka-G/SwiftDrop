@@ -26,6 +26,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Modules\Parcels\SwiftDrop.Parcels.Business\SwiftDrop.Parcels.Business.csproj" />
     <ProjectReference Include="..\..\src\Modules\Parcels\SwiftDrop.Parcels.Data\SwiftDrop.Parcels.Data.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Pricing\SwiftDrop.Pricing.Contracts\SwiftDrop.Pricing.Contracts.csproj" />
   </ItemGroup>
 
 </Project>
