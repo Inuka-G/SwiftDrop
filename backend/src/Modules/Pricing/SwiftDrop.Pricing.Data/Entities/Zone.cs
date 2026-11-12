@@ -6,20 +6,16 @@ public class Zone : BaseEntity
 {
     private Zone() { }   // required by EF Core
 
-    public Zone(string name, decimal baseFee, decimal perKgRate)
+    public Zone(string zoneName, string? description)
     {
-        Name = name;
-        BaseFee = baseFee;
-        PerKgRate = perKgRate;
+        ZoneName = zoneName;
+        Description = description;
     }
 
-    public string Name { get; private set; } = default!;
-    public decimal BaseFee { get; private set; }
-    public decimal PerKgRate { get; private set; }
-    public bool IsActive { get; private set; } = true;
+    public string ZoneName {get; private set;} = default!;
+    public string? Description {get; private set;}
+    public bool IsActive {get; private set;} = true;
 
-    public void Update(string name, decimal baseFee, decimal perKgRate, bool isActive)
-    {
-        Name = name; BaseFee = baseFee; PerKgRate = perKgRate; IsActive = isActive;
-    }
+    public ICollection<PricingRule> PricingRules {get; private set;}
+    = new List<PricingRule>();
 }

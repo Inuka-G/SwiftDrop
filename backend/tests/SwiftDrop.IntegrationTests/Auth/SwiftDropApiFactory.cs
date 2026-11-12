@@ -19,6 +19,7 @@ public sealed class SwiftDropApiFactory : WebApplicationFactory<Program>
         Environment.SetEnvironmentVariable("ConnectionStrings__Identity", $"Data Source={Path.Combine(folder, "identity.db")}");
         Environment.SetEnvironmentVariable("ConnectionStrings__Pricing", $"Data Source={Path.Combine(folder, "pricing.db")}");
         Environment.SetEnvironmentVariable("ConnectionStrings__Dispatch", $"Data Source={Path.Combine(folder, "dispatch.db")}");
+        Environment.SetEnvironmentVariable("ConnectionStrings__Reporting", $"Data Source={Path.Combine(folder, "reporting.db")}");
         Environment.SetEnvironmentVariable("ConnectionStrings__Parcels", $"Data Source={Path.Combine(folder, "parcels.db")}");
         Environment.SetEnvironmentVariable("Parcels__ProofStoragePath", Path.Combine(folder, "proofs"));
         Environment.SetEnvironmentVariable("Parcels__Outbox__PollingIntervalMs", "100");

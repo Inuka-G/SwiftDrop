@@ -20,7 +20,9 @@ public static class PricingDataExtensions
     {
         using var scope = sp.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<PricingDbContext>();
-        await db.Database.EnsureCreatedAsync();   // dev only, see "Migrations" below
+
+        await db.Database.MigrateAsync();
+        
         if (seed) await PricingDbSeeder.SeedAsync(db);
     }
 }

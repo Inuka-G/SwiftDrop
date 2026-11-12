@@ -42,7 +42,8 @@ public sealed class ParcelAssignmentAndCreationTests : IDisposable
     public async Task Creating_a_parcel_records_first_history_row_and_created_event()
     {
         var pricing = new Mock<IPricingService>();
-        pricing.Setup(p => p.EstimateAsync(It.IsAny<Guid>(), It.IsAny<decimal>(), It.IsAny<CancellationToken>()))
+        pricing.Setup(p => p.EstimateAsync(It.IsAny<Guid>(), It.IsAny<decimal>(), It.IsAny<ServiceType>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(new FeeEstimateDto(Guid.NewGuid(), "Kandy", 500m, 100m, 600m));
         var service = new ParcelService(db.Repository, pricing.Object);
         var customerId = Guid.NewGuid();
