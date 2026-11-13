@@ -19,6 +19,7 @@ public sealed class ReportingWorkflowTests(SwiftDropApiFactory factory)
         Assert.Contains("/api/v1/reports/deliveries-per-day", document);
         Assert.Contains("/api/v1/reports/success-failure-rate", document);
         Assert.Contains("/api/v1/reports/summary", document);
+        Assert.Contains("/api/v1/dispatch/summary", document);
     }
 
     [Fact]
@@ -38,10 +39,17 @@ public sealed class ReportingWorkflowTests(SwiftDropApiFactory factory)
         var response = await client.GetWithTokenAsync("/api/v1/reports/deliveries-per-day?from=2020-01-02&to=2020-01-02", token);
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var body = await response.Content.ReadFromJsonAsync<JsonElement>();
-        var row = body.GetProperty("days")[0];
-        Assert.Equal(1, row.GetProperty("createdCount").GetInt32());
-        Assert.Equal(1, row.GetProperty("deliveredCount").GetInt32());
-        Assert.Equal(1, row.GetProperty("failedCount").GetInt32());
+        Assert.Equal(JsonValueKind.Array, body.ValueKind);
+        var row = body[0];
+        Assert.Equal("2020-01-02", row.GetProperty("date").GetString());
+        Assert.Equal(1, row.GetProperty("created").GetInt32());
+        Assert.Equal(1, row.GetProperty("delivered").GetInt32());
+        Assert.Equal(1, row.GetProperty("failed").GetInt32());
+
+        var summaryResponse = await client.GetWithTokenAsync("/api/v1/reports/summary", token);
+        var summary = await summaryResponse.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal("date,created,delivered,failed,successRate", string.Join(',', summary.EnumerateObject().Select(x => x.Name)));
+        Assert.True(DateOnly.TryParse(summary.GetProperty("date").GetString(), out _));
 
         var rateResponse = await client.GetWithTokenAsync("/api/v1/reports/success-failure-rate?from=2020-01-02&to=2020-01-02", token);
         Assert.Equal(HttpStatusCode.OK, rateResponse.StatusCode);

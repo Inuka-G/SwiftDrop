@@ -15,10 +15,10 @@ namespace SwiftDrop.Reporting.Api.Controllers;
 public sealed class ReportsController(IReportService reports, IValidator<ReportRangeRequest> validator) : ControllerBase
 {
     [HttpGet("deliveries-per-day")]
-    public async Task<ActionResult<DeliveriesPerDayResponse>> DeliveriesPerDay([FromQuery] ReportRangeRequest request, CancellationToken ct)
+    public async Task<ActionResult<IReadOnlyList<DailyDeliveryCountDto>>> DeliveriesPerDay([FromQuery] ReportRangeRequest request, CancellationToken ct)
     {
         await ValidateAsync(request, ct);
-        return Ok(Resolve(await reports.GetDeliveriesPerDayAsync(request.From, request.To, ct)));
+        return Ok(Resolve(await reports.GetDeliveriesPerDayAsync(request.From, request.To, ct)).Days);
     }
 
     [HttpGet("success-failure-rate")]

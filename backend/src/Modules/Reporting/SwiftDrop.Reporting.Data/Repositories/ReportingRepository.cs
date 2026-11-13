@@ -21,21 +21,22 @@ internal sealed class ReportingRepository(ReportingDbContext db) : IReportingRep
                 var hasCountUpdate = createdIncrement != 0 || deliveredIncrement != 0 || failedIncrement != 0;
                 if (hasCountUpdate)
                 {
-                    if (!await db.DailyStatistics.AnyAsync(x => x.ReportDate == reportDate, ct))
+                    if (!await db.DailyStatistics.AnyAsync(x => x.Date == reportDate, ct))
                     {
-                        db.DailyStatistics.Add(new DailyStatistic { ReportDate = reportDate });
+                        db.DailyStatistics.Add(new DailyStatistic { Date = reportDate, UpdatedAt = DateTimeOffset.UtcNow });
                         await db.SaveChangesAsync(ct);
                     }
 
-                    var updated = await db.DailyStatistics.Where(x => x.ReportDate == reportDate)
+                    var updated = await db.DailyStatistics.Where(x => x.Date == reportDate)
                         .ExecuteUpdateAsync(setters => setters
                             .SetProperty(x => x.CreatedCount, x => x.CreatedCount + createdIncrement)
                             .SetProperty(x => x.DeliveredCount, x => x.DeliveredCount + deliveredIncrement)
-                            .SetProperty(x => x.FailedCount, x => x.FailedCount + failedIncrement), ct);
+                            .SetProperty(x => x.FailedCount, x => x.FailedCount + failedIncrement)
+                            .SetProperty(x => x.UpdatedAt, DateTimeOffset.UtcNow), ct);
                     if (updated != 1) throw new InvalidOperationException("Daily statistic row was not available for update.");
                 }
 
-                db.ProcessedEvents.Add(new ProcessedEvent { EventId = eventId, ProcessedAtUtc = DateTimeOffset.UtcNow });
+                db.ProcessedEvents.Add(new ProcessedEvent { EventId = eventId, ProcessedAt = DateTimeOffset.UtcNow });
                 await db.SaveChangesAsync(ct);
                 await transaction.CommitAsync(ct);
                 return;
@@ -49,9 +50,9 @@ internal sealed class ReportingRepository(ReportingDbContext db) : IReportingRep
     }
 
     public async Task<IReadOnlyList<DailyStatistic>> GetRangeAsync(DateOnly from, DateOnly to, CancellationToken ct) =>
-        await db.DailyStatistics.AsNoTracking().Where(x => x.ReportDate >= from && x.ReportDate <= to)
-            .OrderBy(x => x.ReportDate).ToListAsync(ct);
+        await db.DailyStatistics.AsNoTracking().Where(x => x.Date >= from && x.Date <= to)
+            .OrderBy(x => x.Date).ToListAsync(ct);
 
     public Task<DailyStatistic?> GetForDateAsync(DateOnly reportDate, CancellationToken ct) =>
-        db.DailyStatistics.AsNoTracking().SingleOrDefaultAsync(x => x.ReportDate == reportDate, ct);
+        db.DailyStatistics.AsNoTracking().SingleOrDefaultAsync(x => x.Date == reportDate, ct);
 }

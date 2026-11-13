@@ -9,14 +9,14 @@ internal sealed class ReportService(IReportingRepository repository, IReportDate
     {
         if (!TryRange(from, to, out var start, out var end)) return ReportResult<DeliveriesPerDayResponse>.Fail(ReportFailure.InvalidDateRange);
         var stats = await repository.GetRangeAsync(start, end, ct);
-        var byDate = stats.ToDictionary(x => x.ReportDate);
+        var byDate = stats.ToDictionary(x => x.Date);
         var days = Enumerable.Range(0, end.DayNumber - start.DayNumber + 1).Select(offset =>
         {
             var date = start.AddDays(offset);
             byDate.TryGetValue(date, out var item);
             return new DailyDeliveryCountDto(date, item?.CreatedCount ?? 0, item?.DeliveredCount ?? 0, item?.FailedCount ?? 0);
         }).ToArray();
-        return ReportResult<DeliveriesPerDayResponse>.Success(new(start, end, days));
+        return ReportResult<DeliveriesPerDayResponse>.Success(new(days));
     }
 
     public async Task<ReportResult<SuccessFailureRateResponse>> GetSuccessFailureRateAsync(DateOnly? from, DateOnly? to, CancellationToken ct)

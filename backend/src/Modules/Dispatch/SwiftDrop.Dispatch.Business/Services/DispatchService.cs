@@ -122,6 +122,13 @@ internal sealed class DispatchService(IDispatchRepository repository,
         return new(summary.Total, summary.Available, summary.Unavailable, summary.ActiveDeliveries);
     }
 
+    public async Task<DispatchDashboardSummary> GetDashboardSummaryAsync(CancellationToken ct)
+    {
+        var summary = await repository.GetDashboardSummaryAsync(ct);
+        return new(summary.Unassigned, summary.AvailableCouriers, summary.CouriersWithActiveDeliveries,
+            summary.ActiveDeliveries, summary.TotalCouriers);
+    }
+
     private async Task<CourierProfileResult> ToDtoAsync(CourierProfile profile, CancellationToken ct)
     {
         var names = await couriers.GetNamesAsync([profile.CourierId], ct);
