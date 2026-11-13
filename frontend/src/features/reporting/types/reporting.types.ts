@@ -1,20 +1,16 @@
 export interface ReportingSummaryDto {
   date: string
-  createdCount: number
-  deliveredCount: number
-  failedCount: number
+  created: number
+  delivered: number
+  failed: number
   successRate: number | null
 }
 
 export interface DailyDeliveryCountDto {
   date: string
-  createdCount: number
-  deliveredCount: number
-  failedCount: number
+  created: number
+  delivered: number
+  failed: number
 }
 
-export interface DeliveriesPerDayDto {
-  from: string
-  to: string
-  days: DailyDeliveryCountDto[]
-}
+export type DeliveriesPerDayDto = DailyDeliveryCountDto[]

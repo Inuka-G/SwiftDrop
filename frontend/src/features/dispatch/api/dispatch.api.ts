@@ -1,8 +1,8 @@
 import { apiClient } from '../../../lib/axios'
-import type { DispatchSummaryDto, UnassignedParcelPageDto } from '../types/dispatch.types'
+import type { DispatchDashboardSummary, UnassignedParcelPageDto } from '../types/dispatch.types'
 
-export async function getDispatchSummary(): Promise<DispatchSummaryDto> {
-  const { data } = await apiClient.get<DispatchSummaryDto>('/dispatch/couriers/summary')
+export async function getDispatchSummary(): Promise<DispatchDashboardSummary> {
+  const { data } = await apiClient.get<DispatchDashboardSummary>('/dispatch/summary')
   return data
 }
 

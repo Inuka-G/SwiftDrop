@@ -10,4 +10,15 @@ export const storageService = {
   clearAccessToken(): void {
     localStorage.removeItem(AUTH_TOKEN_KEY)
   },
+  getUser(): { fullName: string; role: string } | null {
+    const value = localStorage.getItem('swiftdrop.user')
+    if (!value) return null
+    try { return JSON.parse(value) as { fullName: string; role: string } } catch { return null }
+  },
+  setUser(user: { fullName: string; role: string }): void {
+    localStorage.setItem('swiftdrop.user', JSON.stringify(user))
+  },
+  clearUser(): void {
+    localStorage.removeItem('swiftdrop.user')
+  },
 }

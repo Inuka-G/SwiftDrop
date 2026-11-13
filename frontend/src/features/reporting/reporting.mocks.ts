@@ -19,11 +19,11 @@ export function getDeliveriesPerDayMock(now = new Date()): DeliveriesPerDayDto {
   const days: DailyDeliveryCountDto[] = weeklyValues.map((counts, index) => {
     const date = new Date(today)
     date.setUTCDate(today.getUTCDate() - (6 - index))
-    return { date: utcDate(date), createdCount: counts.deliveredCount + counts.failedCount, ...counts }
+    return { date: utcDate(date), created: counts.deliveredCount + counts.failedCount, delivered: counts.deliveredCount, failed: counts.failedCount }
   })
-  return { from: days[0].date, to: days[days.length - 1].date, days }
+  return days
 }
 
 export function getReportSummaryMock(now = new Date()): ReportingSummaryDto {
-  return { date: utcDate(now), createdCount: 180, deliveredCount: 172, failedCount: 8, successRate: 0.955 }
+  return { date: utcDate(now), created: 180, delivered: 172, failed: 8, successRate: 0.955 }
 }

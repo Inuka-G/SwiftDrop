@@ -12,7 +12,10 @@ export interface UnassignedParcelPageDto {
   totalCount: number
 }
 
-export interface DispatchDashboardSummary extends DispatchSummaryDto {
+export interface DispatchDashboardSummary {
+  totalCouriers: number
+  availableCouriers: number
+  activeDeliveries: number
   unassignedCount: number
-  couriersWithActiveDeliveries: number | null
+  couriersWithActiveDeliveries: number
 }

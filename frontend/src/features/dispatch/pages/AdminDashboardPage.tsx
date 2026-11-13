@@ -18,7 +18,7 @@ function KpiCard({ title, value, caption, footer, tone = '', children }: { title
 }
 
 function DeliveriesChart({ days, loading, error, retry }: { days: DailyDeliveryCountDto[]; loading: boolean; error: boolean; retry: () => void }) {
-  const max = Math.max(1, ...days.map((day) => Math.max(day.deliveredCount, day.failedCount)))
+  const max = Math.max(1, ...days.map((day) => Math.max(day.delivered, day.failed)))
   const totals = getWeeklyTotals(days)
   const labels = days.map((day, index) => `${getDayLabel(day.date)}${index === days.length - 1 ? ' (Today)' : ''}`)
   const summary = days.length ? `Last seven days: ${totals.delivered} delivered and ${totals.failed} failed.` : 'No deliveries in the last 7 days.'
@@ -30,14 +30,14 @@ function DeliveriesChart({ days, loading, error, retry }: { days: DailyDeliveryC
         {[0, 1, 2].map((line) => <i className="chart-gridline" key={line} style={{ top: `${line * 50}%` }} />)}
         <div className="chart-days">{days.map((day, index) => <div className={`chart-day${index === days.length - 1 ? ' is-today' : ''}`} key={day.date}>
           <div className="chart-bars">
-            {index === days.length - 1 && <span className="chart-today-value">{day.deliveredCount}</span>}
-            <span className="chart-bar delivered-bar" tabIndex={0} title={`${labels[index]}: ${day.deliveredCount} delivered`} aria-label={`${labels[index]}: ${day.deliveredCount} delivered`} style={{ height: `${getBarHeight(day.deliveredCount, max)}%` }} />
-            <span className="chart-bar failed-bar" tabIndex={0} title={`${labels[index]}: ${day.failedCount} failed`} aria-label={`${labels[index]}: ${day.failedCount} failed`} style={{ height: `${getBarHeight(day.failedCount, max)}%` }} />
+            {index === days.length - 1 && <span className="chart-today-value">{day.delivered}</span>}
+            <span className="chart-bar delivered-bar" tabIndex={0} title={`${labels[index]}: ${day.delivered} delivered`} aria-label={`${labels[index]}: ${day.delivered} delivered`} style={{ height: `${getBarHeight(day.delivered, max)}%` }} />
+            <span className="chart-bar failed-bar" tabIndex={0} title={`${labels[index]}: ${day.failed} failed`} aria-label={`${labels[index]}: ${day.failed} failed`} style={{ height: `${getBarHeight(day.failed, max)}%` }} />
           </div><span className="chart-day-label">{labels[index]}</span>
         </div>)}</div>
       </div>
-      {!days.some((day) => day.deliveredCount || day.failedCount) && <p className="chart-empty">No deliveries in the last 7 days</p>}
-      <table className="visually-hidden"><caption>Deliveries for the last seven days</caption><thead><tr><th>Day</th><th>Created</th><th>Delivered</th><th>Failed</th></tr></thead><tbody>{days.map((day, index) => <tr key={day.date}><th>{labels[index]}</th><td>{day.createdCount}</td><td>{day.deliveredCount}</td><td>{day.failedCount}</td></tr>)}</tbody></table>
+      {!days.some((day) => day.delivered || day.failed) && <p className="chart-empty">No deliveries in the last 7 days</p>}
+      <table className="visually-hidden"><caption>Deliveries for the last seven days</caption><thead><tr><th>Day</th><th>Created</th><th>Delivered</th><th>Failed</th></tr></thead><tbody>{days.map((day, index) => <tr key={day.date}><th>{labels[index]}</th><td>{day.created}</td><td>{day.delivered}</td><td>{day.failed}</td></tr>)}</tbody></table>
     </>}
     <div className="chart-footer"><span>Weekly total: <strong>{formatCount(totals.delivered)}</strong> deliveries <b>•</b> <em>{formatCount(totals.failed)} failed</em></span><span className="dashboard-static-link">View reports →</span></div>
   </section>
@@ -68,7 +68,7 @@ export function AdminDashboardPage() {
   const queryClient = useQueryClient()
   const fetching = useIsFetching({ queryKey: ['dispatch'] }) + useIsFetching({ queryKey: ['reporting'] })
   const latestUpdate = Math.max(report.dataUpdatedAt, daily.dataUpdatedAt, dispatch.dataUpdatedAt)
-  const allDays = daily.data && 'days' in daily.data ? daily.data.days : []
+  const allDays = daily.data ?? []
   const difference = getRateDifference(allDays.at(-1), allDays.at(-2))
   const refresh = () => queryClient.refetchQueries({ predicate: (query) => ['dispatch', 'reporting'].includes(String(query.queryKey[0])) })
 
@@ -82,8 +82,8 @@ export function AdminDashboardPage() {
         <KpiCard title="ACTIVE DELIVERIES" value={formatCount(dispatch.data!.activeDeliveries)} caption={`across ${dispatch.data!.couriersWithActiveDeliveries ?? '—'} couriers`} footer="In progress now" />
       </>}
       {report.isLoading ? <><Skeleton className="kpi-skeleton"/><Skeleton className="kpi-skeleton"/><Skeleton className="kpi-skeleton"/></> : report.isError ? <SectionError retry={() => void report.refetch()} /> : <>
-        <KpiCard title="DELIVERED TODAY" value={formatCount(report.data!.deliveredCount)} caption={`${formatCount(report.data!.createdCount)} created today`} footer="Completed" />
-        <KpiCard title="FAILED TODAY" value={formatCount(report.data!.failedCount)} caption="Failed deliveries today" footer={report.data!.failedCount > 0 ? 'Action required' : undefined} />
+        <KpiCard title="DELIVERED TODAY" value={formatCount(report.data!.delivered)} caption={`${formatCount(report.data!.created)} created today`} footer="Completed" />
+        <KpiCard title="FAILED TODAY" value={formatCount(report.data!.failed)} caption="Failed deliveries today" footer={report.data!.failed > 0 ? 'Action required' : undefined} />
         <KpiCard title="SUCCESS RATE" value={formatPercent(report.data!.successRate)} caption="Delivered ÷ completed today" footer={difference == null ? undefined : `${difference >= 0 ? '↗ +' : '↘ '}${Math.abs(difference).toFixed(1)}% vs yesterday`} />
       </>}
     </div>

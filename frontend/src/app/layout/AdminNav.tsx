@@ -11,13 +11,14 @@ const navItems = [
   { label: 'Pricing & Zones', path: '/admin/pricing', enabled: false },
 ]
 
-export function AdminNav({ hasConnectionIssue }: { hasConnectionIssue: boolean }) {
+export function AdminNav({ hasConnectionIssue, user, onLogout }: { hasConnectionIssue: boolean; user: { fullName: string; role: string } | null; onLogout: () => void }) {
   const [menuOpen, setMenuOpen] = useState(false)
   const location = useLocation()
   const navigate = useNavigate()
 
   function logout() {
     authService.clearAccessToken()
+    onLogout()
     navigate('/')
   }
 
@@ -41,7 +42,7 @@ export function AdminNav({ hasConnectionIssue }: { hasConnectionIssue: boolean }
         <div className="admin-account">
           <span className={`admin-live${hasConnectionIssue ? ' has-issue' : ''}`}><i />{hasConnectionIssue ? 'Connection issue' : 'Live'}</span>
           <span className="admin-avatar" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3"/><path d="M5 20c.6-3.1 3.1-5 7-5s6.4 1.9 7 5"/></svg></span>
-          <span className="admin-user-copy"><strong>Signed-in user</strong><small>Role unavailable</small></span>
+          <span className="admin-user-copy"><strong>{user?.fullName ?? 'Not signed in'}</strong><small>{user?.role ?? 'Sign in required'}</small></span>
           <button className="admin-logout" onClick={logout}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 17l5-5-5-5M15 12H3M13 4h6a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-6" /></svg>Logout</button>
         </div>
       </div>

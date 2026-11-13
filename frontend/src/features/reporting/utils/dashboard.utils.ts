@@ -9,15 +9,15 @@ export function formatCount(value: number): string {
 }
 
 export function getWeeklyTotals(days: DailyDeliveryCountDto[]) {
-  return days.reduce((totals, day) => ({ delivered: totals.delivered + day.deliveredCount, failed: totals.failed + day.failedCount }), { delivered: 0, failed: 0 })
+  return days.reduce((totals, day) => ({ delivered: totals.delivered + day.delivered, failed: totals.failed + day.failed }), { delivered: 0, failed: 0 })
 }
 
 export function getRateDifference(today?: DailyDeliveryCountDto, yesterday?: DailyDeliveryCountDto): number | null {
   if (!today || !yesterday) return null
-  const todayTotal = today.deliveredCount + today.failedCount
-  const yesterdayTotal = yesterday.deliveredCount + yesterday.failedCount
+  const todayTotal = today.delivered + today.failed
+  const yesterdayTotal = yesterday.delivered + yesterday.failed
   if (!todayTotal || !yesterdayTotal) return null
-  return (today.deliveredCount / todayTotal - yesterday.deliveredCount / yesterdayTotal) * 100
+  return (today.delivered / todayTotal - yesterday.delivered / yesterdayTotal) * 100
 }
 
 export function getLoadPerCourier(activeDeliveries: number, couriers: number | null): number | null {
