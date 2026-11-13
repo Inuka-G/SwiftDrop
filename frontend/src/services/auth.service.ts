@@ -26,10 +26,18 @@ export const authService = {
   getAccessToken: storageService.getAccessToken,
   clearAccessToken: storageService.clearAccessToken,
 
-  /** `username` can be a username such as "admin" or an email address. */
-  async login(username: string, password: string): Promise<AuthResult> {
-    const response = await apiClient.post<AuthResult>('/auth/login', { username, password })
+  /**
+   * `username` can be a username such as "admin" or an email address.
+   * The server also sets the refresh-token cookie; `rememberMe = false` makes it end with the browser session.
+   */
+  async login(username: string, password: string, rememberMe = true): Promise<AuthResult> {
+    const response = await apiClient.post<AuthResult>('/auth/login', { username, password, rememberMe })
     return response.data
+  },
+
+  /** Ends the session on the server, so the refresh-token cookie cannot be used again. */
+  async logout(): Promise<void> {
+    await apiClient.post('/auth/logout')
   },
 
   async signup(data: SignupData): Promise<AuthResult> {
