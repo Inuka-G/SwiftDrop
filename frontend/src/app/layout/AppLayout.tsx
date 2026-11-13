@@ -11,6 +11,9 @@ export function AppLayout() {
         <nav aria-label="Main navigation">
           <Link to="/">Overview</Link>
           <Link to="/courier">Courier dashboard</Link>
+          <Link to="/track">Track Parcel</Link>
+          <Link to="/book">Book Delivery</Link>
+          <Link to="/history">My Deliveries</Link>
         </nav>
       </header>
       <main className="page-content">
