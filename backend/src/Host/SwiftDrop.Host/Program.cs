@@ -8,6 +8,7 @@ using SwiftDrop.Parcels.Api;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.AddJwtAuthentication();   // must come before the modules: it makes sure the signing key exists
+builder.AddGoogleLogin();          // "Login with Google"; switched off when the Google client secret is not set
 builder.Services.AddOpenApi();
 builder.Services.AddProblemDetails();
 builder.Services.AddIdentityModule(builder.Configuration);
