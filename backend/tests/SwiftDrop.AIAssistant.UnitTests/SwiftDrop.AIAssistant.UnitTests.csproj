@@ -24,6 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\Modules\AIAssistant\SwiftDrop.AIAssistant.Api\SwiftDrop.AIAssistant.Api.csproj" />
     <ProjectReference Include="..\..\src\Modules\AIAssistant\SwiftDrop.AIAssistant.Business\SwiftDrop.AIAssistant.Business.csproj" />
     <ProjectReference Include="..\..\src\Modules\AIAssistant\SwiftDrop.AIAssistant.Data\SwiftDrop.AIAssistant.Data.csproj" />
   </ItemGroup>

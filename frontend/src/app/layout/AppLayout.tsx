@@ -1,6 +1,15 @@
-import { Link, Outlet } from 'react-router-dom'
+import { Link, Outlet, useNavigate } from 'react-router-dom'
+import { useAuth } from '../../features/identity'
 
 export function AppLayout() {
+  const { user, logout } = useAuth()
+  const navigate = useNavigate()
+
+  function handleLogout() {
+    logout()
+    navigate('/login', { replace: true })
+  }
+
   return (
     <div className="app-shell">
       <header className="app-header">
@@ -9,8 +18,19 @@ export function AppLayout() {
           <span>SwiftDrop</span>
         </Link>
         <nav aria-label="Main navigation">
-          <Link to="/">Overview</Link>
+          <Link to="/">Home</Link>
           <Link to="/courier">Courier dashboard</Link>
+          {user ? (
+            <button type="button" className="app-header__logout" onClick={handleLogout}>
+              Log out ({user.fullName})
+            </button>
+          ) : (
+            <Link to="/login">Log in</Link>
+          )}
+          <Link to="/track">Track Parcel</Link>
+          <Link to="/book">Book Delivery</Link>
+          <Link to="/history">My Deliveries</Link>
+          <Link to="/assistant">AI Assistant</Link>
         </nav>
       </header>
       <main className="page-content">
