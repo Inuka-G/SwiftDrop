@@ -41,9 +41,7 @@ export const router = createBrowserRouter([
     path: 'admin',
     element: <AdminLayout />,
     children: [{ index: true, element: <AdminDashboardPage /> }],
-  },
+  }
 
-  // Pages other team members are building: tracking, booking, merchant registration
-  { path: '*', element: <ComingSoonPage /> },
->>>>>>> origin/dev
+  
 ])
