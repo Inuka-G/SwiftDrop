@@ -1,4 +1,5 @@
 import { createBrowserRouter } from 'react-router-dom'
+import { AIAssistantPage } from '../features/ai-assistant'
 import { CourierDashboardPage } from '../features/courier'
 import {
   CreateBookingPage,
@@ -17,6 +18,7 @@ export const router = createBrowserRouter([
       { path: 'book', element: <CreateBookingPage /> },
       { path: 'history', element: <CustomerHistoryPage /> },
       { path: 'track', element: <PublicTrackingPage /> },
+      { path: 'assistant', element: <AIAssistantPage /> },
     ],
   },
 ])
