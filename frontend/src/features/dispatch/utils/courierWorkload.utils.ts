@@ -74,7 +74,7 @@ export function hasCourierChanges(original: CourierDto, values: CourierFormValue
 }
 
 export function mapCourierMutationError(status: number | undefined, action: 'register' | 'update'): CourierMutationError {
-  if (status === 401) return 'unauthorized'
+  if (status === 401 || (status === 403 && action === 'update')) return 'unauthorized'
   if (status === 409) return action === 'register' ? 'duplicate' : 'conflict'
   if (status === 404 && action === 'update') return 'not-found'
   if ((status === 400 || status === 403) && action === 'register') return 'ineligible'

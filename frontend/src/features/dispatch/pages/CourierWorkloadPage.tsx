@@ -86,7 +86,7 @@ export function CourierWorkloadPage() {
       if (status === 409) {
         await query.refetch()
         setToast({ title: 'Courier updated elsewhere', message: 'This courier was just updated by someone else. The list has been refreshed.', kind: 'error' })
-      } else if (status === 401) {
+      } else if (status === 401 || status === 403) {
         authService.clearAccessToken()
         window.location.assign('/admin')
       } else {
