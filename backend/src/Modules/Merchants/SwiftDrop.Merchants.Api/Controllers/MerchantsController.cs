@@ -1,6 +1,8 @@
+using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using SwiftDrop.Merchants.Business.Dtos;
 using SwiftDrop.Merchants.Business.Services;
 using SwiftDrop.SharedKernel.Authorization;
@@ -9,7 +11,9 @@ using SwiftDrop.SharedKernel.Exceptions;
 namespace SwiftDrop.Merchants.Api.Controllers;
 
 [ApiController]
+[ApiVersion("1.0")]
 [Route("api/v1/merchants")]
+[EnableRateLimiting("general")]
 [Produces("application/json")]
 public sealed class MerchantsController(IMerchantService merchantService) : ControllerBase
 {
@@ -78,6 +82,7 @@ public sealed class MerchantsController(IMerchantService merchantService) : Cont
 
     [HttpPost("api-keys")]
     [Authorize]
+    [EnableRateLimiting("merchant-auth")]
     [ProducesResponseType<CreatedApiKeyDto>(StatusCodes.Status201Created)]
     public async Task<IActionResult> CreateApiKey([FromBody] CreateApiKeyCommand command, CancellationToken ct)
     {
@@ -117,6 +122,7 @@ public sealed class MerchantsController(IMerchantService merchantService) : Cont
 
     [HttpPost("oauth-clients")]
     [Authorize]
+    [EnableRateLimiting("merchant-auth")]
     [ProducesResponseType<CreatedClientCredentialDto>(StatusCodes.Status201Created)]
     public async Task<IActionResult> CreateOAuthClient([FromBody] CreateClientCredentialCommand command, CancellationToken ct)
     {
