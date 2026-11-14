@@ -14,11 +14,13 @@ public sealed class ApiKeyTests
 {
     private readonly Mock<IMerchantRepository> _repository = new();
     private readonly Mock<IMerchantEventPublisher> _eventPublisher = new();
+    private readonly Mock<IOAuthTokenService> _oauthTokenService = new();
     private readonly RegisterMerchantValidator _registerValidator = new();
     private readonly CreateApiKeyValidator _apiKeyValidator = new();
+    private readonly CreateClientCredentialValidator _clientValidator = new();
 
     private MerchantService CreateService() =>
-        new(_repository.Object, _registerValidator, _apiKeyValidator, _eventPublisher.Object);
+        new(_repository.Object, _registerValidator, _apiKeyValidator, _clientValidator, _oauthTokenService.Object, _eventPublisher.Object);
 
     [Fact]
     public async Task CreateApiKeyAsync_WhenMerchantIsApproved_ShouldGenerateKey_AndStoreHash()

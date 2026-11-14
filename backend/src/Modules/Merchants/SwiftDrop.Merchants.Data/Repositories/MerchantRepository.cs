@@ -60,6 +60,21 @@ internal sealed class MerchantRepository(MerchantsDbContext db) : IMerchantRepos
     public Task<ApiKey?> GetApiKeyByIdAsync(Guid keyId, CancellationToken ct = default) =>
         db.ApiKeys.FirstOrDefaultAsync(k => k.Id == keyId, ct);
 
+    public async Task AddClientCredentialAsync(ClientCredential credential, CancellationToken ct = default) =>
+        await db.ClientCredentials.AddAsync(credential, ct);
+
+    public Task<ClientCredential?> GetClientCredentialByClientIdAsync(string clientId, CancellationToken ct = default) =>
+        db.ClientCredentials.FirstOrDefaultAsync(c => c.ClientId == clientId, ct);
+
+    public async Task<IReadOnlyList<ClientCredential>> GetClientCredentialsByMerchantIdAsync(Guid merchantId, CancellationToken ct = default) =>
+        await db.ClientCredentials
+            .Where(c => c.MerchantId == merchantId)
+            .OrderByDescending(c => c.CreatedAtUtc)
+            .ToListAsync(ct);
+
+    public Task<ClientCredential?> GetClientCredentialByIdAsync(Guid id, CancellationToken ct = default) =>
+        db.ClientCredentials.FirstOrDefaultAsync(c => c.Id == id, ct);
+
     public Task SaveChangesAsync(CancellationToken ct = default) =>
         db.SaveChangesAsync(ct);
 }

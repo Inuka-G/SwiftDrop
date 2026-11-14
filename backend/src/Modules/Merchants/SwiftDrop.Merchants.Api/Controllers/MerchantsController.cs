@@ -114,5 +114,44 @@ public sealed class MerchantsController(IMerchantService merchantService) : Cont
         await merchantService.RevokeApiKeyAsync(merchant.Id, keyId, ct);
         return NoContent();
     }
+
+    [HttpPost("oauth-clients")]
+    [Authorize]
+    [ProducesResponseType<CreatedClientCredentialDto>(StatusCodes.Status201Created)]
+    public async Task<IActionResult> CreateOAuthClient([FromBody] CreateClientCredentialCommand command, CancellationToken ct)
+    {
+        var userId = User.GetUserId() ?? throw new UnauthorizedException("The token has no user id.");
+        var merchant = await merchantService.GetByUserIdAsync(userId, ct)
+            ?? throw new NotFoundException("You do not have a merchant profile.");
+
+        var created = await merchantService.CreateClientCredentialAsync(merchant.Id, command, ct);
+        return StatusCode(StatusCodes.Status201Created, created);
+    }
+
+    [HttpGet("oauth-clients")]
+    [Authorize]
+    [ProducesResponseType<IReadOnlyList<ClientCredentialSummaryDto>>(StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetMyOAuthClients(CancellationToken ct)
+    {
+        var userId = User.GetUserId() ?? throw new UnauthorizedException("The token has no user id.");
+        var merchant = await merchantService.GetByUserIdAsync(userId, ct)
+            ?? throw new NotFoundException("You do not have a merchant profile.");
+
+        var clients = await merchantService.GetClientCredentialsAsync(merchant.Id, ct);
+        return Ok(clients);
+    }
+
+    [HttpDelete("oauth-clients/{clientId:guid}")]
+    [Authorize]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> RevokeOAuthClient(Guid clientId, CancellationToken ct)
+    {
+        var userId = User.GetUserId() ?? throw new UnauthorizedException("The token has no user id.");
+        var merchant = await merchantService.GetByUserIdAsync(userId, ct)
+            ?? throw new NotFoundException("You do not have a merchant profile.");
+
+        await merchantService.RevokeClientCredentialAsync(merchant.Id, clientId, ct);
+        return NoContent();
+    }
 }
 

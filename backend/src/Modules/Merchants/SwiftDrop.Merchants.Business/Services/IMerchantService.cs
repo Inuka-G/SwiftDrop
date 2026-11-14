@@ -13,5 +13,9 @@ public interface IMerchantService
     Task<CreatedApiKeyDto> CreateApiKeyAsync(Guid merchantId, CreateApiKeyCommand command, CancellationToken ct = default);
     Task<IReadOnlyList<ApiKeySummaryDto>> GetApiKeysAsync(Guid merchantId, CancellationToken ct = default);
     Task RevokeApiKeyAsync(Guid merchantId, Guid keyId, CancellationToken ct = default);
+    Task<CreatedClientCredentialDto> CreateClientCredentialAsync(Guid merchantId, CreateClientCredentialCommand command, CancellationToken ct = default);
+    Task<IReadOnlyList<ClientCredentialSummaryDto>> GetClientCredentialsAsync(Guid merchantId, CancellationToken ct = default);
+    Task RevokeClientCredentialAsync(Guid merchantId, Guid credentialId, CancellationToken ct = default);
+    Task<OAuthTokenResponse> ExchangeClientCredentialsAsync(OAuthTokenRequest request, CancellationToken ct = default);
 }
 

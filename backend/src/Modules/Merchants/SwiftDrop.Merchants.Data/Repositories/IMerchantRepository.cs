@@ -14,6 +14,10 @@ public interface IMerchantRepository
     Task<ApiKey?> GetApiKeyByHashAsync(string keyHash, CancellationToken ct = default);
     Task<IReadOnlyList<ApiKey>> GetApiKeysByMerchantIdAsync(Guid merchantId, CancellationToken ct = default);
     Task<ApiKey?> GetApiKeyByIdAsync(Guid keyId, CancellationToken ct = default);
+    Task AddClientCredentialAsync(ClientCredential credential, CancellationToken ct = default);
+    Task<ClientCredential?> GetClientCredentialByClientIdAsync(string clientId, CancellationToken ct = default);
+    Task<IReadOnlyList<ClientCredential>> GetClientCredentialsByMerchantIdAsync(Guid merchantId, CancellationToken ct = default);
+    Task<ClientCredential?> GetClientCredentialByIdAsync(Guid id, CancellationToken ct = default);
     Task SaveChangesAsync(CancellationToken ct = default);
 }
 

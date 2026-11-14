@@ -7,6 +7,7 @@ internal sealed class MerchantsDbContext(DbContextOptions<MerchantsDbContext> op
 {
     public DbSet<Merchant> Merchants => Set<Merchant>();
     public DbSet<ApiKey> ApiKeys => Set<ApiKey>();
+    public DbSet<ClientCredential> ClientCredentials => Set<ClientCredential>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

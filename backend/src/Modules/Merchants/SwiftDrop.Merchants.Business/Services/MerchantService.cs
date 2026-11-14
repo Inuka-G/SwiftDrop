@@ -13,6 +13,8 @@ internal sealed class MerchantService(
     IMerchantRepository repository,
     IValidator<RegisterMerchantCommand> validator,
     IValidator<CreateApiKeyCommand> apiKeyValidator,
+    IValidator<CreateClientCredentialCommand> clientCredentialValidator,
+    IOAuthTokenService oauthTokenService,
     IMerchantEventPublisher eventPublisher) : IMerchantService, IMerchantAccess
 {
     public async Task<MerchantDto> RegisterAsync(RegisterMerchantCommand command, Guid? userId, CancellationToken ct = default)
@@ -138,6 +140,75 @@ internal sealed class MerchantService(
 
         key.Revoke();
         await repository.SaveChangesAsync(ct);
+    }
+
+    public async Task<CreatedClientCredentialDto> CreateClientCredentialAsync(
+        Guid merchantId, CreateClientCredentialCommand command, CancellationToken ct = default)
+    {
+        var validation = await clientCredentialValidator.ValidateAsync(command, ct);
+        if (!validation.IsValid)
+            throw new BadRequestException(string.Join(" ", validation.Errors.Select(e => e.ErrorMessage)));
+
+        var merchant = await repository.GetByIdAsync(merchantId, ct)
+            ?? throw new NotFoundException("Merchant not found.");
+
+        if (merchant.Status != MerchantStatus.Approved)
+            throw new ForbiddenException("Only approved merchants can create OAuth client credentials.");
+
+        var clientId = $"sd_client_{Convert.ToHexString(RandomNumberGenerator.GetBytes(12)).ToLowerInvariant()}";
+        var rawSecret = $"sd_secret_{Convert.ToHexString(RandomNumberGenerator.GetBytes(24)).ToLowerInvariant()}";
+        var secretHash = HashKey(rawSecret);
+
+        var credential = new ClientCredential(merchant.Id, command.Name, clientId, secretHash);
+        await repository.AddClientCredentialAsync(credential, ct);
+        await repository.SaveChangesAsync(ct);
+
+        return new CreatedClientCredentialDto(
+            credential.Id, credential.Name, credential.ClientId, rawSecret, credential.CreatedAtUtc);
+    }
+
+    public async Task<IReadOnlyList<ClientCredentialSummaryDto>> GetClientCredentialsAsync(
+        Guid merchantId, CancellationToken ct = default)
+    {
+        var merchant = await repository.GetByIdAsync(merchantId, ct)
+            ?? throw new NotFoundException("Merchant not found.");
+
+        var creds = await repository.GetClientCredentialsByMerchantIdAsync(merchant.Id, ct);
+        return creds.Select(c => new ClientCredentialSummaryDto(
+            c.Id, c.Name, c.ClientId, c.IsActive, c.CreatedAtUtc, c.RevokedAtUtc)).ToList();
+    }
+
+    public async Task RevokeClientCredentialAsync(
+        Guid merchantId, Guid credentialId, CancellationToken ct = default)
+    {
+        var cred = await repository.GetClientCredentialByIdAsync(credentialId, ct)
+            ?? throw new NotFoundException("Client credential not found.");
+
+        if (cred.MerchantId != merchantId)
+            throw new ForbiddenException("You cannot revoke client credentials that belong to another merchant.");
+
+        cred.Revoke();
+        await repository.SaveChangesAsync(ct);
+    }
+
+    public async Task<OAuthTokenResponse> ExchangeClientCredentialsAsync(
+        OAuthTokenRequest request, CancellationToken ct = default)
+    {
+        if (!string.Equals(request.GrantType, "client_credentials", StringComparison.OrdinalIgnoreCase))
+            throw new BadRequestException("Unsupported grant type. Only 'client_credentials' is supported.");
+
+        if (string.IsNullOrWhiteSpace(request.ClientId) || string.IsNullOrWhiteSpace(request.ClientSecret))
+            throw new BadRequestException("client_id and client_secret are required.");
+
+        var cred = await repository.GetClientCredentialByClientIdAsync(request.ClientId.Trim(), ct);
+        if (cred is null || !cred.IsActive || cred.ClientSecretHash != HashKey(request.ClientSecret.Trim()))
+            throw new UnauthorizedException("Invalid client credentials.");
+
+        var merchant = await repository.GetByIdAsync(cred.MerchantId, ct);
+        if (merchant is null || merchant.Status != MerchantStatus.Approved)
+            throw new ForbiddenException("Merchant account is not active or approved.");
+
+        return oauthTokenService.IssueMerchantToken(merchant.Id, merchant.UserId, merchant.BusinessName, cred.ClientId);
     }
 
     // --- IMerchantAccess Implementation (Cross-Module Contract) ---
