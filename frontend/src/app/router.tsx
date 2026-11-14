@@ -9,12 +9,9 @@ import {
   PublicTrackingPage,
 } from '../features/parcels'
 import { AppLayout } from './layout/AppLayout'
-<<<<<<< HEAD
 import { AdminLayout } from './layout/AdminLayout'
 import { AdminDashboardPage } from '../features/dispatch'
-=======
 import { ComingSoonPage } from './pages/ComingSoonPage'
->>>>>>> origin/dev
 import '../styles/index.css'
 import '../styles/swiftdrop.css'
 
@@ -38,14 +35,13 @@ export const router = createBrowserRouter([
       { path: 'assistant', element: <AIAssistantPage /> },
     ],
   },
-<<<<<<< HEAD
+  
   // Admin routes
   {
     path: 'admin',
     element: <AdminLayout />,
     children: [{ index: true, element: <AdminDashboardPage /> }],
   },
-=======
 
   // Pages other team members are building: tracking, booking, merchant registration
   { path: '*', element: <ComingSoonPage /> },
