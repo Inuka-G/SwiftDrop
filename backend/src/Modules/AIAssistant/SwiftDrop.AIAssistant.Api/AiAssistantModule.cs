@@ -23,6 +23,12 @@ public static class AiAssistantModule
         var internalApiBaseUrl = configuration[$"{AiOptions.SectionName}:InternalApiBaseUrl"]
                                  ?? "http://localhost:5017/api/v1/";
 
+        services.AddHttpClient<IMcpClient, HttpMcpClient>(client =>
+        {
+            client.BaseAddress = new Uri(new Uri(internalApiBaseUrl), "ai-assistant/mcp");
+            client.Timeout = TimeSpan.FromSeconds(30);
+        });
+
         services.AddHttpClient<TrackParcelTool>(client =>
             client.BaseAddress = new Uri(internalApiBaseUrl));
         services.AddHttpClient<EstimateFeeTool>(client =>

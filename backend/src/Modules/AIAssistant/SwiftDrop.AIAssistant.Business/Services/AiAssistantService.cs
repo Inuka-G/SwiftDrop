@@ -1,14 +1,12 @@
-using SwiftDrop.AIAssistant.Business.Tools;
 using SwiftDrop.AIAssistant.Contracts;
 
 namespace SwiftDrop.AIAssistant.Business.Services;
 
 public sealed class AiAssistantService(
     ILlmClient llmClient,
-    IEnumerable<IAssistantTool> tools) : IAiAssistantService
+    IMcpClient mcpClient) : IAiAssistantService
 {
     private const int MaximumMessageLength = 1_000;
-    private readonly IReadOnlyList<IAssistantTool> _tools = tools.ToList();
 
     public async Task<ChatResponse> ChatAsync(
         ChatRequest request,
@@ -29,15 +27,35 @@ public sealed class AiAssistantService(
                 nameof(request));
         }
 
-        var tool = _tools.FirstOrDefault(candidate => candidate.CanHandle(message));
-        if (tool is not null)
+        var toolName = SelectTool(message);
+        if (toolName is not null)
         {
-            var toolAnswer = await tool.ExecuteAsync(message, cancellationToken);
-            return new ChatResponse(toolAnswer, [tool.Name]);
+            var toolAnswer = await mcpClient.CallToolAsync(toolName, message, cancellationToken);
+            return new ChatResponse(toolAnswer, [toolName]);
         }
 
         var answer = await llmClient.CompleteAsync(message, cancellationToken);
         return new ChatResponse(answer, []);
+    }
+
+    private static string? SelectTool(string message)
+    {
+        if (message.Contains("track", StringComparison.OrdinalIgnoreCase) ||
+            message.Contains("where is my parcel", StringComparison.OrdinalIgnoreCase) ||
+            message.Contains("parcel status", StringComparison.OrdinalIgnoreCase))
+        {
+            return "TrackParcel";
+        }
+
+        if (message.Contains("fee", StringComparison.OrdinalIgnoreCase) ||
+            message.Contains("cost", StringComparison.OrdinalIgnoreCase) ||
+            message.Contains("how much", StringComparison.OrdinalIgnoreCase) ||
+            message.Contains("price", StringComparison.OrdinalIgnoreCase))
+        {
+            return "EstimateFee";
+        }
+
+        return null;
     }
 }
 

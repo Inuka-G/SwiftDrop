@@ -28,6 +28,9 @@ The default provider uses Gemini's OpenAI-compatible endpoint with
 - `GET /api/v1/ai-assistant/mcp/tools` - lists the assistant tools.
 - `POST /api/v1/ai-assistant/mcp` - MCP JSON-RPC endpoint supporting `tools/list` and `tools/call`.
 
+The chat service uses `HttpMcpClient` to invoke this endpoint, so tool requests follow the
+complete in-app path: chat service -> MCP client -> MCP server -> delivery tool.
+
 Example chat request:
 
 ```json

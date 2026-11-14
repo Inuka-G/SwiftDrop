@@ -1,7 +1,6 @@
 using FluentAssertions;
 using Moq;
 using SwiftDrop.AIAssistant.Business.Services;
-using SwiftDrop.AIAssistant.Business.Tools;
 using SwiftDrop.AIAssistant.Contracts;
 
 namespace SwiftDrop.AIAssistant.UnitTests;
@@ -11,7 +10,7 @@ public sealed class AiAssistantServiceTests
     [Fact]
     public async Task ChatAsync_RejectsEmptyMessage()
     {
-        var service = CreateService(out _, []);
+        var service = CreateService(out _, out _);
 
         var action = () => service.ChatAsync(new ChatRequest("  "));
 
@@ -21,12 +20,10 @@ public sealed class AiAssistantServiceTests
     [Fact]
     public async Task ChatAsync_UsesMatchingTool()
     {
-        var tool = new Mock<IAssistantTool>();
-        tool.SetupGet(candidate => candidate.Name).Returns("TrackParcel");
-        tool.Setup(candidate => candidate.CanHandle(It.IsAny<string>())).Returns(true);
-        tool.Setup(candidate => candidate.ExecuteAsync("track SD-1234567", It.IsAny<CancellationToken>()))
+        var service = CreateService(out var llm, out var mcpClient);
+        mcpClient.Setup(client => client.CallToolAsync(
+                "TrackParcel", "track SD-1234567", It.IsAny<CancellationToken>()))
             .ReturnsAsync("In Transit");
-        var service = CreateService(out var llm, [tool.Object]);
 
         var result = await service.ChatAsync(new ChatRequest("track SD-1234567"));
 
@@ -38,7 +35,7 @@ public sealed class AiAssistantServiceTests
     [Fact]
     public async Task ChatAsync_UsesLlmWhenNoToolMatches()
     {
-        var service = CreateService(out var llm, []);
+        var service = CreateService(out var llm, out var mcpClient);
         llm.Setup(client => client.CompleteAsync("hello", It.IsAny<CancellationToken>()))
             .ReturnsAsync("Hello from SwiftDrop");
 
@@ -46,13 +43,16 @@ public sealed class AiAssistantServiceTests
 
         result.Message.Should().Be("Hello from SwiftDrop");
         result.ToolsUsed.Should().BeEmpty();
+        mcpClient.Verify(client => client.CallToolAsync(
+            It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     private static AiAssistantService CreateService(
         out Mock<ILlmClient> llm,
-        IReadOnlyList<IAssistantTool> tools)
+        out Mock<IMcpClient> mcpClient)
     {
         llm = new Mock<ILlmClient>();
-        return new AiAssistantService(llm.Object, tools);
+        mcpClient = new Mock<IMcpClient>();
+        return new AiAssistantService(llm.Object, mcpClient.Object);
     }
 }
