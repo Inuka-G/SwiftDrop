@@ -1,7 +1,7 @@
 import { apiClient } from '../../../lib/axios'
 import { USE_MOCKS } from '../../../lib/constants'
-import type { AssignmentDto, CourierDto, CourierPageDto, DispatchDashboardSummary, DispatchFilters, UnassignedParcelPageDto } from '../types/dispatch.types'
-import { assignMockParcel, getMockCourierPage, getMockUnassigned } from './dispatch.mocks'
+import type { AssignmentDto, CourierDto, CourierPageDto, CourierWorkloadPageDto, DispatchDashboardSummary, DispatchFilters, RegisterCourierRequest, UnassignedParcelPageDto, UpdateCourierRequest } from '../types/dispatch.types'
+import { assignMockParcel, getMockCourierPage, getMockCourierWorkloadPage, getMockUnassigned, registerMockCourier, updateMockCourier } from './dispatch.mocks'
 import { filtersToQueryParams } from '../utils/dispatchBoard.utils'
 
 export async function getDispatchSummary(): Promise<DispatchDashboardSummary> {
@@ -36,6 +36,29 @@ export async function getCouriers(): Promise<CourierDto[]> {
     all.push(...result.items)
   }
   return all
+}
+
+export async function getCourierWorkloadPage(): Promise<CourierWorkloadPageDto> {
+  return USE_MOCKS
+    ? getMockCourierWorkloadPage(100)
+    : (await apiClient.get<CourierWorkloadPageDto>('/dispatch/couriers', { params: { page: 1, pageSize: 100 } })).data
+}
+
+export async function registerCourier(request: RegisterCourierRequest): Promise<CourierDto> {
+  if (USE_MOCKS) return registerMockCourier(request)
+  const { data } = await apiClient.post<CourierDto>('/dispatch/couriers', {
+    courierId: request.userId,
+    ...(request.zoneId ? { zoneId: request.zoneId } : {}),
+    ...(request.vehicleType ? { vehicleType: request.vehicleType } : {}),
+    ...(request.licensePlate ? { licensePlate: request.licensePlate } : {}),
+  })
+  return data
+}
+
+export async function updateCourier(courierId: string, request: UpdateCourierRequest): Promise<CourierDto> {
+  if (USE_MOCKS) return updateMockCourier(courierId, request)
+  const { data } = await apiClient.patch<CourierDto>(`/dispatch/couriers/${courierId}`, request)
+  return data
 }
 
 export async function assignParcel(parcelId: string, courierId: string): Promise<AssignmentDto> {

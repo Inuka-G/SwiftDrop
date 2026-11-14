@@ -103,12 +103,12 @@ export function isZoneMatch(parcel: UnassignedParcelDto, courier: CourierDto): b
 }
 
 export function vehicleGlyph(vehicleType: string | null): string {
-  switch (vehicleType?.trim().toLowerCase()) {
-    case 'motorbike': return '◉'
-    case 'three-wheeler': return '▰'
-    case 'light van': return '▣'
-    default: return '◇'
-  }
+  const type = vehicleType?.trim().toLocaleLowerCase() ?? ''
+  if (type.includes('motor') || type.includes('bike')) return '◉'
+  if (type.includes('three') || type.includes('tuk') || type.includes('rickshaw')) return '▰'
+  if (type.includes('van')) return '▣'
+  if (type.includes('truck') || type.includes('lorry')) return '▣'
+  return '◇'
 }
 
 export function loadRatio(activeDeliveries: number, maxActiveDeliveries: number): number {

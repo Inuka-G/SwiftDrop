@@ -14,7 +14,11 @@ import {
 } from "../features/parcels";
 import { AppLayout } from "./layout/AppLayout";
 import { AdminLayout } from "./layout/AdminLayout";
-import { AdminDashboardPage, DispatchBoardPage } from "../features/dispatch";
+import {
+  AdminDashboardPage,
+  CourierWorkloadPage,
+  DispatchBoardPage,
+} from "../features/dispatch";
 import "../styles/index.css";
 import "../styles/swiftdrop.css";
 
@@ -46,6 +50,7 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <AdminDashboardPage /> },
       { path: "dispatch", element: <DispatchBoardPage /> },
+      { path: "couriers", element: <CourierWorkloadPage /> },
     ],
   },
 ]);
