@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using SwiftDrop.Identity.Business.Services;
 using SwiftDrop.Identity.Data.Entities;
@@ -16,7 +17,8 @@ public class AuthServiceTests
     public AuthServiceTests()
     {
         var jwt = Options.Create(new JwtOptions { Key = new string('k', JwtOptions.MinimumKeyBytes) });
-        _auth = new AuthService(_users, _hasher, new JwtTokenService(jwt));
+        var codes = new GoogleLoginCodeStore(new MemoryCache(new MemoryCacheOptions()));
+        _auth = new AuthService(_users, _hasher, new JwtTokenService(jwt), codes);
     }
 
     private User AddUser(string username, string password, Role role)

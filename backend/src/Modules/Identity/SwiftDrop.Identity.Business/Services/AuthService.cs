@@ -9,7 +9,8 @@ namespace SwiftDrop.Identity.Business.Services;
 internal sealed class AuthService(
     IUserRepository users,
     IPasswordHasher<User> hasher,
-    ITokenService tokens) : IAuthService
+    ITokenService tokens,
+    IGoogleLoginCodeStore googleCodes) : IAuthService
 {
     public async Task<AuthResultDto> LoginAsync(LoginCommand command, CancellationToken ct)
     {
@@ -48,6 +49,49 @@ internal sealed class AuthService(
     {
         var user = await users.GetByIdAsync(id, ct) ?? throw new NotFoundException("User not found.");
         return ToDto(user);
+    }
+
+    public async Task<string> CompleteGoogleLoginAsync(GoogleLoginCommand command, CancellationToken ct)
+    {
+        var user = await users.FindByProviderAsync(User.GoogleProvider, command.GoogleUserId, ct);
+
+        if (user is null)
+        {
+            if (!command.EmailVerified)
+                throw new UnauthorizedException("Your Google email address is not verified.");
+
+            var email = Normalize(command.Email);
+
+            // We never attach Google to an existing password account automatically: the owner
+            // of that account did not agree to it, so they must log in with their password.
+            if (await users.FindByLoginAsync(email, ct) is not null)
+                throw new ConflictException("An account with this email already exists. Log in with your password instead.");
+
+            // Like public signup, Google sign-in always creates a customer.
+            var role = await users.GetRoleAsync(Roles.Customer, ct)
+                ?? throw new InvalidOperationException("The CUSTOMER role is missing from the roles table.");
+
+            var fullName = string.IsNullOrWhiteSpace(command.FullName) ? email : command.FullName.Trim();
+            user = User.CreateGoogleUser(fullName, email, command.GoogleUserId, role);
+            await users.AddAsync(user, ct);
+            await users.SaveChangesAsync(ct);
+        }
+
+        if (!user.IsActive)
+            throw new UnauthorizedException("This account has been deactivated.");
+
+        return googleCodes.Create(user.Id);
+    }
+
+    public async Task<AuthResultDto> ExchangeGoogleCodeAsync(string code, CancellationToken ct)
+    {
+        var userId = googleCodes.Redeem(code);
+        var user = userId is null ? null : await users.GetByIdAsync(userId.Value, ct);
+
+        if (user is null || !user.IsActive)
+            throw new UnauthorizedException("This Google sign-in has expired. Please sign in with Google again.");
+
+        return ToResult(user);
     }
 
     private AuthResultDto ToResult(User user)
