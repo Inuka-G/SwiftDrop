@@ -11,6 +11,7 @@ using SwiftDrop.Merchants.Api;
 var builder = WebApplication.CreateBuilder(args);
 builder.AddJwtAuthentication();   // must come before the modules: it makes sure the signing key exists
 builder.AddGoogleLogin();          // "Login with Google"; switched off when the Google client secret is not set
+builder.Services.AddFrontendCors(builder.Configuration);   // lets the React app (another port) call this API
 builder.Services.AddOpenApi();
 builder.Services.AddProblemDetails();
 builder.Services.AddIdentityModule(builder.Configuration);
@@ -39,6 +40,7 @@ app.UseStatusCodePages();                           // gives empty 401/403/404 r
 app.UseCors("Frontend");
 app.UseSwagger();
 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1"));
+app.UseCors(CorsExtensions.FrontendPolicy);         // before authentication, so browser preflight requests are answered
 app.UseAuthentication();                            // who are you? (reads the JWT)
 app.UseAuthorization();                             // are you allowed? (checks [Authorize])
 app.MapControllers();
