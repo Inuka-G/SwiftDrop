@@ -5,7 +5,7 @@ import { authService } from '../../services/auth.service'
 const navItems = [
   { label: 'Dashboard', path: '/admin', enabled: true },
   { label: 'Dispatch Board', path: '/admin/dispatch', enabled: true },
-  { label: 'Couriers', path: '/admin/couriers', enabled: false },
+  { label: 'Couriers', path: '/admin/couriers', enabled: true },
   { label: 'Reports', path: '/admin/reports', enabled: false },
   { label: 'Users', path: '/admin/users', enabled: false },
   { label: 'Pricing & Zones', path: '/admin/pricing', enabled: false },
