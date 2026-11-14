@@ -50,4 +50,17 @@ public class User : BaseEntity
         IsActive = false;
         UpdatedAtUtc = DateTime.UtcNow;
     }
+
+    public void Activate()
+    {
+        IsActive = true;
+        UpdatedAtUtc = DateTime.UtcNow;
+    }
+
+    public void ChangeRole(Role role)
+    {
+        Role = role;
+        RoleId = role.Id;
+        UpdatedAtUtc = DateTime.UtcNow;
+    }
 }

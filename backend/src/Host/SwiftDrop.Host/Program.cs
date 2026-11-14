@@ -10,6 +10,12 @@ var builder = WebApplication.CreateBuilder(args);
 builder.AddJwtAuthentication();   // must come before the modules: it makes sure the signing key exists
 builder.Services.AddOpenApi();
 builder.Services.AddProblemDetails();
+var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
+if (builder.Environment.IsDevelopment() && allowedOrigins.Length == 0)
+    allowedOrigins = ["http://localhost:5173", "http://127.0.0.1:5173"];
+if (allowedOrigins.Length > 0)
+    builder.Services.AddCors(options => options.AddPolicy("Frontend", policy =>
+        policy.WithOrigins(allowedOrigins).AllowAnyHeader().AllowAnyMethod()));
 builder.Services.AddIdentityModule(builder.Configuration);
 builder.Services.AddPricingModule(builder.Configuration);
 builder.Services.AddParcelsModule(builder.Configuration);
@@ -28,6 +34,7 @@ app.UseMiddleware<ExceptionHandlingMiddleware>();   // first, so it catches erro
 app.UseStatusCodePages();                           // gives empty 401/403/404 responses the same JSON error format
 app.UseSwagger();
 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1"));
+if (allowedOrigins.Length > 0) app.UseCors("Frontend");
 app.UseAuthentication();                            // who are you? (reads the JWT)
 app.UseAuthorization();                             // are you allowed? (checks [Authorize])
 app.MapControllers();

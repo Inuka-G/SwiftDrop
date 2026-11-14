@@ -11,6 +11,7 @@ public static class IdentityModule
     public static IServiceCollection AddIdentityModule(this IServiceCollection services, IConfiguration config)
     {
         services.AddControllers().AddApplicationPart(typeof(IdentityModule).Assembly);
+        services.AddUserManagementApi();
         services.AddIdentityBusiness(config);
         return services;
     }

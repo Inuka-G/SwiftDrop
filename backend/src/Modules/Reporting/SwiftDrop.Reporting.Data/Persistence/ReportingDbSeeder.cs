@@ -17,10 +17,11 @@ internal static class ReportingDbSeeder
             var failed = offset % 3;
             return new DailyStatistic
             {
-                ReportDate = todayUtc.AddDays(offset - 29),
+                Date = todayUtc.AddDays(offset - 29),
                 CreatedCount = created,
                 DeliveredCount = created - failed,
-                FailedCount = failed
+                FailedCount = failed,
+                UpdatedAt = DateTimeOffset.UtcNow
             };
         }));
         await db.SaveChangesAsync(ct);
