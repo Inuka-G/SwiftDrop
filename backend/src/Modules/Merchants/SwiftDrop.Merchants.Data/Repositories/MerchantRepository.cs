@@ -45,6 +45,21 @@ internal sealed class MerchantRepository(MerchantsDbContext db) : IMerchantRepos
     public async Task AddAsync(Merchant merchant, CancellationToken ct = default) =>
         await db.Merchants.AddAsync(merchant, ct);
 
+    public async Task AddApiKeyAsync(ApiKey key, CancellationToken ct = default) =>
+        await db.ApiKeys.AddAsync(key, ct);
+
+    public Task<ApiKey?> GetApiKeyByHashAsync(string keyHash, CancellationToken ct = default) =>
+        db.ApiKeys.FirstOrDefaultAsync(k => k.KeyHash == keyHash, ct);
+
+    public async Task<IReadOnlyList<ApiKey>> GetApiKeysByMerchantIdAsync(Guid merchantId, CancellationToken ct = default) =>
+        await db.ApiKeys
+            .Where(k => k.MerchantId == merchantId)
+            .OrderByDescending(k => k.CreatedAtUtc)
+            .ToListAsync(ct);
+
+    public Task<ApiKey?> GetApiKeyByIdAsync(Guid keyId, CancellationToken ct = default) =>
+        db.ApiKeys.FirstOrDefaultAsync(k => k.Id == keyId, ct);
+
     public Task SaveChangesAsync(CancellationToken ct = default) =>
         db.SaveChangesAsync(ct);
 }

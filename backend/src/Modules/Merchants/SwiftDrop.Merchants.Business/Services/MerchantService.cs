@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+using System.Text;
 using FluentValidation;
 using SwiftDrop.Merchants.Business.Dtos;
 using SwiftDrop.Merchants.Contracts;
@@ -10,6 +12,7 @@ namespace SwiftDrop.Merchants.Business.Services;
 internal sealed class MerchantService(
     IMerchantRepository repository,
     IValidator<RegisterMerchantCommand> validator,
+    IValidator<CreateApiKeyCommand> apiKeyValidator,
     IMerchantEventPublisher eventPublisher) : IMerchantService, IMerchantAccess
 {
     public async Task<MerchantDto> RegisterAsync(RegisterMerchantCommand command, Guid? userId, CancellationToken ct = default)
@@ -91,12 +94,76 @@ internal sealed class MerchantService(
         return merchant is null ? null : ToDto(merchant);
     }
 
+    public async Task<CreatedApiKeyDto> CreateApiKeyAsync(Guid merchantId, CreateApiKeyCommand command, CancellationToken ct = default)
+    {
+        var validation = await apiKeyValidator.ValidateAsync(command, ct);
+        if (!validation.IsValid)
+            throw new BadRequestException(string.Join(" ", validation.Errors.Select(e => e.ErrorMessage)));
+
+        var merchant = await repository.GetByIdAsync(merchantId, ct)
+            ?? throw new NotFoundException("Merchant not found.");
+
+        if (merchant.Status != MerchantStatus.Approved)
+            throw new ForbiddenException("Only approved merchants can create API keys.");
+
+        var randomBytes = RandomNumberGenerator.GetBytes(16);
+        var rawKey = $"sd_live_{Convert.ToHexString(randomBytes).ToLowerInvariant()}";
+        var keyPrefix = rawKey[..16];
+        var keyHash = HashKey(rawKey);
+
+        var apiKey = new ApiKey(merchant.Id, command.Name, keyPrefix, keyHash);
+        await repository.AddApiKeyAsync(apiKey, ct);
+        await repository.SaveChangesAsync(ct);
+
+        return new CreatedApiKeyDto(apiKey.Id, apiKey.Name, apiKey.KeyPrefix, rawKey, apiKey.CreatedAtUtc);
+    }
+
+    public async Task<IReadOnlyList<ApiKeySummaryDto>> GetApiKeysAsync(Guid merchantId, CancellationToken ct = default)
+    {
+        var merchant = await repository.GetByIdAsync(merchantId, ct)
+            ?? throw new NotFoundException("Merchant not found.");
+
+        var keys = await repository.GetApiKeysByMerchantIdAsync(merchant.Id, ct);
+        return keys.Select(k => new ApiKeySummaryDto(
+            k.Id, k.Name, k.KeyPrefix, k.IsActive, k.CreatedAtUtc, k.RevokedAtUtc)).ToList();
+    }
+
+    public async Task RevokeApiKeyAsync(Guid merchantId, Guid keyId, CancellationToken ct = default)
+    {
+        var key = await repository.GetApiKeyByIdAsync(keyId, ct)
+            ?? throw new NotFoundException("API key not found.");
+
+        if (key.MerchantId != merchantId)
+            throw new ForbiddenException("You cannot revoke an API key that belongs to another merchant.");
+
+        key.Revoke();
+        await repository.SaveChangesAsync(ct);
+    }
+
     // --- IMerchantAccess Implementation (Cross-Module Contract) ---
 
-    public Task<MerchantAccessResult?> ValidateApiKeyAsync(string rawApiKey, CancellationToken ct = default)
+    public async Task<MerchantAccessResult?> ValidateApiKeyAsync(string rawApiKey, CancellationToken ct = default)
     {
-        // Will be implemented in Concept 2 (API Keys)
-        return Task.FromResult<MerchantAccessResult?>(null);
+        if (string.IsNullOrWhiteSpace(rawApiKey))
+            return null;
+
+        var hash = HashKey(rawApiKey.Trim());
+        var key = await repository.GetApiKeyByHashAsync(hash, ct);
+        if (key is null || !key.IsActive)
+            return null;
+
+        var merchant = await repository.GetByIdAsync(key.MerchantId, ct);
+        if (merchant is null || merchant.Status != MerchantStatus.Approved)
+            return null;
+
+        return new MerchantAccessResult(merchant.Id, merchant.BusinessName, IsActive: true);
+    }
+
+    private static string HashKey(string key)
+    {
+        var bytes = Encoding.UTF8.GetBytes(key);
+        var hashBytes = SHA256.HashData(bytes);
+        return Convert.ToHexString(hashBytes).ToLowerInvariant();
     }
 
     public async Task<MerchantWebhookTarget?> GetWebhookTargetAsync(Guid merchantId, CancellationToken ct = default)

@@ -75,5 +75,44 @@ public sealed class MerchantsController(IMerchantService merchantService) : Cont
         var merchant = await merchantService.GetByIdAsync(id, ct);
         return Ok(merchant);
     }
+
+    [HttpPost("api-keys")]
+    [Authorize]
+    [ProducesResponseType<CreatedApiKeyDto>(StatusCodes.Status201Created)]
+    public async Task<IActionResult> CreateApiKey([FromBody] CreateApiKeyCommand command, CancellationToken ct)
+    {
+        var userId = User.GetUserId() ?? throw new UnauthorizedException("The token has no user id.");
+        var merchant = await merchantService.GetByUserIdAsync(userId, ct)
+            ?? throw new NotFoundException("You do not have a merchant profile.");
+
+        var created = await merchantService.CreateApiKeyAsync(merchant.Id, command, ct);
+        return StatusCode(StatusCodes.Status201Created, created);
+    }
+
+    [HttpGet("api-keys")]
+    [Authorize]
+    [ProducesResponseType<IReadOnlyList<ApiKeySummaryDto>>(StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetMyApiKeys(CancellationToken ct)
+    {
+        var userId = User.GetUserId() ?? throw new UnauthorizedException("The token has no user id.");
+        var merchant = await merchantService.GetByUserIdAsync(userId, ct)
+            ?? throw new NotFoundException("You do not have a merchant profile.");
+
+        var keys = await merchantService.GetApiKeysAsync(merchant.Id, ct);
+        return Ok(keys);
+    }
+
+    [HttpDelete("api-keys/{keyId:guid}")]
+    [Authorize]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> RevokeApiKey(Guid keyId, CancellationToken ct)
+    {
+        var userId = User.GetUserId() ?? throw new UnauthorizedException("The token has no user id.");
+        var merchant = await merchantService.GetByUserIdAsync(userId, ct)
+            ?? throw new NotFoundException("You do not have a merchant profile.");
+
+        await merchantService.RevokeApiKeyAsync(merchant.Id, keyId, ct);
+        return NoContent();
+    }
 }
 

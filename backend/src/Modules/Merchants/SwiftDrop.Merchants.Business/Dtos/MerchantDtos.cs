@@ -24,3 +24,20 @@ public sealed record MerchantApprovalQueueItemDto(
     Guid? UserId,
     DateTime CreatedAtUtc);
 
+public sealed record CreateApiKeyCommand(string Name);
+
+public sealed record CreatedApiKeyDto(
+    Guid Id,
+    string Name,
+    string KeyPrefix,
+    string PlainTextKey,
+    DateTime CreatedAtUtc);
+
+public sealed record ApiKeySummaryDto(
+    Guid Id,
+    string Name,
+    string KeyPrefix,
+    bool IsActive,
+    DateTime CreatedAtUtc,
+    DateTime? RevokedAtUtc);
+

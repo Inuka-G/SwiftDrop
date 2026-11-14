@@ -10,6 +10,10 @@ public interface IMerchantRepository
     Task<IReadOnlyList<Merchant>> GetPendingAsync(CancellationToken ct = default);
     Task<(IReadOnlyList<Merchant> Items, int TotalCount)> ListAsync(string? status, int page, int pageSize, CancellationToken ct = default);
     Task AddAsync(Merchant merchant, CancellationToken ct = default);
+    Task AddApiKeyAsync(ApiKey key, CancellationToken ct = default);
+    Task<ApiKey?> GetApiKeyByHashAsync(string keyHash, CancellationToken ct = default);
+    Task<IReadOnlyList<ApiKey>> GetApiKeysByMerchantIdAsync(Guid merchantId, CancellationToken ct = default);
+    Task<ApiKey?> GetApiKeyByIdAsync(Guid keyId, CancellationToken ct = default);
     Task SaveChangesAsync(CancellationToken ct = default);
 }
 

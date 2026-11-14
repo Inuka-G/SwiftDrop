@@ -15,6 +15,7 @@ public static class MerchantsBusinessExtensions
     {
         services.AddMerchantsData(config);
         services.AddScoped<IValidator<RegisterMerchantCommand>, RegisterMerchantValidator>();
+        services.AddScoped<IValidator<CreateApiKeyCommand>, CreateApiKeyValidator>();
         services.AddScoped<IMerchantEventPublisher, UnconfiguredMerchantEventPublisher>();
         services.AddScoped<MerchantService>();
         services.AddScoped<IMerchantService>(sp => sp.GetRequiredService<MerchantService>());

@@ -10,5 +10,8 @@ public interface IMerchantService
     Task<MerchantDto> RejectAsync(Guid merchantId, Guid adminId, CancellationToken ct = default);
     Task<MerchantDto> GetByIdAsync(Guid merchantId, CancellationToken ct = default);
     Task<MerchantDto?> GetByUserIdAsync(Guid userId, CancellationToken ct = default);
+    Task<CreatedApiKeyDto> CreateApiKeyAsync(Guid merchantId, CreateApiKeyCommand command, CancellationToken ct = default);
+    Task<IReadOnlyList<ApiKeySummaryDto>> GetApiKeysAsync(Guid merchantId, CancellationToken ct = default);
+    Task RevokeApiKeyAsync(Guid merchantId, Guid keyId, CancellationToken ct = default);
 }
 

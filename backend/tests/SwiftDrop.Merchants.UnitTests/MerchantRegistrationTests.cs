@@ -16,9 +16,10 @@ public sealed class MerchantRegistrationTests
     private readonly Mock<IMerchantRepository> _repository = new();
     private readonly Mock<IMerchantEventPublisher> _eventPublisher = new();
     private readonly RegisterMerchantValidator _validator = new();
+    private readonly CreateApiKeyValidator _apiKeyValidator = new();
 
     private MerchantService CreateService() =>
-        new(_repository.Object, _validator, _eventPublisher.Object);
+        new(_repository.Object, _validator, _apiKeyValidator, _eventPublisher.Object);
 
     [Fact]
     public async Task RegisterAsync_WithValidDetails_ShouldCreateMerchant_WithPendingStatus()
