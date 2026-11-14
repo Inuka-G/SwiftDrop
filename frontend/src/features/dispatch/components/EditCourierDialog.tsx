@@ -64,7 +64,7 @@ export function EditCourierDialog({ courier: initialCourier, opener, onClose, on
     setValues((current) => ({ ...current, [name]: value }))
   }
 
-  const content = <div className="courier-dialog-overlay">
+  const content = <div className="admin-shell courier-dialog-overlay">
     <section className="courier-dialog" role="dialog" aria-modal="true" aria-labelledby="edit-courier-title" ref={dialogRef} onKeyDown={handleKeyDown}>
       <header className="courier-dialog-header">
         <span className="courier-dialog-icon is-orange" aria-hidden="true">▤</span>
