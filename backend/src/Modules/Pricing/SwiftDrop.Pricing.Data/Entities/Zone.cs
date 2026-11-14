@@ -12,6 +12,17 @@ public class Zone : BaseEntity
         Description = description;
     }
 
+    public void UpdateDetails(string zoneName, string? description)
+    {
+        ZoneName = zoneName;
+        Description = description;
+    }
+
+    public void SetActive(bool isActive)
+    {
+        IsActive = isActive;
+    }
+
     public string ZoneName {get; private set;} = default!;
     public string? Description {get; private set;}
     public bool IsActive {get; private set;} = true;
