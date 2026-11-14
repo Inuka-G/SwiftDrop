@@ -255,6 +255,25 @@ public sealed class DispatchServiceTests
     }
 
     [Fact]
+    public async Task Dashboard_summary_counts_unassigned_and_distinct_active_couriers()
+    {
+        await using var db = await CreateDatabaseAsync();
+        var courierId = Guid.NewGuid();
+        db.CourierProfiles.AddRange(new CourierProfile { CourierId = courierId, IsAvailable = true },
+            new CourierProfile { CourierId = Guid.NewGuid(), IsAvailable = false });
+        db.Assignments.AddRange(
+            new ParcelAssignment { ParcelId = Guid.NewGuid(), TrackingNumber = "U1", State = "UNASSIGNED" },
+            new ParcelAssignment { ParcelId = Guid.NewGuid(), TrackingNumber = "A1", CourierId = courierId, State = "ASSIGNED" },
+            new ParcelAssignment { ParcelId = Guid.NewGuid(), TrackingNumber = "A2", CourierId = courierId, State = "ASSIGNED" },
+            new ParcelAssignment { ParcelId = Guid.NewGuid(), TrackingNumber = "C1", CourierId = courierId, State = "COMPLETED" });
+        await db.SaveChangesAsync();
+
+        var summary = await new DispatchRepository(db).GetDashboardSummaryAsync(default);
+
+        Assert.Equal((1, 1, 1, 2, 2), summary);
+    }
+
+    [Fact]
     public async Task User_role_consumer_creates_courier_profile_once()
     {
         await using var db = await CreateDatabaseAsync();

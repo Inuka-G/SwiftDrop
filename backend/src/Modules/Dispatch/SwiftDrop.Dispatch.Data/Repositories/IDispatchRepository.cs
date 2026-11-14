@@ -13,6 +13,7 @@ internal interface IDispatchRepository
         int page, int pageSize, CancellationToken ct);
     Task<IReadOnlyDictionary<Guid, int>> GetWorkloadsAsync(IReadOnlyCollection<Guid> courierIds, CancellationToken ct);
     Task<(int Total, int Available, int Unavailable, int ActiveDeliveries)> GetCourierSummaryAsync(CancellationToken ct);
+    Task<(int Unassigned, int AvailableCouriers, int CouriersWithActiveDeliveries, int ActiveDeliveries, int TotalCouriers)> GetDashboardSummaryAsync(CancellationToken ct);
     Task SaveChangesAsync(CancellationToken ct);
     Task SaveAsync(CancellationToken ct);
     Task AddFromEventAsync(Guid eventId, ParcelAssignment assignment, CancellationToken ct);

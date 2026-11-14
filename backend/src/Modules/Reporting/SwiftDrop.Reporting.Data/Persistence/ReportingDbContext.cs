@@ -14,13 +14,19 @@ internal sealed class ReportingDbContext(DbContextOptions<ReportingDbContext> op
         modelBuilder.Entity<DailyStatistic>(e =>
         {
             e.ToTable("daily_statistics");
-            e.HasKey(x => x.ReportDate);
-            e.Property(x => x.ReportDate).ValueGeneratedNever();
+            e.HasKey(x => x.Date);
+            e.Property(x => x.Date).ValueGeneratedNever();
+            e.Property(x => x.UpdatedAt).HasConversion(
+                value => value.ToUnixTimeMilliseconds(),
+                value => DateTimeOffset.FromUnixTimeMilliseconds(value));
         });
         modelBuilder.Entity<ProcessedEvent>(e =>
         {
             e.ToTable("processed_events");
             e.HasKey(x => x.EventId);
+            e.Property(x => x.ProcessedAt).HasConversion(
+                value => value.ToUnixTimeMilliseconds(),
+                value => DateTimeOffset.FromUnixTimeMilliseconds(value));
         });
     }
 }

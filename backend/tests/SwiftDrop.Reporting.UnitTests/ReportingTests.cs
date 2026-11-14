@@ -35,8 +35,8 @@ public sealed class ReportingTests
         var daily = await service.GetDeliveriesPerDayAsync(date, date.AddDays(1), default);
         Assert.True(daily.IsSuccess);
         Assert.Collection(daily.Value!.Days,
-            row => { Assert.Equal(4, row.CreatedCount); Assert.Equal(3, row.DeliveredCount); Assert.Equal(1, row.FailedCount); },
-            row => { Assert.Equal(date.AddDays(1), row.Date); Assert.Equal(0, row.CreatedCount); });
+            row => { Assert.Equal(date, row.Date); Assert.Equal(4, row.Created); Assert.Equal(3, row.Delivered); Assert.Equal(1, row.Failed); },
+            row => { Assert.Equal(date.AddDays(1), row.Date); Assert.Equal(0, row.Created); });
 
         var rate = await service.GetSuccessFailureRateAsync(date, date, default);
         Assert.Equal(4, rate.Value!.TotalCount);
@@ -52,6 +52,25 @@ public sealed class ReportingTests
         Assert.True(report.IsSuccess);
         Assert.Null(report.Value!.SuccessRate);
         Assert.Equal(0, report.Value.TotalCount);
+    }
+
+    [Fact]
+    public async Task Dashboard_summary_has_frontend_contract_names_and_date_format()
+    {
+        await using var harness = new Harness();
+        var date = new DateOnly(2026, 3, 1);
+        await harness.Provider.GetRequiredService<IReportingRepository>().ApplyEventAsync(Guid.NewGuid(), date, 2, 0, 0, default);
+        var summary = await harness.Provider.GetRequiredService<IReportService>().GetSummaryAsync(default);
+        var json = System.Text.Json.JsonSerializer.Serialize(summary, new System.Text.Json.JsonSerializerOptions
+        {
+            PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase
+        });
+        Assert.Contains("\"date\":", json);
+        Assert.Contains("\"created\":", json);
+        Assert.Contains("\"delivered\":", json);
+        Assert.Contains("\"failed\":", json);
+        Assert.Contains("\"successRate\":", json);
+        Assert.DoesNotContain("createdCount", json);
     }
 
     [Theory]
@@ -111,7 +130,7 @@ public sealed class ReportingTests
             });
             await Task.WhenAll(first, second);
             await using var verify = new ReportingDbContext(options);
-            Assert.Equal(2, (await verify.DailyStatistics.SingleAsync(x => x.ReportDate == date)).CreatedCount);
+            Assert.Equal(2, (await verify.DailyStatistics.SingleAsync(x => x.Date == date)).CreatedCount);
         }
         finally
         {
