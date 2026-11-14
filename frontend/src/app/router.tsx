@@ -32,13 +32,12 @@ export const router = createBrowserRouter([
   // Signed-in workspaces
   {
     element: <AppLayout />,
-    children: [{ path: "courier", element: <CourierDashboardPage /> }],
     children: [
-      { index: true, element: <CourierDashboardPage /> },
       { path: "courier", element: <CourierDashboardPage /> },
       { path: "book", element: <CreateBookingPage /> },
       { path: "history", element: <CustomerHistoryPage /> },
-      { path: "track", element: <PublicTrackingPage /> },
+      { path: "track", element: <PublicTrackingPage /> },       // Public Tracking (No login required)
+      { path: "track/:trackingNumber", element: <PublicTrackingPage /> },    // Public Tracking (No login required)
       { path: "assistant", element: <AIAssistantPage /> },
     ],
   },
