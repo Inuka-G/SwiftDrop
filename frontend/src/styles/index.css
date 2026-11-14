@@ -618,8 +618,6 @@ h1 {
   --courier-dialog-width: 35rem;
   --courier-dialog-max-height: 90vh;
   --courier-dialog-backdrop: rgb(15 23 42 / 32%);
-  --courier-amber-soft: #fff2e8;
-  --courier-amber-text: #8d3712;
   --courier-danger-soft: #fff1f2;
 }
 
@@ -725,10 +723,12 @@ h1 {
 .courier-combobox-popover li[role="option"] em.is-registered { color: var(--color-on-error-container); background: var(--color-error-container); }
 .courier-user-state { padding: var(--space-md); color: var(--color-outline); font-size: var(--dashboard-measure-0-78); }
 .courier-duplicate-banner,.courier-form-alert { display: grid; gap: var(--space-sm); padding: var(--space-md); border: 1px solid var(--dashboard-error-border); border-radius: var(--radius-default); color: var(--color-on-error-container); background: var(--courier-danger-soft); font-size: var(--dashboard-measure-0-78); }
-.courier-error-heading { display: flex; align-items: center; gap: var(--space-sm); }
+.courier-duplicate-banner { grid-template-columns: auto minmax(0, 1fr); }
+.courier-error-icon { display: grid; width: var(--dashboard-measure-1-25); aspect-ratio: 1; grid-column: 1; grid-row: 1 / span 2; place-items: center; border: 1px solid currentColor; border-radius: var(--radius-full); font-size: var(--dashboard-measure-0-65); font-weight: 700; }
+.courier-error-heading { display: flex; grid-column: 2; align-items: center; gap: var(--space-sm); }
 .courier-error-heading > span { padding: var(--space-xs) var(--space-sm); border-radius: var(--radius-sm); color: var(--color-on-error); background: var(--color-error); font-family: var(--font-label); font-size: var(--dashboard-measure-0-55); white-space: nowrap; }
 .courier-error-heading button { margin-left: auto; border: 0; color: var(--color-on-error-container); background: transparent; font-size: var(--dashboard-measure-1-15); cursor: pointer; }
-.courier-duplicate-banner p { margin: 0; line-height: 1.5; }
+.courier-duplicate-banner p { grid-column: 2; margin: 0; line-height: 1.5; }
 .courier-inline-link { padding: 0; color: var(--color-on-error-container); font-weight: 700; text-decoration: underline; }
 .courier-form-alert { display: flex; align-items: center; justify-content: space-between; gap: var(--space-md); }
 .courier-form-alert button { flex: 0 0 auto; padding: var(--space-xs) var(--space-sm); border: 1px solid var(--dashboard-error-border); border-radius: var(--radius-default); color: var(--color-on-error-container); background: var(--color-surface-container-lowest); cursor: pointer; }
