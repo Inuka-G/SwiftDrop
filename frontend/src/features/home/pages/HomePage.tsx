@@ -57,7 +57,7 @@ export function HomePage() {
         </form>
 
         <div className="sd-hero__actions">
-          <Link to="/send-parcel" className="sd-btn sd-btn--tonal"><TruckIcon /> Send a Parcel</Link>
+          <Link to="/book" className="sd-btn sd-btn--tonal"><TruckIcon /> Send a Parcel</Link>
           <Link to="/login" className="sd-link sd-link--strong">Sign In to Merchant Hub</Link>
         </div>
       </section>
