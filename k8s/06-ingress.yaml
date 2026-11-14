@@ -1,0 +1,24 @@
+# Needs an ingress controller (see infrastructure/README.md, step "Kubernetes").
+# The frontend's nginx already forwards /api, /hubs and /swagger to the backend,
+# so one route to the frontend is enough.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: swiftdrop
+  namespace: swiftdrop
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: 10m
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+spec:
+  ingressClassName: nginx
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend
+                port:
+                  number: 80
