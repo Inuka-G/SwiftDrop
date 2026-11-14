@@ -1,4 +1,6 @@
 import type { AssignmentDto, CourierDto, CourierPageDto, UnassignedParcelDto, UnassignedParcelPageDto } from '../types/dispatch.types'
+import type { CourierWorkloadPageDto, RegisterCourierRequest, UpdateCourierRequest } from '../types/dispatch.types'
+import { getMockCourierUser } from '../../identity'
 
 const baseTime = Date.now()
 const zones = ['90c10000-0000-4000-8000-000000000001', '90c10000-0000-4000-8000-000000000002', '90c10000-0000-4000-8000-000000000003', '90c10000-0000-4000-8000-000000000004']
@@ -39,6 +41,38 @@ export function getMockUnassigned(filters: { from: string; to: string }, page: n
 
 export function getMockCourierPage(page: number, pageSize: number): CourierPageDto {
   return { items: mockCouriers.slice((page - 1) * pageSize, page * pageSize), page, pageSize, totalCount: mockCouriers.length }
+}
+
+export function getMockCourierWorkloadPage(pageSize: number): CourierWorkloadPageDto {
+  return { items: mockCouriers.slice(0, pageSize), page: 1, pageSize, totalCount: mockCouriers.length }
+}
+
+export function registerMockCourier(request: RegisterCourierRequest): CourierDto {
+  const user = getMockCourierUser(request.userId)
+  if (!user?.isActive || user.role !== 'COURIER') throw Object.assign(new Error('Account is not eligible.'), { response: { status: 400 } })
+  if (mockCouriers.some((courier) => courier.courierId === request.userId)) throw Object.assign(new Error('Courier already exists.'), { response: { status: 409 } })
+  const courier: CourierDto = {
+    courierId: request.userId,
+    name: user.fullName,
+    zoneId: request.zoneId ?? null,
+    isAvailable: true,
+    vehicleType: request.vehicleType ?? null,
+    licensePlate: request.licensePlate ?? null,
+    activeDeliveryCount: 0,
+  }
+  mockCouriers.unshift(courier)
+  return courier
+}
+
+export function updateMockCourier(courierId: string, request: UpdateCourierRequest): CourierDto {
+  const courier = mockCouriers.find((candidate) => candidate.courierId === courierId)
+  if (!courier) throw Object.assign(new Error('Courier not found.'), { response: { status: 404 } })
+  if (courierId.endsWith('0007')) throw Object.assign(new Error('Courier changed concurrently.'), { response: { status: 409 } })
+  if (request.zoneId !== undefined) courier.zoneId = request.zoneId
+  if (request.isAvailable !== undefined) courier.isAvailable = request.isAvailable
+  if (request.vehicleType !== undefined) courier.vehicleType = request.vehicleType
+  if (request.licensePlate !== undefined) courier.licensePlate = request.licensePlate
+  return { ...courier }
 }
 
 export function assignMockParcel(parcelId: string, courierId: string): AssignmentDto {

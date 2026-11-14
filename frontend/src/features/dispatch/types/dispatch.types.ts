@@ -48,6 +48,27 @@ export interface CourierPageDto {
   totalCount: number
 }
 
+export interface CourierWorkloadPageDto {
+  items: CourierDto[]
+  page: number
+  pageSize: number
+  totalCount: number
+}
+
+export interface RegisterCourierRequest {
+  userId: string
+  zoneId?: string
+  vehicleType?: string
+  licensePlate?: string
+}
+
+export interface UpdateCourierRequest {
+  zoneId?: string
+  isAvailable?: boolean
+  vehicleType?: string
+  licensePlate?: string
+}
+
 export interface AssignParcelRequest {
   courierId: string
 }
