@@ -23,6 +23,8 @@ public sealed record CourierProfileDto(Guid CourierId, string Name, Guid? ZoneId
 public sealed record CourierProfilePage(IReadOnlyList<CourierProfileDto> Items, int Page, int PageSize, int TotalCount);
 public sealed record CourierDashboardSummary(int TotalCouriers, int AvailableCouriers,
     int UnavailableCouriers, int ActiveDeliveries);
+public sealed record DispatchDashboardSummary(int UnassignedCount, int AvailableCouriers,
+    int CouriersWithActiveDeliveries, int ActiveDeliveries, int TotalCouriers);
 public sealed record CourierProfileResult(CourierProfileDto? Profile, DispatchFailure? Failure)
 {
     public bool IsSuccess => Failure is null;
@@ -41,4 +43,5 @@ public interface IDispatchService
         string? vehicleType, string? licensePlate, CancellationToken ct);
     Task<CourierProfilePage> ListCouriersAsync(Guid? zoneId, bool? isAvailable, int page, int pageSize, CancellationToken ct);
     Task<CourierDashboardSummary> GetCourierSummaryAsync(CancellationToken ct);
+    Task<DispatchDashboardSummary> GetDashboardSummaryAsync(CancellationToken ct);
 }
