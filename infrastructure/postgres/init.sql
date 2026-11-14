@@ -1,0 +1,11 @@
+-- One schema per module, all inside the single "swiftdrop" database.
+CREATE SCHEMA IF NOT EXISTS identity;
+CREATE SCHEMA IF NOT EXISTS merchants;
+CREATE SCHEMA IF NOT EXISTS pricing;
+CREATE SCHEMA IF NOT EXISTS parcels;
+CREATE SCHEMA IF NOT EXISTS dispatch;
+CREATE SCHEMA IF NOT EXISTS webhooks;
+CREATE SCHEMA IF NOT EXISTS notifications;
+CREATE SCHEMA IF NOT EXISTS realtime;
+CREATE SCHEMA IF NOT EXISTS reporting;
+CREATE SCHEMA IF NOT EXISTS aiassistant;
