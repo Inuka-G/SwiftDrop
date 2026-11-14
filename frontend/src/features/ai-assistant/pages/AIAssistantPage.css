@@ -1,0 +1,164 @@
+.ai-page {
+  width: min(920px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 56px 0;
+}
+
+.ai-heading {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.ai-heading h1 {
+  margin: 8px 0;
+  font-size: clamp(2rem, 5vw, 3rem);
+  color: #0b2254;
+}
+
+.ai-heading > p:last-child {
+  color: #62708d;
+}
+
+.ai-eyebrow {
+  color: #1f5eff;
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+}
+
+.ai-prompts {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.ai-prompts button {
+  padding: 10px 16px;
+  border: 1px solid #cdd9f7;
+  border-radius: 999px;
+  background: #fff;
+  color: #1748b6;
+  cursor: pointer;
+}
+
+.ai-chat-card {
+  overflow: hidden;
+  border: 1px solid #dce3f2;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 18px 50px rgb(25 57 120 / 10%);
+}
+
+.ai-messages {
+  min-height: 380px;
+  max-height: 55vh;
+  overflow-y: auto;
+  padding: 24px;
+  background: #f7f9fd;
+}
+
+.ai-message {
+  width: fit-content;
+  max-width: 78%;
+  margin-bottom: 16px;
+  padding: 14px 16px;
+  border-radius: 16px;
+}
+
+.ai-message p {
+  margin: 5px 0 0;
+  line-height: 1.5;
+}
+
+.ai-message small {
+  display: block;
+  margin-top: 8px;
+  opacity: 0.75;
+}
+
+.ai-message--assistant {
+  border: 1px solid #dce3f2;
+  background: #fff;
+  color: #182747;
+}
+
+.ai-message--user {
+  margin-left: auto;
+  background: #1f5eff;
+  color: #fff;
+}
+
+.ai-typing,
+.ai-error {
+  margin: 12px 24px;
+}
+
+.ai-typing {
+  color: #62708d;
+}
+
+.ai-error {
+  color: #b42318;
+}
+
+.ai-form {
+  padding: 20px 24px 24px;
+}
+
+.ai-form label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 700;
+  color: #182747;
+}
+
+.ai-form-row {
+  display: flex;
+  gap: 12px;
+}
+
+.ai-form-row input {
+  flex: 1;
+  min-width: 0;
+  padding: 14px 16px;
+  border: 1px solid #cbd5e7;
+  border-radius: 10px;
+  font: inherit;
+}
+
+.ai-form-row button {
+  padding: 0 24px;
+  border: 0;
+  border-radius: 10px;
+  background: #1f5eff;
+  color: #fff;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.ai-form-row button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+@media (max-width: 620px) {
+  .ai-page {
+    padding: 32px 0;
+  }
+
+  .ai-prompts,
+  .ai-form-row {
+    flex-direction: column;
+  }
+
+  .ai-form-row button {
+    min-height: 48px;
+  }
+
+  .ai-message {
+    max-width: 90%;
+  }
+}
+
