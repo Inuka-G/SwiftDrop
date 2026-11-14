@@ -5,12 +5,12 @@ public static class ReportQueryLimits
     public const int MaximumRangeDays = 366;
 }
 
-public sealed record DailyDeliveryCountDto(DateOnly Date, int CreatedCount, int DeliveredCount, int FailedCount);
-public sealed record DeliveriesPerDayResponse(DateOnly From, DateOnly To, IReadOnlyList<DailyDeliveryCountDto> Days);
+public sealed record DailyDeliveryCountDto(DateOnly Date, int Created, int Delivered, int Failed);
+public sealed record DeliveriesPerDayResponse(IReadOnlyList<DailyDeliveryCountDto> Days);
 public sealed record SuccessFailureRateResponse(DateOnly From, DateOnly To, int DeliveredCount,
     int FailedCount, int TotalCount, decimal? SuccessRate);
-public sealed record ReportingSummaryResponse(DateOnly Date, int CreatedCount, int DeliveredCount,
-    int FailedCount, decimal? SuccessRate);
+public sealed record ReportingSummaryResponse(DateOnly Date, int Created, int Delivered,
+    int Failed, decimal? SuccessRate);
 
 public enum ReportFailure { InvalidDateRange }
 
