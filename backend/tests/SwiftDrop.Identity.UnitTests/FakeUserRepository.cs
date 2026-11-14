@@ -23,6 +23,9 @@ internal sealed class FakeUserRepository : IUserRepository
     public Task<User?> GetByIdAsync(Guid id, CancellationToken ct) =>
         Task.FromResult(Users.FirstOrDefault(u => u.Id == id));
 
+    public Task<User?> FindByProviderAsync(string provider, string providerUserId, CancellationToken ct) =>
+        Task.FromResult(Users.FirstOrDefault(u => u.AuthProvider == provider && u.ProviderUserId == providerUserId));
+
     public Task<Role?> GetRoleAsync(string roleName, CancellationToken ct) =>
         Task.FromResult(AllRoles.FirstOrDefault(r => r.Name == roleName));
 
