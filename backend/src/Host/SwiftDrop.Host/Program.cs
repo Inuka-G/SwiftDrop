@@ -6,6 +6,7 @@ using SwiftDrop.Pricing.Api;
 using SwiftDrop.Reporting.Api;
 using SwiftDrop.SharedKernel.Middleware;
 using SwiftDrop.Parcels.Api;
+using SwiftDrop.Merchants.Api;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.AddJwtAuthentication();   // must come before the modules: it makes sure the signing key exists
@@ -17,6 +18,7 @@ builder.Services.AddPricingModule(builder.Configuration);
 builder.Services.AddParcelsModule(builder.Configuration);
 builder.Services.AddDispatchModule(builder.Configuration);
 builder.Services.AddReportingModule(builder.Configuration);
+builder.Services.AddMerchantsModule(builder.Configuration);
 builder.Services.AddAiAssistantModule(builder.Configuration);
 builder.Services.AddCors(options => options.AddPolicy("Frontend", policy => policy
     .WithOrigins("http://localhost:5173")
@@ -31,6 +33,7 @@ await app.InitializePricingModuleAsync();
 await app.InitializeParcelsModuleAsync();
 await app.InitializeDispatchModuleAsync();
 await app.InitializeReportingModuleAsync();
+await app.InitializeMerchantsModuleAsync();
 app.UseMiddleware<ExceptionHandlingMiddleware>();   // first, so it catches errors from everything after it
 app.UseStatusCodePages();                           // gives empty 401/403/404 responses the same JSON error format
 app.UseCors("Frontend");

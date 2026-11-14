@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
     <ProjectReference Include="..\SwiftDrop.Merchants.Data\SwiftDrop.Merchants.Data.csproj" />
@@ -8,7 +8,15 @@
 
   <ItemGroup>
     <PackageReference Include="FluentValidation" Version="12.2.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.14" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.14" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="SwiftDrop.Merchants.UnitTests" />
   </ItemGroup>
 
   <PropertyGroup>
