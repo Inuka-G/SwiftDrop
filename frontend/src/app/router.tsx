@@ -38,6 +38,7 @@ export const router = createBrowserRouter([
       { path: "assistant", element: <AIAssistantPage /> },
     ],
   },
+
   // Admin routes
   {
     path: "admin",
