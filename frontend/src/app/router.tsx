@@ -1,6 +1,12 @@
 import { createBrowserRouter } from "react-router-dom";
 import { AIAssistantPage } from "../features/ai-assistant";
-import { CourierDashboardPage } from "../features/courier";
+import {
+  CourierLayout,
+  DeliveryDetailPage,
+  ProofOfDeliveryPage,
+  RunsPage,
+  ShiftPage,
+} from "../features/courier";
 import { HomePage } from "../features/home";
 import {
   GoogleCallbackPage,
@@ -12,8 +18,10 @@ import {
   CustomerHistoryPage,
   PublicTrackingPage,
 } from "../features/parcels";
+import { ROLES } from "../lib/constants";
 import { AppLayout } from "./layout/AppLayout";
 import { AdminLayout } from "./layout/AdminLayout";
+import { RequireRole } from "./RequireRole";
 import {
   AdminDashboardPage,
   CourierWorkloadPage,
@@ -33,12 +41,28 @@ export const router = createBrowserRouter([
   {
     element: <AppLayout />,
     children: [
-      { path: "courier", element: <CourierDashboardPage /> },
       { path: "book", element: <CreateBookingPage /> },
       { path: "history", element: <CustomerHistoryPage /> },
       { path: "track", element: <PublicTrackingPage /> },       // Public Tracking (No login required)
       { path: "track/:trackingNumber", element: <PublicTrackingPage /> },    // Public Tracking (No login required)
       { path: "assistant", element: <AIAssistantPage /> },
+    ],
+  },
+
+  // Courier app: its own phone-style frame with a bottom tab bar
+  {
+    path: "courier",
+    element: (
+      <RequireRole roles={[ROLES.courier]}>
+        <CourierLayout />
+      </RequireRole>
+    ),
+    children: [
+      { index: true, element: <RunsPage view="active" /> },
+      { path: "completed", element: <RunsPage view="completed" /> },
+      { path: "shift", element: <ShiftPage /> },
+      { path: "deliveries/:id", element: <DeliveryDetailPage /> },
+      { path: "deliveries/:id/proof", element: <ProofOfDeliveryPage /> },
     ],
   },
 

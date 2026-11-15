@@ -65,4 +65,29 @@ public class Parcel : BaseEntity
     public string CurrentStatus { get; private set; } = "Created";
     public DateTime UpdatedAtUtc { get; private set; }
     public int Version { get; private set; } = 1;
+
+    // Courier assignment (set by Dispatch through IParcelAssignment)
+    public Guid? CourierId { get; private set; }
+    public DateTime? AssignedAtUtc { get; private set; }
+
+    // Transition rules live in ParcelStatusTransitions; these only record the result.
+    public void AssignCourier(Guid courierId, DateTime nowUtc)
+    {
+        CourierId = courierId;
+        AssignedAtUtc = nowUtc;
+        Touch(nowUtc);
+    }
+
+    public void ChangeStatus(string newStatus, DateTime nowUtc)
+    {
+        CurrentStatus = newStatus;
+        Touch(nowUtc);
+    }
+
+    // Bumping Version makes a concurrent update of the same parcel fail instead of overwriting.
+    private void Touch(DateTime nowUtc)
+    {
+        UpdatedAtUtc = nowUtc;
+        Version++;
+    }
 }
