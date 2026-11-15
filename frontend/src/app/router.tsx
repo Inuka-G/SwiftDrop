@@ -14,6 +14,7 @@ import {
 } from "../features/parcels";
 import { AppLayout } from "./layout/AppLayout";
 import { AdminLayout } from "./layout/AdminLayout";
+import { ReportsPage } from "../features/reporting";
 import {
   AdminDashboardPage,
   CourierWorkloadPage,
@@ -50,6 +51,7 @@ export const router = createBrowserRouter([
       { index: true, element: <AdminDashboardPage /> },
       { path: "dispatch", element: <DispatchBoardPage /> },
       { path: "couriers", element: <CourierWorkloadPage /> },
+      { path: "reports", element: <ReportsPage /> },
     ],
   },
 ]);

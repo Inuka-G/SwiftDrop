@@ -1,4 +1,4 @@
-import type { DailyDeliveryCountDto, DeliveriesPerDayDto, ReportingSummaryDto } from './types/reporting.types'
+import type { DailyDeliveryCountDto, DeliveriesPerDayDto, ReportingSummaryDto, SuccessFailureRateDto } from './types/reporting.types'
 
 const weeklyValues = [
   { deliveredCount: 150, failedCount: 10 },
@@ -14,14 +14,44 @@ function utcDate(date: Date) {
   return date.toISOString().slice(0, 10)
 }
 
-export function getDeliveriesPerDayMock(now = new Date()): DeliveriesPerDayDto {
-  const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()))
-  const days: DailyDeliveryCountDto[] = weeklyValues.map((counts, index) => {
-    const date = new Date(today)
-    date.setUTCDate(today.getUTCDate() - (6 - index))
-    return { date: utcDate(date), created: counts.deliveredCount + counts.failedCount, delivered: counts.deliveredCount, failed: counts.failedCount }
-  })
+function mockMode() {
+  return new URLSearchParams(window.location.search).get('reportsMock')
+}
+
+function failFor(mode: string | null, endpoint: 'daily' | 'rate') {
+  if (mode === 'bad-request') throw Object.assign(new Error('Invalid range'), { response: { status: 400 } })
+  if (mode === `${endpoint}-error`) throw new Error('Mock server error')
+}
+
+export function getDeliveriesPerDayMock(from: string, to: string): DeliveriesPerDayDto {
+  const mode = mockMode()
+  failFor(mode, 'daily')
+  const days: DailyDeliveryCountDto[] = []
+  const start = new Date(`${from}T00:00:00.000Z`)
+  const end = new Date(`${to}T00:00:00.000Z`)
+  for (const date = new Date(start); date <= end; date.setUTCDate(date.getUTCDate() + 1)) {
+    const index = Math.abs(Math.floor(date.getTime() / 86_400_000)) % weeklyValues.length
+    const counts = mode === 'zero' ? { deliveredCount: 0, failedCount: 0 } : weeklyValues[index]
+    days.push({ date: utcDate(date), created: counts.deliveredCount + counts.failedCount, delivered: counts.deliveredCount, failed: counts.failedCount })
+  }
   return days
+}
+
+export function getSuccessRateMock(from: string, to: string): SuccessFailureRateDto {
+  const mode = mockMode()
+  failFor(mode, 'rate')
+  const days: DailyDeliveryCountDto[] = []
+  const start = new Date(`${from}T00:00:00.000Z`)
+  const end = new Date(`${to}T00:00:00.000Z`)
+  for (const date = new Date(start); date <= end; date.setUTCDate(date.getUTCDate() + 1)) {
+    const index = Math.abs(Math.floor(date.getTime() / 86_400_000)) % weeklyValues.length
+    const counts = mode === 'zero' ? { deliveredCount: 0, failedCount: 0 } : weeklyValues[index]
+    days.push({ date: utcDate(date), created: counts.deliveredCount + counts.failedCount, delivered: counts.deliveredCount, failed: counts.failedCount })
+  }
+  const deliveredCount = days.reduce((total, day) => total + day.delivered, 0)
+  const failedCount = days.reduce((total, day) => total + day.failed, 0)
+  const totalCount = deliveredCount + failedCount
+  return { from, to, deliveredCount, failedCount, totalCount, successRate: totalCount ? deliveredCount / totalCount : null }
 }
 
 export function getReportSummaryMock(now = new Date()): ReportingSummaryDto {

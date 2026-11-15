@@ -10,12 +10,16 @@ export function getUtcRange(now = new Date()) {
   return { from: fromDate.toISOString().slice(0, 10), to: toDate.toISOString().slice(0, 10) }
 }
 
-export function useDeliveriesPerDay() {
-  const { from, to } = getUtcRange()
+export function useDeliveriesPerDay(from?: string, to?: string, enabled = true) {
+  const dashboardRange = from == null || to == null ? getUtcRange() : null
+  const rangeFrom = from ?? dashboardRange!.from
+  const rangeTo = to ?? dashboardRange!.to
+  const isDashboardQuery = from == null || to == null
   return useQuery({
-    queryKey: ['reporting', 'deliveriesPerDay', from, to],
-    queryFn: () => USE_MOCKS ? Promise.resolve(getDeliveriesPerDayMock()) : getDeliveriesPerDay(from, to),
-    refetchInterval: DASHBOARD_REFRESH_INTERVAL_MS,
+    queryKey: ['reporting', 'deliveriesPerDay', rangeFrom, rangeTo],
+    queryFn: () => USE_MOCKS ? Promise.resolve(getDeliveriesPerDayMock(rangeFrom, rangeTo)) : getDeliveriesPerDay(rangeFrom, rangeTo),
+    enabled,
+    refetchInterval: isDashboardQuery ? DASHBOARD_REFRESH_INTERVAL_MS : false,
     placeholderData: (previous) => previous,
     retry: 1,
   })
