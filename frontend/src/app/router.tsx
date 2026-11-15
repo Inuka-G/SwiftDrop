@@ -12,6 +12,7 @@ import {
   GoogleCallbackPage,
   LoginPage,
   SignupPage,
+  UserManagementPage,
 } from "../features/identity";
 import {
   CreateBookingPage,
@@ -76,6 +77,7 @@ export const router = createBrowserRouter([
       { path: "dispatch", element: <DispatchBoardPage /> },
       { path: "couriers", element: <CourierWorkloadPage /> },
       { path: "reports", element: <ReportsPage /> },
+      { path: "users", element: <UserManagementPage /> },
     ],
   },
 ]);

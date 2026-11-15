@@ -14,6 +14,19 @@ export const COURIER_VEHICLE_TYPES = ['Motorbike', 'Three-Wheeler', 'Van', 'Ligh
 export const COURIER_LICENSE_PLATE_MAX_LENGTH = 20
 export const COURIER_SEARCH_DEBOUNCE_MS = 250
 export const COURIER_USER_SEARCH_DEBOUNCE_MS = 300
+export const USER_MANAGEMENT_PAGE_SIZE = 10
+export const USER_SEARCH_DEBOUNCE_MS = 300
+export const USER_TOAST_DURATION_MS = 5_000
+export const USER_MANAGEMENT_ROLE_LABELS: Record<string, string> = {
+  ADMIN: 'Admin', DISPATCHER: 'Dispatcher', COURIER: 'Courier', MERCHANT: 'Merchant', CUSTOMER: 'Customer',
+}
+export const USER_MANAGEMENT_FILTER_ROLES = ['ADMIN', 'DISPATCHER', 'COURIER', 'MERCHANT', 'CUSTOMER'] as const
+export const USER_MANAGEMENT_ROLE_OPTIONS = [
+  { value: 'ADMIN', label: 'Admin' },
+  { value: 'COURIER', label: 'Courier' },
+  { value: 'MERCHANT', label: 'Merchant' },
+  { value: 'CUSTOMER', label: 'Customer' },
+] as const
 export const USE_MOCKS = import.meta.env.VITE_USE_MOCKS === 'true'
 
 

@@ -196,6 +196,39 @@
   --reports-table-row-height: 2.875rem;
   --reports-page-width: 1540px;
 
+  /* User management and merchant review values not covered by the shared design tokens. */
+  --users-blue: #1557d6;
+  --users-border: var(--dashboard-card-border);
+  --users-blue-soft: #eaf1ff;
+  --users-blue-border: #cfe0ff;
+  --users-merchant: #bb5700;
+  --users-merchant-soft: #fff5df;
+  --users-courier: #007c91;
+  --users-courier-soft: #e4fbff;
+  --users-customer: #56647a;
+  --users-customer-soft: #f0f3f8;
+  --users-amber: #a94b00;
+  --users-amber-soft: #fff0d9;
+  --users-amber-border: #ffd580;
+  --users-approve: #008b5a;
+  --users-danger: #d02b46;
+  --users-danger-text: #83152a;
+  --users-danger-soft: #fff0f1;
+  --users-danger-border: #ffc7cd;
+  --users-overlay: rgb(19 27 46 / 48%);
+  --users-dialog-shadow: 0 1.5rem 3.5rem rgb(19 27 46 / 22%);
+  --users-dialog-width: 32rem;
+  --users-dialog-max-height: 48rem;
+  --users-table-min-width: 65rem;
+  --users-nav-height: 2.25rem;
+  --users-row-height: 3.2rem;
+  --users-avatar-a: #eaf1ff;
+  --users-avatar-b: #eff0ff;
+  --users-avatar-c: #e2f9ef;
+  --users-avatar-d: #fff3cf;
+  --users-avatar-e: #ffe8ee;
+  --users-avatar-f: #e3f8fb;
+
   /* Existing application defaults remain intact. */
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   color: #172033;
