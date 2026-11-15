@@ -21,11 +21,8 @@ import {
 import { ROLES } from "../lib/constants";
 import { AppLayout } from "./layout/AppLayout";
 import { AdminLayout } from "./layout/AdminLayout";
-<<<<<<< HEAD
 import { ReportsPage } from "../features/reporting";
-=======
 import { RequireRole } from "./RequireRole";
->>>>>>> origin/dev
 import {
   AdminDashboardPage,
   CourierWorkloadPage,
@@ -47,8 +44,8 @@ export const router = createBrowserRouter([
     children: [
       { path: "book", element: <CreateBookingPage /> },
       { path: "history", element: <CustomerHistoryPage /> },
-      { path: "track", element: <PublicTrackingPage /> },       // Public Tracking (No login required)
-      { path: "track/:trackingNumber", element: <PublicTrackingPage /> },    // Public Tracking (No login required)
+      { path: "track", element: <PublicTrackingPage /> }, // Public Tracking (No login required)
+      { path: "track/:trackingNumber", element: <PublicTrackingPage /> }, // Public Tracking (No login required)
       { path: "assistant", element: <AIAssistantPage /> },
     ],
   },
