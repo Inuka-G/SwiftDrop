@@ -25,3 +25,6 @@ public sealed class NotFoundException(string message)
 
 public sealed class ConflictException(string message)
     : AppException(StatusCodes.Status409Conflict, "Conflict", message);
+
+public sealed class ServiceUnavailableException(string message)
+    : AppException(StatusCodes.Status503ServiceUnavailable, "Service unavailable", message);

@@ -19,8 +19,4 @@
     <Using Include="Xunit" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\src\Host\SwiftDrop.Host\SwiftDrop.Host.csproj" />
-  </ItemGroup>
-
 </Project>

@@ -20,9 +20,14 @@ public sealed class SwiftDropApiFactory : WebApplicationFactory<Program>
         Environment.SetEnvironmentVariable("ConnectionStrings__Pricing", $"Data Source={Path.Combine(folder, "pricing.db")}");
         Environment.SetEnvironmentVariable("ConnectionStrings__Dispatch", $"Data Source={Path.Combine(folder, "dispatch.db")}");
         Environment.SetEnvironmentVariable("ConnectionStrings__Reporting", $"Data Source={Path.Combine(folder, "reporting.db")}");
+        Environment.SetEnvironmentVariable("ConnectionStrings__Merchants", $"Data Source={Path.Combine(folder, "merchants.db")}");
         Environment.SetEnvironmentVariable("ConnectionStrings__Parcels", $"Data Source={Path.Combine(folder, "parcels.db")}");
         Environment.SetEnvironmentVariable("Parcels__ProofStoragePath", Path.Combine(folder, "proofs"));
         Environment.SetEnvironmentVariable("Parcels__Outbox__PollingIntervalMs", "100");
+
+        // Keep Google login switched off in tests, even on a computer that has the real secrets.
+        // A space is used because an empty value would delete the variable instead of overriding it.
+        Environment.SetEnvironmentVariable("Authentication__Google__ClientId", " ");
     }
 
     /// Captures what the Parcels outbox publishes, standing in for RabbitMQ.

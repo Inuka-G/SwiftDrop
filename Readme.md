@@ -132,6 +132,25 @@ Log in with `POST /api/v1/auth/login` in Swagger (http://localhost:5017/swagger)
 | Environment variable | Purpose                                                                                                     |
 | -------------------- | ----------------------------------------------------------------------------------------------------------- |
 | `Jwt__Key`           | Secret that signs login tokens, at least 32 bytes. Required outside Development; generated at startup in Development. |
+| `Authentication__Google__ClientId`     | Google OAuth client ID. Google login is switched off when it is missing.                                    |
+| `Authentication__Google__ClientSecret` | Google OAuth client secret. Never commit it.                                                                |
+| `Authentication__Google__FrontendCallbackUrl` | React page that finishes Google sign-in. Defaults to `http://localhost:5173/auth/google/callback`. |
+
+### Google login (optional)
+
+1. Ask the Identity owner for the Google client ID and secret, or create your own OAuth client in Google Cloud Console (Web application) with the redirect URI `http://localhost:5017/signin-google`.
+2. Store them outside the repository:
+
+   ```bash
+   cd backend/src/Host/SwiftDrop.Host
+   dotnet user-secrets set "Authentication:Google:ClientId" "<client-id>"
+   dotnet user-secrets set "Authentication:Google:ClientSecret" "<client-secret>"
+   ```
+
+3. Open `http://localhost:5017/api/v1/auth/google/login` in a browser. Your Google account must be listed as a test user while the Google app is in Testing mode.
+
+How it works: Google redirects back to `/signin-google`, the backend creates or finds the CUSTOMER account and redirects to `FrontendCallbackUrl?code=...`. The React page then calls `POST /api/v1/auth/google/exchange` with that one-time code (valid for 1 minute) and receives the same response as normal login. On failure it receives `?error=<message>` instead.
+
 
 ### Run the frontend
 

@@ -1,6 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
-import { authService } from '../../../services/auth.service'
+import { useAuth } from '../../identity'
 import { Icon } from '../components/Icon'
 import { TopBar } from '../components/TopBar'
 import { formatCurrency } from '../components/statusMeta'
@@ -11,12 +11,12 @@ import { useTodayLedger } from '../hooks/useTodayLedger'
 export function ShiftPage() {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
-  const user = authService.getCurrentUser()
+  const { user, logout } = useAuth()
   const { data: deliveries = [] } = useCourierDeliveries()
   const ledger = useTodayLedger(deliveries)
 
   function endShift() {
-    authService.logout()
+    logout()
     queryClient.clear()   // drop this courier's cached deliveries
     navigate('/login', { replace: true })
   }

@@ -12,6 +12,10 @@ import type {
 
 const DELIVERIES = '/courier/deliveries'
 
+// The shared client defaults to JSON, which axios would apply to FormData too.
+// Naming multipart lets the browser add the boundary and send the photo as a file.
+const MULTIPART = { headers: { 'Content-Type': 'multipart/form-data' } }
+
 /** Builds a multipart body, skipping empty text fields so the server sees them as absent. */
 function toForm(fields: Record<string, string>, photo: File | null): FormData {
   const form = new FormData()
@@ -43,13 +47,13 @@ export const courierApi = {
 
   async confirmDelivery(id: string, input: ConfirmDeliveryInput): Promise<CourierDelivery> {
     const form = toForm({ recipientName: input.recipientName, note: input.note }, input.photo)
-    const { data } = await apiClient.post<CourierDelivery>(`${DELIVERIES}/${id}/deliver`, form)
+    const { data } = await apiClient.post<CourierDelivery>(`${DELIVERIES}/${id}/deliver`, form, MULTIPART)
     return data
   },
 
   async reportFailure(id: string, input: ReportFailureInput): Promise<CourierDelivery> {
     const form = toForm({ reason: input.reason, note: input.note }, input.photo)
-    const { data } = await apiClient.post<CourierDelivery>(`${DELIVERIES}/${id}/fail`, form)
+    const { data } = await apiClient.post<CourierDelivery>(`${DELIVERIES}/${id}/fail`, form, MULTIPART)
     return data
   },
 

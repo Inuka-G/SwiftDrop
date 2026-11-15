@@ -1,30 +1,30 @@
-import { AUTH_TOKEN_KEY, AUTH_USER_KEY } from '../lib/constants'
-import type { AuthUser } from '../types/common.types'
+import { AUTH_TOKEN_KEY } from '../lib/constants'
 
+/**
+ * "Remember me" keeps the token in localStorage (survives closing the browser).
+ * Otherwise it goes in sessionStorage and is gone when the tab closes.
+ */
 export const storageService = {
   getAccessToken(): string | null {
-    return localStorage.getItem(AUTH_TOKEN_KEY)
+    return sessionStorage.getItem(AUTH_TOKEN_KEY) ?? localStorage.getItem(AUTH_TOKEN_KEY)
   },
-  setAccessToken(token: string): void {
-    localStorage.setItem(AUTH_TOKEN_KEY, token)
+  setAccessToken(token: string, remember = true): void {
+    storageService.clearAccessToken()
+    ;(remember ? localStorage : sessionStorage).setItem(AUTH_TOKEN_KEY, token)
   },
   clearAccessToken(): void {
     localStorage.removeItem(AUTH_TOKEN_KEY)
+    sessionStorage.removeItem(AUTH_TOKEN_KEY)
   },
-  getUser(): AuthUser | null {
-    const raw = localStorage.getItem(AUTH_USER_KEY)
-    if (!raw) return null
-    try {
-      return JSON.parse(raw) as AuthUser
-    } catch {
-      return null
-    }
+  getUser(): { fullName: string; role: string } | null {
+    const value = localStorage.getItem('swiftdrop.user')
+    if (!value) return null
+    try { return JSON.parse(value) as { fullName: string; role: string } } catch { return null }
   },
-  setUser(user: AuthUser): void {
-    localStorage.setItem(AUTH_USER_KEY, JSON.stringify(user))
+  setUser(user: { fullName: string; role: string }): void {
+    localStorage.setItem('swiftdrop.user', JSON.stringify(user))
   },
-  clearSession(): void {
-    localStorage.removeItem(AUTH_TOKEN_KEY)
-    localStorage.removeItem(AUTH_USER_KEY)
+  clearUser(): void {
+    localStorage.removeItem('swiftdrop.user')
   },
 }

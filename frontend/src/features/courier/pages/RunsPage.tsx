@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { getErrorMessage } from '../../../lib/axios'
-import { authService } from '../../../services/auth.service'
+import { useAuth } from '../../identity'
 import { Icon } from '../components/Icon'
 import { StopCard } from '../components/StopCard'
 import { TopBar } from '../components/TopBar'
@@ -14,7 +14,7 @@ import { useTodayLedger } from '../hooks/useTodayLedger'
  * or failed today. Stop numbers follow the order the dispatcher assigned them.
  */
 export function RunsPage({ view }: { view: 'active' | 'completed' }) {
-  const user = authService.getCurrentUser()
+  const { user } = useAuth()
   const [today] = useState(() => new Intl.DateTimeFormat(undefined, { dateStyle: 'medium' }).format(new Date()))
   const { data: deliveries = [], isLoading, isError, error, refetch, isFetching, dataUpdatedAt } =
     useCourierDeliveries()

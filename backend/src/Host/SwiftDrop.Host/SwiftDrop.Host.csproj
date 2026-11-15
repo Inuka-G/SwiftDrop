@@ -17,6 +17,7 @@
   <ItemGroup>
     <PackageReference Include="Asp.Versioning.Mvc" Version="10.2.1" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.14" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="10.0.14" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.14" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.14">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -30,6 +31,8 @@
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <!-- Lets each developer keep secrets (such as the Google client secret) outside the repository. -->
+    <UserSecretsId>swiftdrop-host</UserSecretsId>
   </PropertyGroup>
 
 </Project>

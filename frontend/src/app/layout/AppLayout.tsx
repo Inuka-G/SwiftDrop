@@ -1,16 +1,12 @@
-import { useQueryClient } from '@tanstack/react-query'
-import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom'
-import { ROLES } from '../../lib/constants'
-import { authService } from '../../services/auth.service'
+import { Link, Outlet, useNavigate } from 'react-router-dom'
+import { useAuth } from '../../features/identity'
 
 export function AppLayout() {
+  const { user, logout } = useAuth()
   const navigate = useNavigate()
-  const queryClient = useQueryClient()
-  const user = authService.getCurrentUser()
 
-  function signOut() {
-    authService.logout()
-    queryClient.clear()   // drop the previous user's cached data
+  function handleLogout() {
+    logout()
     navigate('/login', { replace: true })
   }
 
@@ -22,17 +18,19 @@ export function AppLayout() {
           <span>SwiftDrop</span>
         </Link>
         <nav aria-label="Main navigation">
-          {user?.role === ROLES.courier && <NavLink to="/courier">My deliveries</NavLink>}
+          <Link to="/">Home</Link>
+          <Link to="/courier">Courier dashboard</Link>
           {user ? (
-            <>
-              <span className="nav-user">{user.fullName}</span>
-              <button className="link-button" type="button" onClick={signOut}>
-                Sign out
-              </button>
-            </>
+            <button type="button" className="app-header__logout" onClick={handleLogout}>
+              Log out ({user.fullName})
+            </button>
           ) : (
-            <NavLink to="/login">Sign in</NavLink>
+            <Link to="/login">Log in</Link>
           )}
+          <Link to="/track">Track Parcel</Link>
+          <Link to="/book">Book Delivery</Link>
+          <Link to="/history">My Deliveries</Link>
+          <Link to="/assistant">AI Assistant</Link>
         </nav>
       </header>
       <main className="page-content">

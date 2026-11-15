@@ -57,6 +57,18 @@ internal sealed class DispatchRepository(DispatchDbContext db) : IDispatchReposi
         return (total, available, total - available, active);
     }
 
+    public async Task<(int Unassigned, int AvailableCouriers, int CouriersWithActiveDeliveries, int ActiveDeliveries, int TotalCouriers)> GetDashboardSummaryAsync(CancellationToken ct)
+    {
+        var unassigned = await db.Assignments.CountAsync(x => x.State == AssignmentStates.Unassigned, ct);
+        var availableCouriers = await db.CourierProfiles.CountAsync(x => x.IsAvailable, ct);
+        var totalCouriers = await db.CourierProfiles.CountAsync(ct);
+        var activeQuery = db.Assignments.Where(x => x.State == AssignmentStates.Assigned);
+        var activeDeliveries = await activeQuery.CountAsync(ct);
+        var couriersWithActiveDeliveries = await activeQuery.Where(x => x.CourierId.HasValue)
+            .Select(x => x.CourierId!.Value).Distinct().CountAsync(ct);
+        return (unassigned, availableCouriers, couriersWithActiveDeliveries, activeDeliveries, totalCouriers);
+    }
+
     public Task SaveChangesAsync(CancellationToken ct) => db.SaveChangesAsync(ct);
 
     public Task SaveAsync(CancellationToken ct) => db.SaveChangesAsync(ct);
