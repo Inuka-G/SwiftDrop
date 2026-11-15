@@ -19,6 +19,8 @@ public static class IdentityBusinessExtensions
         services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();   // PBKDF2 with a random salt per user
         services.AddScoped<ITokenService, JwtTokenService>();
         services.AddScoped<IAuthService, AuthService>();
+        services.AddMemoryCache();
+        services.AddSingleton<IGoogleLoginCodeStore, GoogleLoginCodeStore>();
         services.AddScoped<IUserAdministrationService, UserAdministrationService>();
         services.AddScoped<IIdentityEventPublisher, UnconfiguredIdentityEventPublisher>();
         return services;

@@ -33,4 +33,10 @@ public class PricingRule : BaseEntity
 
     public Zone Zone {get; private set;} = default!;
 
+    public void UpdateRates(decimal baseRate, decimal additionalKgRate)
+    {
+        BaseRate = baseRate;
+        AdditionalKgRate = additionalKgRate;
+    }
+
 }

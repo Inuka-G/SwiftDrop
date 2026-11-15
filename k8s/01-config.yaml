@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: swiftdrop-config
+  namespace: swiftdrop
+data:
+  POSTGRES_DB: swiftdrop
+  ASPNETCORE_ENVIRONMENT: Development
+  Database__Provider: Postgres
+  RabbitMQ__Host: rabbitmq
+  RabbitMQ__Port: "5672"
+---
+# DEV-ONLY placeholder values. For anything real, create the Secret with
+#   kubectl create secret generic swiftdrop-secrets -n swiftdrop --from-literal=...
+# and do not commit real passwords.
+apiVersion: v1
+kind: Secret
+metadata:
+  name: swiftdrop-secrets
+  namespace: swiftdrop
+type: Opaque
+stringData:
+  POSTGRES_USER: swiftdrop
+  POSTGRES_PASSWORD: change_me_postgres
+  RABBITMQ_USER: swiftdrop
+  RABBITMQ_PASSWORD: change_me_rabbit

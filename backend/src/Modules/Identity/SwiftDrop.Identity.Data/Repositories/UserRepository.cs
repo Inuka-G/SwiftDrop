@@ -13,6 +13,10 @@ internal sealed class UserRepository(IdentityDbContext db) : IUserRepository
     public Task<User?> GetByIdAsync(Guid id, CancellationToken ct) =>
         db.Users.Include(u => u.Role).FirstOrDefaultAsync(u => u.Id == id, ct);
 
+    public Task<User?> FindByProviderAsync(string provider, string providerUserId, CancellationToken ct) =>
+        db.Users.Include(u => u.Role)
+            .FirstOrDefaultAsync(u => u.AuthProvider == provider && u.ProviderUserId == providerUserId, ct);
+
     public Task<Role?> GetRoleAsync(string roleName, CancellationToken ct) =>
         db.Roles.FirstOrDefaultAsync(r => r.Name == roleName, ct);
 

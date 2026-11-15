@@ -1,18 +1,50 @@
 import { apiClient } from '../lib/axios'
 import { storageService } from './storage.service'
 
+export interface AuthUser {
+  id: string
+  fullName: string
+  email: string
+  username: string | null
+  role: string
+}
+
+export interface AuthResult {
+  accessToken: string
+  expiresAtUtc: string
+  user: AuthUser
+}
+
+export interface SignupData {
+  fullName: string
+  email: string
+  password: string
+  phoneNumber?: string
+}
+
 export const authService = {
   getAccessToken: storageService.getAccessToken,
-  clearAccessToken(): void {
-    storageService.clearAccessToken()
-    storageService.clearUser()
+  clearAccessToken: storageService.clearAccessToken,
+
+  /** `username` can be a username such as "admin" or an email address. */
+  async login(username: string, password: string): Promise<AuthResult> {
+    const response = await apiClient.post<AuthResult>('/auth/login', { username, password })
+    return response.data
   },
-  async login(email: string, password: string): Promise<void> {
-    const response = await apiClient.post<{ accessToken: string; user: { fullName: string; role: string } }>('/auth/login', {
-      username: email,
-      password,
-    })
-    storageService.setAccessToken(response.data.accessToken)
-    storageService.setUser(response.data.user)
+
+  async signup(data: SignupData): Promise<AuthResult> {
+    const response = await apiClient.post<AuthResult>('/auth/signup', data)
+    return response.data
+  },
+
+  /** Swaps the one-time code from Google login for a normal login result. */
+  async exchangeGoogleCode(code: string): Promise<AuthResult> {
+    const response = await apiClient.post<AuthResult>('/auth/google/exchange', { code })
+    return response.data
+  },
+
+  async me(): Promise<AuthUser> {
+    const response = await apiClient.get<AuthUser>('/auth/me')
+    return response.data
   },
 }
