@@ -7,6 +7,7 @@ using SwiftDrop.Reporting.Api;
 using SwiftDrop.SharedKernel.Middleware;
 using SwiftDrop.Parcels.Api;
 using SwiftDrop.Merchants.Api;
+using SwiftDrop.Realtime.Api;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.AddJwtAuthentication();   // must come before the modules: it makes sure the signing key exists
@@ -27,6 +28,7 @@ builder.Services.AddDispatchModule(builder.Configuration);
 builder.Services.AddReportingModule(builder.Configuration);
 builder.Services.AddMerchantsModule(builder.Configuration);
 builder.Services.AddAiAssistantModule(builder.Configuration);
+builder.Services.AddRealtimeModule();
 builder.Services.AddCors(options => options.AddPolicy("Frontend", policy => policy
     .WithOrigins("http://localhost:5173")
     .AllowAnyHeader()
@@ -53,8 +55,10 @@ app.UseCors(CorsExtensions.FrontendPolicy);         // before authentication, so
 app.UseAuthentication();                            // who are you? (reads the JWT)
 app.UseAuthorization();                             // are you allowed? (checks [Authorize])
 app.MapControllers();
+app.MapRealtimeEndpoints();
 app.MapOpenApi();
 app.MapGet("/", () => "Hello World!");
+
 
 app.Run();
 
