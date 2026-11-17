@@ -28,6 +28,9 @@ export const USER_MANAGEMENT_ROLE_OPTIONS = [
   { value: 'CUSTOMER', label: 'Customer' },
 ] as const
 export const USE_MOCKS = import.meta.env.VITE_USE_MOCKS === 'true'
+export const ZONE_TOAST_DURATION_MS = 5_000
+export const ZONE_NAME_MAX_LENGTH = 100
+export const ZONE_DESCRIPTION_MAX_LENGTH = 250
 
 
 
