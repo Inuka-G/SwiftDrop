@@ -16,6 +16,8 @@ public static class RealtimeModule
 
         services.AddScoped<ITrackingNotifier, TrackingNotifier>();
 
+        services.AddScoped<ParcelStatusChangedHandler>();
+
         return services;
     }
 
