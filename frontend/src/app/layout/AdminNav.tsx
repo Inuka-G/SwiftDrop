@@ -7,7 +7,7 @@ const navItems = [
   { label: 'Dispatch Board', path: '/admin/dispatch', enabled: true },
   { label: 'Couriers', path: '/admin/couriers', enabled: true },
   { label: 'Reports', path: '/admin/reports', enabled: true },
-  { label: 'Users', path: '/admin/users', enabled: false },
+  { label: 'Users', path: '/admin/users', enabled: true },
   { label: 'Pricing & Zones', path: '/admin/pricing', enabled: false },
 ]
 
