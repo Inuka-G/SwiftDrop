@@ -12,7 +12,6 @@ import {
   GoogleCallbackPage,
   LoginPage,
   SignupPage,
-  UserManagementPage,
 } from "../features/identity";
 import {
   CreateBookingPage,
@@ -28,6 +27,7 @@ import {
   AdminDashboardPage,
   CourierWorkloadPage,
   DispatchBoardPage,
+  UserManagementPage,
 } from "../features/dispatch";
 import "../styles/index.css";
 import "../styles/swiftdrop.css";
