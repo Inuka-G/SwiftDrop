@@ -27,6 +27,10 @@ export function AppLayout() {
           ) : (
             <Link to="/login">Log in</Link>
           )}
+          <Link to="/track">Track Parcel</Link>
+          <Link to="/book">Book Delivery</Link>
+          <Link to="/history">My Deliveries</Link>
+          <Link to="/assistant">AI Assistant</Link>
         </nav>
       </header>
       <main className="page-content">

@@ -1,0 +1,12 @@
+**/bin
+**/obj
+**/node_modules
+**/dist
+**/*.db
+**/.git
+backend/tests
+.env
+.env.*
+!.env.example
+k8s
+docs

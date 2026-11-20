@@ -3,6 +3,7 @@
   <ItemGroup>
     <ProjectReference Include="..\SwiftDrop.Dispatch.Data\SwiftDrop.Dispatch.Data.csproj" />
     <ProjectReference Include="..\SwiftDrop.Dispatch.Contracts\SwiftDrop.Dispatch.Contracts.csproj" />
+    <ProjectReference Include="..\..\Parcels\SwiftDrop.Parcels.Contracts\SwiftDrop.Parcels.Contracts.csproj" />
     <ProjectReference Include="..\..\..\SharedKernel\SwiftDrop.SharedKernel\SwiftDrop.SharedKernel.csproj" />
   </ItemGroup>
 
