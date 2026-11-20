@@ -23,6 +23,8 @@ public class CorsTests(SwiftDropApiFactory factory)
 
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
         Assert.Equal("http://localhost:5173", response.Headers.GetValues("Access-Control-Allow-Origin").Single());
+        // Needed so the browser may send the refresh-token cookie.
+        Assert.Equal("true", response.Headers.GetValues("Access-Control-Allow-Credentials").Single());
     }
 
     [Fact]

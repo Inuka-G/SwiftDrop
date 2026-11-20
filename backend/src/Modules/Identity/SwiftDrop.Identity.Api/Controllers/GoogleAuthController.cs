@@ -20,7 +20,10 @@ namespace SwiftDrop.Identity.Api.Controllers;
 [ApiController]
 [Route("api/v1/auth/google")]
 [AllowAnonymous]
-public class GoogleAuthController(IAuthService auth, IOptions<GoogleAuthOptions> options) : ControllerBase
+public class GoogleAuthController(
+    IAuthService auth,
+    IRefreshTokenService refreshTokens,
+    IOptions<GoogleAuthOptions> options) : ControllerBase
 {
     private const string CompletePath = "/api/v1/auth/google/complete";
 
@@ -72,8 +75,12 @@ public class GoogleAuthController(IAuthService auth, IOptions<GoogleAuthOptions>
     [Produces("application/json")]
     [ProducesResponseType<AuthResultDto>(StatusCodes.Status200OK)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> Exchange(GoogleExchangeRequest req, CancellationToken ct) =>
-        Ok(await auth.ExchangeGoogleCodeAsync(req.Code, ct));
+    public async Task<IActionResult> Exchange(GoogleExchangeRequest req, CancellationToken ct)
+    {
+        var result = await auth.ExchangeGoogleCodeAsync(req.Code, ct);
+        RefreshTokenCookie.Set(Response, await refreshTokens.IssueAsync(result.User.Id, persistent: true, ct));
+        return Ok(result);
+    }
 
     private void EnsureConfigured()
     {

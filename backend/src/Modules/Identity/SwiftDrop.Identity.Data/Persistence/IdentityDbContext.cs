@@ -7,6 +7,7 @@ internal sealed class IdentityDbContext(DbContextOptions<IdentityDbContext> opti
 {
     public DbSet<User> Users => Set<User>();
     public DbSet<Role> Roles => Set<Role>();
+    public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

@@ -39,10 +39,13 @@ export function AuthProvider({ children }: PropsWithChildren) {
     () => ({
       user,
       isLoading,
-      login: async (username, password, remember) => accept(await authService.login(username, password), remember),
+      login: async (username, password, remember) =>
+        accept(await authService.login(username, password, remember), remember),
       signup: async (data: SignupData) => accept(await authService.signup(data), true),
       completeGoogleLogin: async (code) => accept(await authService.exchangeGoogleCode(code), true),
       logout: () => {
+        // Revoke the refresh token on the server too. The user is logged out here even if that call fails.
+        authService.logout().catch(() => {})
         storageService.clearAccessToken()
         setUser(null)
       },

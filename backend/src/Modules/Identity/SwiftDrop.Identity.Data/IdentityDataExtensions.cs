@@ -13,6 +13,7 @@ public static class IdentityDataExtensions
     {
         services.AddModuleDbContext<IdentityDbContext>(config, "Identity");
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
         return services;
     }
 
