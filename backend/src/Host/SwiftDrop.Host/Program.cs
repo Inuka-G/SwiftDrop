@@ -7,6 +7,8 @@ using SwiftDrop.Reporting.Api;
 using SwiftDrop.SharedKernel.Middleware;
 using SwiftDrop.Parcels.Api;
 using SwiftDrop.Merchants.Api;
+using SwiftDrop.Notifications.Api;
+using SwiftDrop.SharedKernel.Messaging;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.AddJwtAuthentication();   // must come before the modules: it makes sure the signing key exists
@@ -26,6 +28,8 @@ builder.Services.AddCors(options => options.AddPolicy("Frontend", policy => poli
     .AllowAnyHeader()
     .AllowAnyMethod()));
 builder.Services.AddControllers();
+builder.Services.AddRabbitMq(builder.Configuration);          // once
+builder.Services.AddNotificationsModule(builder.Configuration); // calls AddNotificationsBusiness()
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerWithJwt();
 var app = builder.Build();

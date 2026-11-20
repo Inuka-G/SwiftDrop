@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -26,6 +26,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Modules\Parcels\SwiftDrop.Parcels.Business\SwiftDrop.Parcels.Business.csproj" />
     <ProjectReference Include="..\..\src\Modules\Parcels\SwiftDrop.Parcels.Data\SwiftDrop.Parcels.Data.csproj" />
+    <ProjectReference Include="..\..\src\SharedKernel\SwiftDrop.SharedKernel.Messaging\SwiftDrop.SharedKernel.Messaging.csproj" />
   </ItemGroup>
 
 </Project>

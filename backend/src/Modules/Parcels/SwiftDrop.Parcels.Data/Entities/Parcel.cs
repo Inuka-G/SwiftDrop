@@ -65,4 +65,11 @@ public class Parcel : BaseEntity
     public string CurrentStatus { get; private set; } = "Created";
     public DateTime UpdatedAtUtc { get; private set; }
     public int Version { get; private set; } = 1;
+
+    public void UpdateStatus(string newStatus)
+    {
+        CurrentStatus = newStatus;
+        UpdatedAtUtc = DateTime.UtcNow;
+        Version++;
+    }
 }

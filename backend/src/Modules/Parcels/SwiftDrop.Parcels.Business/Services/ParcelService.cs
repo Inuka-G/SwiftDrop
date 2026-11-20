@@ -1,14 +1,17 @@
 using SwiftDrop.Parcels.Contracts.Dtos;
+using SwiftDrop.Parcels.Contracts.Events;
 using SwiftDrop.Parcels.Data.Entities;
 using SwiftDrop.Parcels.Data.Repositories;
 using SwiftDrop.Pricing.Contracts;
 using SwiftDrop.SharedKernel.Exceptions;
+using SwiftDrop.SharedKernel.Messaging;
 
 namespace SwiftDrop.Parcels.Business.Services;
 
 internal sealed class ParcelService(
     IParcelRepository repository,
-    IPricingService pricingService) : IParcelService
+    IPricingService pricingService,
+    IEventPublisher eventPublisher) : IParcelService
 {
     public async Task<ParcelCreatedResponse> CreateParcelAsync(Guid customerId, CreateParcelRequest req, CancellationToken ct)
     {
@@ -39,6 +42,18 @@ internal sealed class ParcelService(
         // 4. Save to DB
         await repository.AddAsync(parcel, ct);
         await repository.SaveChangesAsync(ct);
+
+        // 5. Publish status changed integration event
+        await eventPublisher.PublishAsync(new ParcelStatusChanged(
+            parcel.Id,
+            parcel.TrackingNumber,
+            OldStatus: "None",
+            NewStatus: parcel.CurrentStatus,
+            Note: "Parcel created.",
+            CustomerId: parcel.CustomerId,
+            MerchantId: null,
+            CourierId: null
+        ), ct);
 
         return new ParcelCreatedResponse(parcel.Id, parcel.TrackingNumber, parcel.EstimatedFee, parcel.CurrentStatus, parcel.CreatedAtUtc);
     }
@@ -91,6 +106,29 @@ internal sealed class ParcelService(
             parcel.CurrentStatus,
             parcel.CreatedAtUtc
         );
+    }
+
+    public async Task<bool> UpdateStatusAsync(Guid parcelId, string newStatus, string? note = null, Guid? courierId = null, CancellationToken ct = default)
+    {
+        var parcel = await repository.GetByIdAsync(parcelId, ct);
+        if (parcel is null) return false;
+
+        var oldStatus = parcel.CurrentStatus;
+        parcel.UpdateStatus(newStatus);
+        await repository.SaveChangesAsync(ct);
+
+        await eventPublisher.PublishAsync(new ParcelStatusChanged(
+            parcel.Id,
+            parcel.TrackingNumber,
+            OldStatus: oldStatus,
+            NewStatus: newStatus,
+            Note: note,
+            CustomerId: parcel.CustomerId,
+            MerchantId: null,
+            CourierId: courierId
+        ), ct);
+
+        return true;
     }
 
     private static string GenerateTrackingNumber()
