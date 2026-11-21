@@ -1,8 +1,8 @@
 
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import type { CSSProperties } from 'react'
 import { parcelsApi } from '../api/parcels.api'
-import type { ParcelSummaryDto } from '../types/parcel.types'
+import { useCustomerDashboard } from '../hooks/useCustomerDashboard'
 
 const formatDate = (date: string) =>
   new Intl.DateTimeFormat('en-LK', {
@@ -50,46 +50,16 @@ const getStatusStyle = (status: string): CSSProperties => {
 }
 
 export function CustomerHistoryPage() {
-  const [deliveries, setDeliveries] = useState<ParcelSummaryDto[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
+  const {
+    parcels: deliveries,
+    isLoading: loading,
+    error,
+    refresh,
+  } = useCustomerDashboard()
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('ALL')
   const [downloadingId, setDownloadingId] = useState<string | null>(null)
   const [receiptError, setReceiptError] = useState('')
-
-  useEffect(() => {
-    let active = true
-
-    const loadHistory = async () => {
-      try {
-        setLoading(true)
-        setError('')
-
-        const data = await parcelsApi.getMyHistory()
-
-        if (active) {
-          setDeliveries(data)
-        }
-      } catch {
-        if (active) {
-          setError(
-            'Unable to load your delivery history. Please try again.',
-          )
-        }
-      } finally {
-        if (active) {
-          setLoading(false)
-        }
-      }
-    }
-
-    void loadHistory()
-
-    return () => {
-      active = false
-    }
-  }, [])
 
   const filteredDeliveries = useMemo(() => {
     return deliveries.filter((delivery) => {
@@ -104,7 +74,7 @@ export function CustomerHistoryPage() {
       const matchesStatus =
         statusFilter === 'ALL' ||
         delivery.currentStatus.toUpperCase().replace(/[\s-]/g, '_') ===
-          statusFilter
+        statusFilter
 
       return matchesSearch && matchesStatus
     })
@@ -203,7 +173,7 @@ export function CustomerHistoryPage() {
               <p>{error}</p>
               <button
                 style={styles.retryButton}
-                onClick={() => window.location.reload()}
+                onClick={() => void refresh()}
               >
                 Try Again
               </button>

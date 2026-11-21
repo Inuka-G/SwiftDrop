@@ -16,6 +16,7 @@ import {
 } from "../features/identity";
 import {
   CreateBookingPage,
+  CustomerDashboardPage,
   CustomerHistoryPage,
   PublicTrackingPage,
 } from "../features/parcels";
@@ -44,6 +45,7 @@ export const router = createBrowserRouter([
   {
     element: <AppLayout />,
     children: [
+      { path: "customer", element: import.meta.env.DEV ? (<CustomerDashboardPage />) : (<RequireRole roles={[ROLES.customer]}><CustomerDashboardPage /></RequireRole>), },
       { path: "book", element: <CreateBookingPage /> },
       { path: "history", element: <CustomerHistoryPage /> },
       { path: "track", element: <PublicTrackingPage /> }, // Public Tracking (No login required)

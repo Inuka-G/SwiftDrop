@@ -50,6 +50,7 @@ export const ROLES = {
 
 /** The page each role lands on after logging in. Roles without their own dashboard yet go to the home page. */
 export const ROLE_HOME: Record<string, string> = {
+  [ROLES.customer]: '/customer',
   [ROLES.courier]: '/courier',
 }
 
