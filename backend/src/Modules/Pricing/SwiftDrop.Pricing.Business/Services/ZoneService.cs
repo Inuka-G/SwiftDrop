@@ -67,5 +67,21 @@ internal sealed class ZoneService(IZoneRepository repo) : IZoneService
         return new PricingRuleDto(rule.Id, rule.ZoneId, rule.BaseRate, rule.AdditionalKgRate, rule.ServiceType, rule.IsActive);
     }
 
+    public async Task<IReadOnlyList<PricingRuleDto>> GetPricingRulesAsync(
+    Guid zoneId,
+    CancellationToken ct)
+{
+    var rules = await repo.GetPricingRulesAsync(zoneId, ct);
+
+    return rules.Select(rule => new PricingRuleDto(
+        rule.Id,
+        rule.ZoneId,
+        rule.BaseRate,
+        rule.AdditionalKgRate,
+        rule.ServiceType,
+        rule.IsActive
+    )).ToList();
+}
+
     private static ZoneDto ToDto(Zone z) => new(z.Id, z.ZoneName, z.Description, z.IsActive);
 }

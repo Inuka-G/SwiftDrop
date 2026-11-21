@@ -12,4 +12,5 @@ public interface IZoneRepository
     Task<PricingRule?> GetPricingRuleForUpdateAsync(Guid zoneId, Guid ruleId, CancellationToken ct);
     Task AddAsync(Zone zone, CancellationToken ct);
     Task SaveChangesAsync(CancellationToken ct);
+    Task<List<PricingRule>> GetPricingRulesAsync(Guid zoneId, CancellationToken ct);
 }
