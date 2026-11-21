@@ -12,6 +12,7 @@
     <ProjectReference Include="..\..\Modules\Reporting\SwiftDrop.Reporting.Api\SwiftDrop.Reporting.Api.csproj" />
     <ProjectReference Include="..\..\Modules\Realtime\SwiftDrop.Realtime.Api\SwiftDrop.Realtime.Api.csproj" />
     <ProjectReference Include="..\..\Modules\AIAssistant\SwiftDrop.AIAssistant.Api\SwiftDrop.AIAssistant.Api.csproj" />
+    <ProjectReference Include="..\..\SharedKernel\SwiftDrop.SharedKernel.Messaging\SwiftDrop.SharedKernel.Messaging.csproj" />
   </ItemGroup>
 
   <ItemGroup>

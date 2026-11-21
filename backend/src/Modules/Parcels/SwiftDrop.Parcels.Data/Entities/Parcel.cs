@@ -1,3 +1,4 @@
+
 using SwiftDrop.SharedKernel.Abstractions;
 
 namespace SwiftDrop.Parcels.Data.Entities;
@@ -66,11 +67,10 @@ public class Parcel : BaseEntity
     public DateTime UpdatedAtUtc { get; private set; }
     public int Version { get; private set; } = 1;
 
-    // Courier assignment (set by Dispatch through IParcelAssignment)
+    // Courier assignment
     public Guid? CourierId { get; private set; }
     public DateTime? AssignedAtUtc { get; private set; }
 
-    // Transition rules live in ParcelStatusTransitions; these only record the result.
     public void AssignCourier(Guid courierId, DateTime nowUtc)
     {
         CourierId = courierId;
@@ -84,7 +84,12 @@ public class Parcel : BaseEntity
         Touch(nowUtc);
     }
 
-    // Bumping Version makes a concurrent update of the same parcel fail instead of overwriting.
+    // Compatibility with the status-update method used by the Parcels service.
+    public void UpdateStatus(string newStatus)
+    {
+        ChangeStatus(newStatus, DateTime.UtcNow);
+    }
+
     private void Touch(DateTime nowUtc)
     {
         UpdatedAtUtc = nowUtc;

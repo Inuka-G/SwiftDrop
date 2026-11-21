@@ -1,9 +1,10 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
     <ProjectReference Include="..\SwiftDrop.Parcels.Data\SwiftDrop.Parcels.Data.csproj" />
     <ProjectReference Include="..\SwiftDrop.Parcels.Contracts\SwiftDrop.Parcels.Contracts.csproj" />
     <ProjectReference Include="..\..\..\SharedKernel\SwiftDrop.SharedKernel\SwiftDrop.SharedKernel.csproj" />
+    <ProjectReference Include="..\..\..\SharedKernel\SwiftDrop.SharedKernel.Messaging\SwiftDrop.SharedKernel.Messaging.csproj" />
     <ProjectReference Include="..\..\Pricing\SwiftDrop.Pricing.Contracts\SwiftDrop.Pricing.Contracts.csproj" />
   </ItemGroup>
 
