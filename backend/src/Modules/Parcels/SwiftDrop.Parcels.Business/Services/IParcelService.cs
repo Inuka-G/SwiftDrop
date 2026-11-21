@@ -8,6 +8,7 @@ public interface IParcelService
     Task<IReadOnlyList<ParcelSummaryDto>> GetCustomerHistoryAsync(Guid customerId, CancellationToken ct);
     Task<PublicTrackingDto?> GetPublicTrackingAsync(string trackingNumber, CancellationToken ct);
     Task<ParcelDetailsDto?> GetReceiptDetailsAsync(Guid parcelId, Guid customerId, CancellationToken ct);
+    Task<bool> UpdateStatusAsync(Guid parcelId, string newStatus, string? note = null, Guid? courierId = null, CancellationToken ct = default);
 }
 
 public sealed record ParcelDetailsDto(

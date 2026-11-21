@@ -66,4 +66,14 @@ public sealed class ParcelsController(
         var pdfBytes = ReceiptPdfGenerator.Generate(details);
         return File(pdfBytes, "application/pdf", $"SwiftDrop-Receipt-{details.TrackingNumber}.pdf");
     }
+
+    [HttpPatch("{id:guid}/status")]
+    [Authorize]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> UpdateStatus(Guid id, [FromBody] UpdateParcelStatusRequest request, CancellationToken ct)
+    {
+        var updated = await parcelService.UpdateStatusAsync(id, request.Status, request.Note, null, ct);
+        return updated ? Ok(new { message = "Parcel status updated successfully." }) : NotFound(new { message = "Parcel not found." });
+    }
 }

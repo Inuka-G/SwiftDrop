@@ -27,17 +27,19 @@ public class ParcelStatusChangedHandlerTests
         // Arrange
         var occurredAt = DateTime.UtcNow;
 
-        var integrationEvent = new ParcelStatusChangedIntegrationEvent(
-            Guid.NewGuid(),
+        var integrationEvent = new ParcelStatusChanged(
             Guid.NewGuid(),
             "SWD-10025",
-            Guid.NewGuid(),
-            null,
             "PickedUp",
             "InTransit",
             null,
-            occurredAt
-        );
+            Guid.NewGuid(),
+            null,
+            null
+        )
+        {
+            OccurredOnUtc = occurredAt
+        };
 
         _trackingNotifierMock
             .Setup(x => x.NotifyStatusChangedAsync(
@@ -72,7 +74,10 @@ public class ParcelStatusChangedHandlerTests
     public async Task HandleAsync_ShouldThrowArgumentNullException_WhenEventIsNull()
     {
         // Act
-        var act = async () => await _handler.HandleAsync(null!);
+        var act = async () => await _handler.HandleAsync(
+            null!,
+            CancellationToken.None
+        );
 
         // Assert
         await act.Should()
