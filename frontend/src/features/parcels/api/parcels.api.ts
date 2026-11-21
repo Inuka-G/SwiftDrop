@@ -17,16 +17,18 @@ export const parcelsApi = {
   },
 
   // Get Standard delivery fee estimate
+  // Get delivery fee estimate based on service type
   async estimateFee(
     zoneId: string,
     weightKg: number,
+    serviceType: number = STANDARD_SERVICE_TYPE,
   ): Promise<FeeEstimateDto> {
     const response = await apiClient.get<FeeEstimateDto>(
       `/zones/${zoneId}/estimate`,
       {
         params: {
           weightKg,
-          serviceType: STANDARD_SERVICE_TYPE,
+          serviceType,
         },
       },
     )
