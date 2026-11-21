@@ -8,7 +8,7 @@ const navItems = [
   { label: 'Couriers', path: '/admin/couriers', enabled: true },
   { label: 'Reports', path: '/admin/reports', enabled: true },
   { label: 'Users', path: '/admin/users', enabled: true },
-  { label: 'Pricing & Zones', path: '/admin/pricing', enabled: false },
+  { label: 'Pricing & Zones', path: '/admin/pricing', enabled: true },
 ]
 
 export function AdminNav({ hasConnectionIssue, user, onLogout }: { hasConnectionIssue: boolean; user: { fullName: string; role: string } | null; onLogout: () => void }) {

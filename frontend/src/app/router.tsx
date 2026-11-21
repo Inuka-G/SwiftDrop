@@ -23,6 +23,7 @@ import { ROLES } from "../lib/constants";
 import { AppLayout } from "./layout/AppLayout";
 import { AdminLayout } from "./layout/AdminLayout";
 import { ReportsPage } from "../features/reporting";
+import { ZonesPricingPage } from "../features/pricing";
 import { RequireRole } from "./RequireRole";
 import {
   AdminDashboardPage,
@@ -78,6 +79,7 @@ export const router = createBrowserRouter([
       { path: "couriers", element: <CourierWorkloadPage /> },
       { path: "reports", element: <ReportsPage /> },
       { path: "users", element: <UserManagementPage /> },
+      { path: "pricing", element: <ZonesPricingPage /> },
     ],
   },
 ]);

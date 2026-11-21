@@ -229,6 +229,58 @@
   --users-avatar-e: #ffe8ee;
   --users-avatar-f: #e3f8fb;
 
+  /* Pricing & Zones page and dialog values not covered by the shared system. */
+  --zones-page-width: 1540px;
+  --zones-gutter: 1.875rem;
+  --zones-page-top: 2rem;
+  --zones-page-bottom: 3rem;
+  --zones-section-gap: 1.5rem;
+  --zones-title-size: 1.75rem;
+  --zones-mobile-title: 1.45rem;
+  --zones-subtitle-size: 1.05rem;
+  --zones-body-size: 0.9rem;
+  --zones-caption-size: 0.72rem;
+  --zones-control-font: 0.8rem;
+  --zones-icon-size: 1.1rem;
+  --zones-close-size: 1.55rem;
+  --zones-empty-icon: 2rem;
+  --zones-stat-height: 7rem;
+  --zones-stat-icon: 2.5rem;
+  --zones-stat-value: 1.35rem;
+  --zones-card-padding: 1rem;
+  --zones-control-height: 2.75rem;
+  --zones-control-padding: 0.65rem 1rem;
+  --zones-table-head-height: 2.75rem;
+  --zones-table-cell-x: 1rem;
+  --zones-row-height: 4.25rem;
+  --zones-table-foot-height: 2.5rem;
+  --zones-table-min-width: 70rem;
+  --zones-tile-size: 2.35rem;
+  --zones-description-width: 18rem;
+  --zones-status-dot: 0.5rem;
+  --zones-switch-width: 2.25rem;
+  --zones-switch-height: 1.25rem;
+  --zones-switch-inset: 0.125rem;
+  --zones-switch-thumb: 0.875rem;
+  --zones-switch-shift: 1rem;
+  --zones-skeleton-height: 0.8rem;
+  --zones-empty-height: 14rem;
+  --zones-overlay-padding: 1.5rem;
+  --zones-backdrop-blur: 0.2rem;
+  --zones-overlay: rgb(19 27 46 / 48%);
+  --zones-dialog-width: 38rem;
+  --zones-dialog-padding: 1.25rem 1.5rem;
+  --zones-dialog-icon: 2.5rem;
+  --zones-form-gap: 1rem;
+  --zones-input-height: 2.75rem;
+  --zones-input-padding: 0.7rem 0.85rem;
+  --zones-active-icon: 2rem;
+  --zones-active-tint: #d1fae5;
+  --zones-dialog-shadow: 0 1.5rem 3.5rem rgb(19 27 46 / 22%);
+  --zones-toast-shadow: 0 0.75rem 2rem rgb(19 27 46 / 14%);
+  --zones-toast-close: 1.3rem;
+  --zones-focus-ring: 2px;
+
   /* Existing application defaults remain intact. */
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   color: #172033;
