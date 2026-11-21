@@ -1,16 +1,20 @@
+
 import type { HubConnection } from '@microsoft/signalr'
 
-export interface ParcelStatusChangedEvent {
+export interface DeliveryStatusUpdatedEvent {
+  parcelId: string
   trackingNumber: string
   status: string
-  changedAt: string
+  statusChangedAtUtc: string
 }
 
-export function onParcelStatusChanged(
+export function onDeliveryStatusUpdated(
   connection: HubConnection,
-  handler: (event: ParcelStatusChangedEvent) => void,
+  handler: (event: DeliveryStatusUpdatedEvent) => void,
 ): () => void {
-  const eventName = 'ParcelStatusChanged'
+  const eventName = 'DeliveryStatusUpdated'
+
   connection.on(eventName, handler)
+
   return () => connection.off(eventName, handler)
 }
