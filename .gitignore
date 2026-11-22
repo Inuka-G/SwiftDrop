@@ -91,7 +91,7 @@ storage/
 backend/src/Host/SwiftDrop.Host/identity.db-shm
 backend/src/Host/SwiftDrop.Host/identity.db-wal
 backend/src/Host/SwiftDrop.Host/.nuget
-
+backend/src/Host/SwiftDrop.Host/.nuget
 # SQLite database files
 backend/src/Host/SwiftDrop.Host/*.db
 backend/src/Host/SwiftDrop.Host/*.db-shm
