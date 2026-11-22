@@ -175,6 +175,16 @@ export function CreateBookingPage() {
   }
 
   const selectedZone = zones.find((zone) => zone.id === form.zoneId)
+  const displayedEstimatedFee = feeLoading
+    ? 'Calculating...'
+    : estimatedFee !== null
+      ? `LKR ${estimatedFee.toFixed(2)}`
+      : 'Fee unavailable'
+  const feeUnavailableMessage = feeError || (!form.zoneId
+    ? 'Select a delivery zone to calculate your fee.'
+    : form.weightKg < 0.1 || form.weightKg > 50
+      ? 'Enter a parcel weight between 0.1 kg and 50 kg to calculate your fee.'
+      : 'The fee estimate is not available right now. Please try again.')
 
   const bookingDisabled =
     loading ||
@@ -409,10 +419,53 @@ export function CreateBookingPage() {
               </div>
             </section>
 
-            {/* Parcel specifications */}
+            {/* Delivery zone */}
             <section style={styles.section}>
               <div style={styles.sectionHeading}>
                 <span style={styles.stepNumber}>03</span>
+                <div>
+                  <h2 style={styles.sectionTitle}>Delivery Zone</h2>
+                  <p style={styles.sectionDescription}>
+                    Select the delivery zone for your parcel.
+                  </p>
+                </div>
+              </div>
+
+              <label style={styles.label} htmlFor="zoneId">
+                Delivery Zone
+              </label>
+              <select
+                id="zoneId"
+                style={styles.input}
+                value={form.zoneId}
+                onChange={(e) => updateField('zoneId', e.target.value)}
+                disabled={zonesLoading || zones.length === 0}
+                required
+              >
+                {zonesLoading && (
+                  <option value="">Loading zones...</option>
+                )}
+                {!zonesLoading && zones.length === 0 && (
+                  <option value="">No active zones available</option>
+                )}
+                {zones.map((zone) => (
+                  <option key={zone.id} value={zone.id}>
+                    {zone.zoneName}
+                  </option>
+                ))}
+              </select>
+
+              {selectedZone?.description && (
+                <span style={styles.helperText}>
+                  {selectedZone.description}
+                </span>
+              )}
+            </section>
+
+            {/* Parcel specifications */}
+            <section style={styles.section}>
+              <div style={styles.sectionHeading}>
+                <span style={styles.stepNumber}>04</span>
                 <div>
                   <h2 style={styles.sectionTitle}>Parcel Specifications</h2>
                   <p style={styles.sectionDescription}>
@@ -541,51 +594,33 @@ export function CreateBookingPage() {
                     <option value="COD">Cash on Delivery (COD)</option>
                   </select>
                 </div>
-              </div>
-            </section>
 
-            {/* Delivery zone */}
-            <section style={styles.section}>
-              <div style={styles.sectionHeading}>
-                <span style={styles.stepNumber}>04</span>
-                <div>
-                  <h2 style={styles.sectionTitle}>Delivery Zone</h2>
-                  <p style={styles.sectionDescription}>
-                    Select the delivery zone for your parcel.
-                  </p>
+                <div
+                  style={styles.estimatedFeeCard}
+                  aria-live="polite"
+                  aria-busy={feeLoading}
+                >
+                  <span style={styles.estimatedFeeIcon} aria-hidden="true">¤</span>
+                  <div style={styles.estimatedFeeContent}>
+                    <div style={styles.estimatedFeeRow}>
+                      <div style={styles.estimatedFeeDetails}>
+                        <span style={styles.estimatedFeeLabel}>Estimated Delivery Fee</span>
+                        <span style={styles.serviceTypeBadge}>
+                          {form.serviceType === EXPRESS_SERVICE_TYPE ? 'Express' : 'Standard'}
+                        </span>
+                      </div>
+                      <strong style={styles.estimatedFeeAmount}>{displayedEstimatedFee}</strong>
+                    </div>
+                    {estimatedFee === null && !feeLoading && (
+                      <span style={feeError ? styles.estimatedFeeError : styles.estimatedFeeHint}>
+                        {feeUnavailableMessage}
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
-
-              <label style={styles.label} htmlFor="zoneId">
-                Delivery Zone
-              </label>
-              <select
-                id="zoneId"
-                style={styles.input}
-                value={form.zoneId}
-                onChange={(e) => updateField('zoneId', e.target.value)}
-                disabled={zonesLoading || zones.length === 0}
-                required
-              >
-                {zonesLoading && (
-                  <option value="">Loading zones...</option>
-                )}
-                {!zonesLoading && zones.length === 0 && (
-                  <option value="">No active zones available</option>
-                )}
-                {zones.map((zone) => (
-                  <option key={zone.id} value={zone.id}>
-                    {zone.zoneName}
-                  </option>
-                ))}
-              </select>
-
-              {selectedZone?.description && (
-                <span style={styles.helperText}>
-                  {selectedZone.description}
-                </span>
-              )}
             </section>
+
           </div>
 
           {/* RIGHT: Order summary */}
@@ -657,13 +692,7 @@ export function CreateBookingPage() {
 
               <div style={styles.totalRow}>
                 <span>Estimated delivery fee</span>
-                <strong>
-                  {feeLoading
-                    ? 'Calculating...'
-                    : estimatedFee !== null
-                      ? `LKR ${estimatedFee.toFixed(2)}`
-                      : 'Not available'}
-                </strong>
+                <strong>{displayedEstimatedFee}</strong>
               </div>
 
               {feeError && (
@@ -1007,6 +1036,87 @@ const styles: Record<string, CSSProperties> = {
     color: '#344054',
     fontSize: '0.88rem',
     fontWeight: 650,
+  },
+  estimatedFeeCard: {
+    boxSizing: 'border-box',
+    width: '100%',
+    gridColumn: '1 / -1',
+    display: 'flex',
+    alignItems: 'center',
+    gap: 12,
+    marginTop: 14,
+    padding: '14px 15px',
+    border: '1px solid #BFDBFE',
+    borderRadius: 12,
+    background: 'linear-gradient(135deg, #F8FAFF 0%, #EFF6FF 100%)',
+    boxShadow: '0 4px 12px rgba(37, 99, 235, 0.06)',
+  },
+  estimatedFeeIcon: {
+    display: 'grid',
+    placeItems: 'center',
+    width: 36,
+    height: 36,
+    flexShrink: 0,
+    borderRadius: 10,
+    background: '#DBEAFE',
+    color: '#1D4ED8',
+    fontSize: '1.2rem',
+    fontWeight: 800,
+  },
+  estimatedFeeContent: {
+    flex: 1,
+    minWidth: 0,
+  },
+  estimatedFeeRow: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    flexWrap: 'wrap',
+    gap: 12,
+  },
+  estimatedFeeDetails: {
+    display: 'flex',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: 8,
+    minWidth: 0,
+  },
+  estimatedFeeLabel: {
+    color: '#475569',
+    fontSize: '0.77rem',
+    fontWeight: 700,
+  },
+  serviceTypeBadge: {
+    padding: '4px 8px',
+    borderRadius: 20,
+    background: '#DBEAFE',
+    color: '#1D4ED8',
+    fontSize: '0.68rem',
+    fontWeight: 750,
+  },
+  estimatedFeeAmount: {
+    marginLeft: 'auto',
+    color: '#172033',
+    fontSize: '1.25rem',
+    lineHeight: 1.3,
+    fontWeight: 800,
+    fontVariantNumeric: 'tabular-nums',
+    textAlign: 'right',
+    whiteSpace: 'nowrap',
+  },
+  estimatedFeeHint: {
+    display: 'block',
+    marginTop: 6,
+    color: '#64748B',
+    fontSize: '0.72rem',
+    lineHeight: 1.45,
+  },
+  estimatedFeeError: {
+    display: 'block',
+    marginTop: 6,
+    color: '#B91C1C',
+    fontSize: '0.72rem',
+    lineHeight: 1.45,
   },
   feeError: {
     color: '#DC2626',

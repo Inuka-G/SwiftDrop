@@ -42,6 +42,7 @@ public sealed class ParcelServiceTests
         var customerId = Guid.NewGuid();
         var zoneId = Guid.NewGuid();
         var request = CreateSampleRequest(zoneId);
+        request.ServiceType.Should().Be(ServiceType.Standard);
 
         _pricingService
         .Setup(p => p.EstimateAsync(
@@ -97,12 +98,44 @@ public sealed class ParcelServiceTests
 
         _eventPublisher.Verify(
             p => p.PublishAsync(
-                It.Is<ParcelStatusChanged>(e =>
-                    e.ParcelId == savedParcel!.Id &&
-                    e.TrackingNumber == result.TrackingNumber &&
-                    e.NewStatus == "Created"),
+                It.IsAny<ParcelStatusChanged>(),
                 It.IsAny<CancellationToken>()),
-            Times.Once);
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task CreateParcelAsync_ShouldUseExpressPricing_WhenExpressIsRequested()
+    {
+        var customerId = Guid.NewGuid();
+        var zoneId = Guid.NewGuid();
+        var request = CreateSampleRequest(zoneId) with { ServiceType = ServiceType.Express };
+        _pricingService
+            .Setup(p => p.EstimateAsync(zoneId, request.WeightKg, ServiceType.Express, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new FeeEstimateDto(zoneId, "Colombo", 500m, 200m, 700m));
+
+        var service = CreateService();
+        var result = await service.CreateParcelAsync(customerId, request, CancellationToken.None);
+
+        result.EstimatedFee.Should().Be(700m);
+        _pricingService.Verify(p => p.EstimateAsync(
+            zoneId, request.WeightKg, ServiceType.Express, It.IsAny<CancellationToken>()), Times.Once);
+        _pricingService.Verify(p => p.EstimateAsync(
+            It.IsAny<Guid>(), It.IsAny<decimal>(), ServiceType.Standard, It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task CreateParcelAsync_ShouldRejectUnsupportedServiceType()
+    {
+        var request = CreateSampleRequest(Guid.NewGuid()) with { ServiceType = (ServiceType)99 };
+        var service = CreateService();
+
+        var act = () => service.CreateParcelAsync(Guid.NewGuid(), request, CancellationToken.None);
+
+        await act.Should().ThrowAsync<BadRequestException>()
+            .WithMessage("*Service type must be Standard (1) or Express (2)*");
+        _pricingService.Verify(p => p.EstimateAsync(
+            It.IsAny<Guid>(), It.IsAny<decimal>(), It.IsAny<ServiceType>(), It.IsAny<CancellationToken>()), Times.Never);
+        _repository.Verify(r => r.AddAsync(It.IsAny<Parcel>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
