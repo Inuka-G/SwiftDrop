@@ -95,3 +95,4 @@ backend/src/Host/SwiftDrop.Host/identity.db-wal
 backend/src/Host/SwiftDrop.Host/*.db
 backend/src/Host/SwiftDrop.Host/*.db-shm
 backend/src/Host/SwiftDrop.Host/*.db-wal
+backend/src/Tools
