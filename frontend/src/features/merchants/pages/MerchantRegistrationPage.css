@@ -1,0 +1,412 @@
+/* Merchant Registration Page Styles - Kinetic Logistics Framework */
+
+.sd-merchant-reg {
+  min-height: 100vh;
+  background-color: var(--color-background, #faf8ff);
+  color: var(--color-on-surface, #131b2e);
+  font-family: var(--font-body, 'Inter', sans-serif);
+}
+
+.sd-merchant-reg__container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 4rem;
+}
+
+.sd-merchant-reg__header {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+}
+
+@media (min-width: 768px) {
+  .sd-merchant-reg__header {
+    flex-direction: row;
+    align-items: flex-end;
+  }
+}
+
+.sd-merchant-reg__tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-primary, #004ac6);
+  margin-bottom: 0.5rem;
+}
+
+.sd-merchant-reg__tag-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--color-primary, #004ac6);
+}
+
+.sd-merchant-reg__title {
+  font-family: var(--font-headline, 'Plus Jakarta Sans', sans-serif);
+  font-size: clamp(2rem, 4vw, 2.75rem);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: var(--color-on-surface, #131b2e);
+  line-height: 1.15;
+  margin: 0 0 0.5rem;
+}
+
+.sd-merchant-reg__lead {
+  font-size: 1.05rem;
+  color: var(--color-on-surface-variant, #434655);
+  margin: 0;
+  max-width: 680px;
+  line-height: 1.5;
+}
+
+.sd-merchant-reg__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 1.25rem;
+  background-color: var(--color-surface-container-high, #e2e7ff);
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-on-surface, #131b2e);
+  align-self: flex-start;
+}
+
+.sd-merchant-reg__badge svg {
+  color: var(--color-tertiary, #006242);
+}
+
+/* 2-Column Asymmetric Grid */
+.sd-merchant-reg__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+@media (min-width: 1024px) {
+  .sd-merchant-reg__grid {
+    grid-template-columns: 5fr 7fr;
+  }
+}
+
+/* Left Column: Benefits & Value Props */
+.sd-merchant-reg__benefits {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.sd-benefit-card {
+  background: var(--color-surface-container-lowest, #ffffff);
+  border-radius: 1rem;
+  padding: 1.75rem;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+.sd-benefit-card__title {
+  font-family: var(--font-headline, 'Plus Jakarta Sans', sans-serif);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-on-surface, #131b2e);
+  margin: 0 0 0.5rem;
+}
+
+.sd-benefit-card__text {
+  font-size: 0.95rem;
+  color: var(--color-on-surface-variant, #434655);
+  margin: 0 0 1.25rem;
+  line-height: 1.5;
+}
+
+.sd-benefit-items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.sd-benefit-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  background: var(--color-surface-container-low, #f2f3ff);
+}
+
+.sd-benefit-item__icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 0.5rem;
+  background: #ffffff;
+  display: grid;
+  place-items: center;
+  color: var(--color-primary, #004ac6);
+  flex-shrink: 0;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+}
+
+.sd-benefit-item__content h4 {
+  margin: 0 0 0.25rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-on-surface, #131b2e);
+}
+
+.sd-benefit-item__content p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--color-on-surface-variant, #434655);
+  line-height: 1.45;
+}
+
+/* Testimonial Card */
+.sd-testimonial-card {
+  background: var(--color-surface-container-low, #f2f3ff);
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  margin-top: 1rem;
+}
+
+.sd-testimonial-stars {
+  display: flex;
+  gap: 2px;
+  color: #fd761a;
+  margin-bottom: 0.5rem;
+}
+
+.sd-testimonial-count {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-on-surface, #131b2e);
+}
+
+.sd-testimonial-quote {
+  font-size: 0.9rem;
+  font-style: italic;
+  color: var(--color-on-surface-variant, #434655);
+  line-height: 1.5;
+  margin: 0.5rem 0 1rem;
+}
+
+.sd-testimonial-author {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.sd-testimonial-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--color-primary-fixed, #dbe1ff);
+  color: var(--color-on-primary-fixed, #00174b);
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.sd-testimonial-author-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-on-surface, #131b2e);
+  margin: 0;
+}
+
+.sd-testimonial-author-role {
+  font-size: 0.8rem;
+  color: var(--color-on-surface-variant, #434655);
+  margin: 0;
+}
+
+/* Right Column: Application Form */
+.sd-merchant-form-card {
+  background: var(--color-surface-container-lowest, #ffffff);
+  border-radius: 1rem;
+  padding: 2rem;
+  box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.05);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+.sd-merchant-form-card__header {
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--color-surface-container-high, #e2e7ff);
+  margin-bottom: 1.75rem;
+}
+
+.sd-merchant-form-card__title {
+  font-family: var(--font-headline, 'Plus Jakarta Sans', sans-serif);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-on-surface, #131b2e);
+  margin: 0 0 0.35rem;
+}
+
+.sd-merchant-form-card__subtitle {
+  font-size: 0.9rem;
+  color: var(--color-on-surface-variant, #434655);
+  margin: 0;
+}
+
+.sd-form-section {
+  margin-bottom: 1.75rem;
+}
+
+.sd-form-section__title {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-on-surface, #131b2e);
+  margin: 0 0 1rem;
+}
+
+.sd-form-section__number {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--color-primary, #004ac6);
+  color: #ffffff;
+  display: grid;
+  place-items: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.sd-form-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .sd-form-grid--two-col {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.sd-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.sd-form-field--full {
+  grid-column: 1 / -1;
+}
+
+.sd-form-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-on-surface, #131b2e);
+}
+
+.sd-form-required {
+  color: var(--color-error, #ba1a1a);
+}
+
+.sd-form-input,
+.sd-form-select {
+  height: 44px;
+  padding: 0 1rem;
+  border-radius: 0.5rem;
+  background: var(--color-surface-container-low, #f2f3ff);
+  border: 1px solid transparent;
+  color: var(--color-on-surface, #131b2e);
+  font-size: 0.95rem;
+  font-family: inherit;
+  transition: all 0.15s ease;
+  outline: none;
+}
+
+.sd-form-input:focus,
+.sd-form-select:focus {
+  background: #ffffff;
+  border-color: var(--color-primary, #004ac6);
+  box-shadow: 0 0 0 3px rgba(0, 74, 198, 0.12);
+}
+
+.sd-form-hint {
+  font-size: 0.775rem;
+  color: var(--color-on-surface-variant, #434655);
+  margin: 0.15rem 0 0;
+}
+
+.sd-review-notice {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  background: var(--color-surface-container-high, #e2e7ff);
+  margin-bottom: 1.5rem;
+}
+
+.sd-review-notice svg {
+  color: var(--color-primary, #004ac6);
+  flex-shrink: 0;
+}
+
+.sd-review-notice p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--color-on-surface, #131b2e);
+  line-height: 1.4;
+}
+
+.sd-submit-btn {
+  width: 100%;
+  height: 48px;
+  border-radius: 0.5rem;
+  background: var(--color-primary-container, #2563eb);
+  color: #ffffff;
+  border: none;
+  font-size: 1rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.15s, transform 0.05s;
+}
+
+.sd-submit-btn:hover:not(:disabled) {
+  background: var(--color-primary, #004ac6);
+}
+
+.sd-submit-btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.sd-submit-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.sd-login-footer {
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--color-on-surface-variant, #434655);
+  margin-top: 1rem;
+}
+
+.sd-login-footer a {
+  color: var(--color-primary, #004ac6);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.sd-login-footer a:hover {
+  text-decoration: underline;
+}
+
