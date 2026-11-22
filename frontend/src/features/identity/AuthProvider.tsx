@@ -24,13 +24,17 @@ export function AuthProvider({ children }: PropsWithChildren) {
 
   // The API client fires this when the server rejects the token, for example after it expires.
   useEffect(() => {
-    const onExpired = () => setUser(null)
+      const onExpired = () => {
+      storageService.clearUser()
+      setUser(null)
+    }
     window.addEventListener(SESSION_EXPIRED_EVENT, onExpired)
     return () => window.removeEventListener(SESSION_EXPIRED_EVENT, onExpired)
   }, [])
 
   const accept = useCallback((result: AuthResult, remember: boolean) => {
     storageService.setAccessToken(result.accessToken, remember)
+    storageService.setUser({ fullName: result.user.fullName, role: result.user.role })   // the /admin area reads this
     setUser(result.user)
     return result.user
   }, [])
@@ -46,7 +50,8 @@ export function AuthProvider({ children }: PropsWithChildren) {
       logout: () => {
         // Revoke the refresh token on the server too. The user is logged out here even if that call fails.
         authService.logout().catch(() => {})
-        storageService.clearAccessToken()
+                storageService.clearAccessToken()
+        storageService.clearUser()
         setUser(null)
       },
     }),
