@@ -4,6 +4,7 @@ import { authService } from '../../services/auth.service'
 
 const navItems = [
   { label: 'Dashboard', path: '/admin', enabled: true },
+  { label: 'Merchant Approvals', path: '/admin/merchants', enabled: true },
   { label: 'Dispatch Board', path: '/admin/dispatch', enabled: false },
   { label: 'Couriers', path: '/admin/couriers', enabled: false },
   { label: 'Reports', path: '/admin/reports', enabled: false },

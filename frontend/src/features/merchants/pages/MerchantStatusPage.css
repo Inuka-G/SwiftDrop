@@ -1,0 +1,454 @@
+/* Merchant Status Page Styles - Kinetic Logistics Framework */
+
+.sd-status-page {
+  min-height: 100vh;
+  background-color: var(--color-background, #faf8ff);
+  color: var(--color-on-surface, #131b2e);
+  font-family: var(--font-body, 'Inter', sans-serif);
+}
+
+.sd-status-container {
+  position: relative;
+  width: 100%;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 3rem 1.5rem 5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Ambient Soft Glow */
+.sd-status-glow {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 560px;
+  height: 280px;
+  background: radial-gradient(circle, rgba(219, 225, 255, 0.6) 0%, rgba(234, 237, 255, 0.2) 60%, transparent 100%);
+  filter: blur(50px);
+  pointer-events: none;
+  border-radius: 9999px;
+  z-index: 0;
+}
+
+/* Main Card */
+.sd-status-card {
+  position: relative;
+  z-index: 1;
+  background: var(--color-surface-container-lowest, #ffffff);
+  border-radius: 1.25rem;
+  padding: 2.5rem 2rem;
+  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.06), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
+  border: 1px solid rgba(226, 232, 240, 0.85);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+/* Status Icon with Ping Animation */
+.sd-status-icon-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  margin-bottom: 1.25rem;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.06);
+}
+
+.sd-status-icon-wrapper--pending {
+  background-color: var(--color-secondary-fixed, #ffdbca);
+  color: var(--color-secondary, #9d4300);
+}
+
+.sd-status-icon-wrapper--approved {
+  background-color: var(--color-tertiary-fixed, #6ffbbe);
+  color: var(--color-tertiary, #006242);
+}
+
+.sd-status-icon-wrapper--rejected {
+  background-color: var(--color-error-container, #ffdad6);
+  color: var(--color-error, #ba1a1a);
+}
+
+.sd-status-ping-dot {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  display: flex;
+  height: 16px;
+  width: 16px;
+}
+
+.sd-status-ping-circle {
+  animation: sd-ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
+  position: absolute;
+  display: inline-flex;
+  height: 100%;
+  width: 100%;
+  border-radius: 50%;
+  background-color: var(--color-secondary-container, #fd761a);
+  opacity: 0.75;
+}
+
+.sd-status-ping-static {
+  position: relative;
+  display: inline-flex;
+  border-radius: 50%;
+  height: 16px;
+  width: 16px;
+  background-color: var(--color-secondary, #9d4300);
+}
+
+@keyframes sd-ping {
+  75%, 100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+/* Status Chip */
+.sd-status-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.9rem;
+  border-radius: 9999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.75rem;
+}
+
+.sd-status-chip--pending {
+  background-color: var(--color-secondary-fixed, #ffdbca);
+  color: var(--color-on-secondary-fixed, #341100);
+}
+
+.sd-status-chip--approved {
+  background-color: var(--color-tertiary-fixed, #6ffbbe);
+  color: var(--color-on-tertiary-fixed, #002113);
+}
+
+.sd-status-chip--rejected {
+  background-color: var(--color-error-container, #ffdad6);
+  color: var(--color-on-error-container, #93000a);
+}
+
+.sd-status-chip-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: currentColor;
+}
+
+.sd-status-title {
+  font-family: var(--font-headline, 'Plus Jakarta Sans', sans-serif);
+  font-size: clamp(1.6rem, 3.5vw, 2.15rem);
+  font-weight: 700;
+  color: var(--color-on-surface, #131b2e);
+  letter-spacing: -0.02em;
+  margin: 0 0 0.5rem;
+}
+
+.sd-status-subtitle {
+  font-size: 0.975rem;
+  color: var(--color-on-surface-variant, #434655);
+  max-width: 580px;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Reference ID Pill */
+.sd-status-ref {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: var(--color-surface-container-low, #f2f3ff);
+  padding: 0.35rem 1rem;
+  border-radius: 9999px;
+  font-size: 0.825rem;
+  color: var(--color-on-surface-variant, #434655);
+  margin-top: 1.25rem;
+}
+
+.sd-status-ref code {
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-weight: 600;
+  color: var(--color-primary, #004ac6);
+}
+
+/* Verification Milestones */
+.sd-milestones {
+  width: 100%;
+  text-align: left;
+  margin-top: 2rem;
+  padding-top: 1.75rem;
+  border-top: 1px solid var(--color-surface-container-high, #e2e7ff);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.sd-milestones__heading {
+  font-family: var(--font-headline, 'Plus Jakarta Sans', sans-serif);
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--color-on-surface, #131b2e);
+  margin: 0;
+}
+
+.sd-milestone-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.sd-milestone-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.85rem 1rem;
+  border-radius: 0.75rem;
+  background-color: rgba(242, 243, 255, 0.6);
+  transition: all 0.15s ease;
+}
+
+.sd-milestone-item--active {
+  background-color: rgba(255, 219, 202, 0.35);
+  border: 1px solid rgba(157, 67, 0, 0.25);
+}
+
+.sd-milestone-item--upcoming {
+  opacity: 0.65;
+}
+
+.sd-milestone-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.sd-milestone-icon--completed {
+  background-color: var(--color-tertiary, #006242);
+  color: #ffffff;
+}
+
+.sd-milestone-icon--active {
+  background-color: var(--color-secondary-container, #fd761a);
+  color: #ffffff;
+}
+
+.sd-milestone-icon--upcoming {
+  background-color: var(--color-surface-container-high, #e2e7ff);
+  color: var(--color-outline, #737686);
+}
+
+.sd-milestone-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.sd-milestone-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-on-surface, #131b2e);
+  margin: 0;
+}
+
+.sd-milestone-desc {
+  font-size: 0.8rem;
+  color: var(--color-on-surface-variant, #434655);
+  margin: 0;
+}
+
+.sd-milestone-badge {
+  font-size: 0.8rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.sd-milestone-badge--completed {
+  color: var(--color-tertiary, #006242);
+}
+
+.sd-milestone-badge--active {
+  color: var(--color-secondary, #9d4300);
+}
+
+.sd-milestone-badge--upcoming {
+  color: var(--color-outline, #737686);
+}
+
+/* Business Summary Card */
+.sd-status-summary {
+  width: 100%;
+  text-align: left;
+  margin-top: 1.25rem;
+  padding: 1.25rem;
+  border-radius: 0.75rem;
+  background-color: var(--color-surface-container-low, #f2f3ff);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.sd-status-summary__header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-on-surface-variant, #434655);
+}
+
+.sd-status-summary__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+  padding-top: 0.25rem;
+}
+
+@media (min-width: 640px) {
+  .sd-status-summary__grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.sd-summary-label {
+  font-size: 0.775rem;
+  color: var(--color-on-surface-variant, #434655);
+  margin-bottom: 0.2rem;
+  display: block;
+}
+
+.sd-summary-value {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-on-surface, #131b2e);
+}
+
+.sd-summary-value--code {
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+}
+
+.sd-summary-value--highlight {
+  color: var(--color-secondary, #9d4300);
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+/* Approved CTA Button */
+.sd-status-portal-btn {
+  margin-top: 1.75rem;
+  width: 100%;
+  padding: 0.85rem 1.5rem;
+  border-radius: 0.5rem;
+  background-color: var(--color-primary, #004ac6);
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: background-color 0.15s;
+}
+
+.sd-status-portal-btn:hover {
+  background-color: #003ea8;
+}
+
+/* Bottom Support Card */
+.sd-status-support {
+  background: var(--color-surface-container-lowest, #ffffff);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .sd-status-support {
+    flex-direction: row;
+  }
+}
+
+.sd-status-support__info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  text-align: center;
+}
+
+@media (min-width: 640px) {
+  .sd-status-support__info {
+    text-align: left;
+  }
+}
+
+.sd-status-support__title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-on-surface, #131b2e);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sd-status-support__links {
+  font-size: 0.85rem;
+  color: var(--color-on-surface-variant, #434655);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sd-status-support__links a {
+  color: var(--color-primary, #004ac6);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.sd-status-support__links a:hover {
+  text-decoration: underline;
+}
+
+.sd-status-home-link {
+  padding: 0.6rem 1.15rem;
+  border-radius: 0.5rem;
+  background-color: var(--color-surface-container-high, #e2e7ff);
+  color: var(--color-on-surface, #131b2e);
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color 0.15s;
+}
+
+.sd-status-home-link:hover {
+  background-color: var(--color-surface-container-highest, #dae2fd);
+}
+
