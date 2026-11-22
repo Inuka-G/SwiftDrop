@@ -48,10 +48,7 @@ public static class ParcelsDataExtensions
             else
                 await CreateMissingSqliteTablesAsync(db);
         }
-        if (!await ParcelsTableExistsAsync(db))
-            await creator.CreateTablesAsync();   // also creates the "parcels" schema on Postgres
-        else
-            await ParcelOwnershipUpgrade.ApplyAsync(db);
+        await ParcelOwnershipUpgrade.ApplyAsync(db);
     }
 
     private static async Task CreateMissingSqliteTablesAsync(ParcelsDbContext db)

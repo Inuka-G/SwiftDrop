@@ -1,7 +1,7 @@
 .users-management-page { width: min(calc(100% - var(--dashboard-page-gutter) * 2), var(--dashboard-content-width)); margin-inline: auto; padding-block: var(--dashboard-section-space) var(--dashboard-measure-3); color: var(--color-on-surface); font-family: var(--font-body); }
 .users-page-content { display: grid; gap: var(--dashboard-card-gap); }
 .users-page-header { display: grid; grid-template-columns: minmax(0, 1fr); align-items: center; gap: var(--dashboard-card-gap); padding: var(--space-md) var(--reports-panel-padding); border: 1px solid var(--dashboard-card-border); border-radius: var(--dashboard-card-radius); background: var(--color-surface-container-lowest); box-shadow: var(--dashboard-card-shadow); }
-.users-page-header h1 { margin: 0; font-family: var(--font-headline); font-size: var(--dashboard-measure-1-55); font-weight: 700; letter-spacing: -0.03em; }
+.users-page-header h1 { margin: 0; color: var(--color-on-surface); font-family: var(--font-headline); font-size: var(--dashboard-measure-2-4); font-weight: 700; letter-spacing: -0.04em; }
 .users-page-header p { margin: var(--space-xs) 0 0; color: var(--color-outline); font-size: var(--dashboard-measure-0-78); }
 .users-stats-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--dashboard-card-gap); }
 .users-stat-card { display: grid; min-width: 0; min-height: var(--reports-stat-min-height); grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: auto 1fr; align-items: start; gap: var(--space-xs); padding: var(--space-md); border: 1px solid var(--dashboard-card-border); border-radius: var(--dashboard-card-radius); background: var(--color-surface-container-lowest); box-shadow: var(--dashboard-card-shadow); }
@@ -20,7 +20,7 @@
 .users-tabs button { display: inline-flex; min-height: var(--users-nav-height); align-items: center; gap: var(--space-sm); padding: var(--space-xs) var(--space-md); border: 1px solid transparent; border-radius: var(--radius-default); color: var(--color-on-surface-variant); background: transparent; font-size: var(--dashboard-measure-0-78); font-weight: 600; cursor: pointer; }
 .users-tabs button.is-active { color: var(--color-on-primary); background: var(--color-primary); }
 .users-tabs button.is-pending-tab:not(.is-active) { border-color: var(--users-amber-border); color: var(--users-amber); background: var(--users-amber-soft); }
-.users-tabs button span { padding: var(--dashboard-measure-0-2) var(--space-xs); border-radius: var(--radius-full); color: inherit; background: rgb(255 255 255 / 20%); font-family: var(--font-label); font-size: var(--dashboard-measure-0-55); }
+.users-tabs button span { padding: var(--dashboard-measure-0-2) var(--space-xs); border-radius: var(--radius-full); color: inherit; background: var(--dashboard-primary-soft); font-family: var(--font-label); font-size: var(--dashboard-measure-0-55); }
 .users-tabs button.is-pending-tab:not(.is-active) span { background: var(--color-surface-container-lowest); }
 .users-filter-bar { display: grid; grid-template-columns: minmax(14rem, 1fr) minmax(9rem, 0.3fr) minmax(9rem, 0.3fr); align-items: end; gap: var(--space-sm); }
 .users-filter-bar label { position: relative; display: grid; min-width: 0; }
@@ -148,7 +148,7 @@
 }
 @media (max-width: 639px) {
   .users-management-page { width: calc(100% - var(--dashboard-shell-mobile-gutter)); padding-top: var(--space-lg); }
-  .users-page-header h1 { font-size: var(--dashboard-measure-1-3); }
+  .users-page-header h1 { font-size: var(--dashboard-measure-1-6); }
   .users-stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .users-stat-card { min-height: var(--dashboard-measure-6); padding: var(--space-sm); }
   .users-page-header { padding: var(--space-md); }
