@@ -1,8 +1,9 @@
-
 import { useEffect, useState, type FormEvent } from 'react'
 import { useParams } from 'react-router-dom'
 import { parcelsApi } from '../api/parcels.api'
 import type { PublicTrackingDto } from '../types/parcel.types'
+import { createSignalRConnection } from '../../../integrations/signalr/connection'
+import { onDeliveryStatusUpdated } from '../../../integrations/signalr/eventHandlers'
 
 export function PublicTrackingPage() {
   const { trackingNumber: urlTrackingNumber } = useParams()
@@ -53,6 +54,84 @@ export function PublicTrackingPage() {
       cancelled = true
     }
   }, [urlTrackingNumber])
+
+  // Listen for real-time delivery status updates.
+  useEffect(() => {
+    const activeTrackingNumber = parcel?.trackingNumber
+
+    if (!activeTrackingNumber) return
+
+    const connection = createSignalRConnection()
+    let disposed = false
+
+    const unsubscribeFromEvents = onDeliveryStatusUpdated(
+      connection,
+      (update) => {
+        if (
+          update.trackingNumber.trim().toUpperCase() !==
+          activeTrackingNumber.trim().toUpperCase()
+        ) {
+          return
+        }
+
+        setParcel((currentParcel) => {
+          if (!currentParcel) return currentParcel
+
+          return {
+            ...currentParcel,
+            currentStatus: update.status,
+            updatedAtUtc: update.statusChangedAtUtc,
+          }
+        })
+      },
+    )
+
+    const startConnection = async () => {
+      try {
+        await connection.start()
+
+        if (disposed) {
+          await connection.stop()
+          return
+        }
+
+        await connection.invoke(
+          'SubscribeToTracking',
+          activeTrackingNumber,
+        )
+
+        console.log(
+          `Subscribed to tracking updates: ${activeTrackingNumber}`,
+        )
+      } catch (error) {
+        if (!disposed) {
+          console.error('SignalR connection failed:', error)
+        }
+      }
+    }
+
+    void startConnection()
+
+    return () => {
+      disposed = true
+      unsubscribeFromEvents()
+
+      void (async () => {
+        try {
+          if (connection.state === 'Connected') {
+            await connection.invoke(
+              'UnsubscribeFromTracking',
+              activeTrackingNumber,
+            )
+          }
+        } catch (error) {
+          console.error('SignalR unsubscribe failed:', error)
+        } finally {
+          await connection.stop()
+        }
+      })()
+    }
+  }, [parcel?.trackingNumber])
 
   // Manually track a parcel using the search form.
   const handleTrack = async (event: FormEvent<HTMLFormElement>) => {

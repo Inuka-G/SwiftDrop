@@ -1,5 +1,6 @@
 import { Link, Outlet, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../features/identity'
+import { ROLES } from '../../lib/constants'
 
 export function AppLayout() {
   const { user, logout } = useAuth()
@@ -19,7 +20,14 @@ export function AppLayout() {
         </Link>
         <nav aria-label="Main navigation">
           <Link to="/">Home</Link>
-          <Link to="/courier">Courier dashboard</Link>
+
+          {(import.meta.env.DEV || user?.role === ROLES.customer) &&
+            <Link to="/customer">Customer Dashboard</Link>
+          }
+
+          {user?.role === ROLES.courier && (
+            <Link to="/courier">Courier Dashboard</Link>
+          )}
           {user ? (
             <button type="button" className="app-header__logout" onClick={handleLogout}>
               Log out ({user.fullName})

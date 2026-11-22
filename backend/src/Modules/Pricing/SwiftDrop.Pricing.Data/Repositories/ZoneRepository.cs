@@ -28,4 +28,15 @@ internal sealed class ZoneRepository(PricingDbContext db) : IZoneRepository
         await db.Zones.AddAsync(zone, ct);
 
     public Task SaveChangesAsync(CancellationToken ct) => db.SaveChangesAsync(ct);
+
+    public Task<List<PricingRule>> GetPricingRulesAsync(
+    Guid zoneId,
+    CancellationToken ct)
+{
+    return db.PricingRules
+        .AsNoTracking()
+        .Where(r => r.ZoneId == zoneId)
+        .OrderBy(r => r.ServiceType)
+        .ToListAsync(ct);
+}
 }

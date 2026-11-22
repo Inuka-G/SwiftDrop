@@ -24,6 +24,16 @@ public class ZonesController(IZoneService zones, IPricingService pricing) : Cont
         return zone is null ? NotFound() : Ok(zone);
     }
 
+    [HttpGet("{id:guid}/pricing-rules")]
+    [ProducesResponseType<IReadOnlyList<PricingRuleDto>>(StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetPricingRules(
+    Guid id,
+    CancellationToken ct)
+    {
+        var rules = await zones.GetPricingRulesAsync(id, ct);
+        return Ok(rules);
+    }
+
     [HttpPost]   // TODO: [Authorize(Roles = Roles.Admin)] once Identity is done
     [ProducesResponseType<ZoneDto>(StatusCodes.Status201Created)]
     public async Task<IActionResult> Create(CreateZoneRequest req, CancellationToken ct)
