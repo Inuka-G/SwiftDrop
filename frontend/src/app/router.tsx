@@ -1,45 +1,54 @@
-import { createBrowserRouter } from "react-router-dom";
-import { AIAssistantPage } from "../features/ai-assistant";
+import { createBrowserRouter } from 'react-router-dom'
+import { AIAssistantPage } from '../features/ai-assistant'
 import {
   CourierLayout,
   DeliveryDetailPage,
   ProofOfDeliveryPage,
   RunsPage,
   ShiftPage,
-} from "../features/courier";
-import { HomePage } from "../features/home";
+} from '../features/courier'
+import { HomePage } from '../features/home'
 import {
   GoogleCallbackPage,
   LoginPage,
   SignupPage,
   UserManagementPage,
-} from "../features/identity";
+} from '../features/identity'
+import {
+  AdminMerchantQueuePage,
+  MerchantPortalPage,
+  MerchantRegistrationPage,
+  MerchantStatusPage,
+} from '../features/merchants'
 import {
   CreateBookingPage,
   CustomerDashboardPage,
   CustomerHistoryPage,
   PublicTrackingPage,
-} from "../features/parcels";
-import { ROLES } from "../lib/constants";
-import { AppLayout } from "./layout/AppLayout";
-import { AdminLayout } from "./layout/AdminLayout";
-import { ReportsPage } from "../features/reporting";
-import { ZonesPricingPage } from "../features/pricing";
-import { RequireRole } from "./RequireRole";
+} from '../features/parcels'
+import { ROLES } from '../lib/constants'
+import { AppLayout } from './layout/AppLayout'
+import { AdminLayout } from './layout/AdminLayout'
+import { ReportsPage } from '../features/reporting'
+import { ZonesPricingPage } from '../features/pricing'
+import { RequireRole } from './RequireRole'
 import {
   AdminDashboardPage,
   CourierWorkloadPage,
   DispatchBoardPage,
-} from "../features/dispatch";
-import "../styles/index.css";
-import "../styles/swiftdrop.css";
+} from '../features/dispatch'
+import '../styles/index.css'
+import '../styles/swiftdrop.css'
 
 export const router = createBrowserRouter([
   // Public pages with their own full-page design
   { index: true, element: <HomePage /> },
-  { path: "login", element: <LoginPage /> },
-  { path: "signup", element: <SignupPage /> },
-  { path: "auth/google/callback", element: <GoogleCallbackPage /> },
+  { path: 'login', element: <LoginPage /> },
+  { path: 'signup', element: <SignupPage /> },
+  { path: 'merchant/register', element: <MerchantRegistrationPage /> },
+  { path: 'merchant/status', element: <MerchantStatusPage /> },
+  { path: 'merchant/portal', element: <MerchantPortalPage /> },
+  { path: 'auth/google/callback', element: <GoogleCallbackPage /> },
 
   // Signed-in workspaces
   {
@@ -56,7 +65,7 @@ export const router = createBrowserRouter([
 
   // Courier app: its own phone-style frame with a bottom tab bar
   {
-    path: "courier",
+    path: 'courier',
     element: (
       <RequireRole roles={[ROLES.courier]}>
         <CourierLayout />
@@ -64,24 +73,25 @@ export const router = createBrowserRouter([
     ),
     children: [
       { index: true, element: <RunsPage view="active" /> },
-      { path: "completed", element: <RunsPage view="completed" /> },
-      { path: "shift", element: <ShiftPage /> },
-      { path: "deliveries/:id", element: <DeliveryDetailPage /> },
-      { path: "deliveries/:id/proof", element: <ProofOfDeliveryPage /> },
+      { path: 'completed', element: <RunsPage view="completed" /> },
+      { path: 'shift', element: <ShiftPage /> },
+      { path: 'deliveries/:id', element: <DeliveryDetailPage /> },
+      { path: 'deliveries/:id/proof', element: <ProofOfDeliveryPage /> },
     ],
   },
 
   // Admin routes
   {
-    path: "admin",
+    path: 'admin',
     element: <AdminLayout />,
     children: [
       { index: true, element: <AdminDashboardPage /> },
-      { path: "dispatch", element: <DispatchBoardPage /> },
-      { path: "couriers", element: <CourierWorkloadPage /> },
-      { path: "reports", element: <ReportsPage /> },
-      { path: "users", element: <UserManagementPage /> },
-      { path: "pricing", element: <ZonesPricingPage /> },
+      { path: 'merchants', element: <AdminMerchantQueuePage /> },
+      { path: 'dispatch', element: <DispatchBoardPage /> },
+      { path: 'couriers', element: <CourierWorkloadPage /> },
+      { path: 'reports', element: <ReportsPage /> },
+      { path: 'users', element: <UserManagementPage /> },
+      { path: 'pricing', element: <ZonesPricingPage /> },
     ],
   },
-]);
+])

@@ -1,14 +1,18 @@
 using System.Text;
+using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using SwiftDrop.Merchants.Business.Dtos;
 using SwiftDrop.Merchants.Business.Services;
 
 namespace SwiftDrop.Merchants.Api.Controllers;
 
 [ApiController]
+[ApiVersion("1.0")]
 [Route("api/v1/oauth")]
+[EnableRateLimiting("merchant-auth")]
 [Produces("application/json")]
 public sealed class OAuthController(IMerchantService merchantService) : ControllerBase
 {

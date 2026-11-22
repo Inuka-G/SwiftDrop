@@ -77,7 +77,7 @@ storage/
 # Docker / Kubernetes
 # =========================
 
-
+.DS_Store
 # =========================
 # IDEs and editors
 # =========================

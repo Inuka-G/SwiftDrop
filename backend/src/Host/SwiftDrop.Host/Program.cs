@@ -1,4 +1,6 @@
-
+using Asp.Versioning;
+using Microsoft.AspNetCore.RateLimiting;
+using System.Threading.RateLimiting;
 using SwiftDrop.AIAssistant.Api;
 using SwiftDrop.Host.Extensions;
 using SwiftDrop.Identity.Api;
@@ -10,6 +12,7 @@ using SwiftDrop.Parcels.Api;
 using SwiftDrop.Merchants.Api;
 using SwiftDrop.Realtime.Api;
 using SwiftDrop.Notifications.Api;
+using SwiftDrop.Webhooks.Api;
 using SwiftDrop.SharedKernel.Messaging;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -52,10 +55,53 @@ builder.Services.PostConfigure<RabbitMqOptions>(options =>
     options.RequiredOutboxRoutes = [.. options.RequiredOutboxRoutes,
         SwiftDrop.Parcels.Contracts.Events.ParcelEventRoutingKeys.StatusChanged]);
 builder.Services.AddNotificationsModule(builder.Configuration);
+builder.Services.AddWebhooksModule(builder.Configuration);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerWithJwt();
+builder.Services.AddApiVersioning(options =>
+{
+    options.DefaultApiVersion = new ApiVersion(1, 0);
+    options.AssumeDefaultVersionWhenUnspecified = true;
+    options.ReportApiVersions = true;
+}).AddMvc();
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+    // Global limiter: automatically protects every endpoint across all modules in SwiftDrop
+    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
+    {
+        var clientIp = context.Connection.RemoteIpAddress?.ToString() ?? "anonymous";
+        return RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: clientIp,
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 100,
+                Window = TimeSpan.FromMinutes(1),
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                QueueLimit = 0
+            });
+    });
+
+    // Stricter policy for sensitive merchant auth & key creation endpoints
+    options.AddFixedWindowLimiter("merchant-auth", opt =>
+    {
+        opt.PermitLimit = 15;
+        opt.Window = TimeSpan.FromMinutes(1);
+        opt.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+        opt.QueueLimit = 0;
+    });
+
+    options.AddFixedWindowLimiter("general", opt =>
+    {
+        opt.PermitLimit = 100;
+        opt.Window = TimeSpan.FromMinutes(1);
+        opt.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+        opt.QueueLimit = 0;
+    });
+});
 
 var app = builder.Build();
 
@@ -67,8 +113,8 @@ await app.InitializeReportingModuleAsync();
 await app.InitializeMerchantsModuleAsync();
 await app.InitializeNotificationsModuleAsync();
 
-app.UseMiddleware<ExceptionHandlingMiddleware>();
-app.UseStatusCodePages();
+app.UseMiddleware<ExceptionHandlingMiddleware>();   // first, so it catches errors from everything after it
+app.UseStatusCodePages();                           // gives empty 401/403/404 responses the same JSON error format
 
 app.UseCors("Frontend");
 
@@ -76,10 +122,10 @@ app.UseSwagger();
 app.UseSwaggerUI(c =>
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1"));
 
-app.UseCors(CorsExtensions.FrontendPolicy);
-
-app.UseAuthentication();
-app.UseAuthorization();
+app.UseCors(CorsExtensions.FrontendPolicy);         // before authentication, so browser preflight requests are answered
+app.UseRateLimiter();
+app.UseAuthentication();                            // who are you? (reads the JWT)
+app.UseAuthorization();                             // are you allowed? (checks [Authorize])
 
 app.MapControllers();
 app.MapRealtimeEndpoints();

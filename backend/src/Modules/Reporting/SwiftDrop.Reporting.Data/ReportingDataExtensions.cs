@@ -22,6 +22,31 @@ public static class ReportingDataExtensions
         using var scope = services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<ReportingDbContext>();
         await db.Database.EnsureCreatedAsync(ct);
+
+        if (!db.Database.IsNpgsql())
+        {
+            var columns = await db.Database.SqlQuery<string>(
+                $"SELECT name AS \"Value\" FROM pragma_table_info('daily_statistics')")
+                .ToListAsync(ct);
+
+            if (columns.Contains("ReportDate", StringComparer.OrdinalIgnoreCase)
+                && !columns.Contains("Date", StringComparer.OrdinalIgnoreCase))
+            {
+                await db.Database.ExecuteSqlRawAsync(
+                    """ALTER TABLE "daily_statistics" RENAME COLUMN "ReportDate" TO "Date" """,
+                    ct);
+                columns.Remove("ReportDate");
+                columns.Add("Date");
+            }
+
+            if (!columns.Contains("UpdatedAt", StringComparer.OrdinalIgnoreCase))
+            {
+                await db.Database.ExecuteSqlRawAsync(
+                    """ALTER TABLE "daily_statistics" ADD COLUMN "UpdatedAt" INTEGER NOT NULL DEFAULT 0 """,
+                    ct);
+            }
+        }
+
         if (seedSampleData) await ReportingDbSeeder.SeedSampleDataAsync(db, ct);
     }
 }
