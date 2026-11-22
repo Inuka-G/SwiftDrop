@@ -8,6 +8,9 @@ public interface IParcelRepository
     Task<Parcel?> GetByIdAsync(Guid id, CancellationToken ct);
     Task<Parcel?> GetByTrackingNumberAsync(string trackingNumber, CancellationToken ct);
     Task<IReadOnlyList<Parcel>> GetByCustomerIdAsync(Guid customerId, CancellationToken ct);
+    Task<Parcel?> GetMerchantOrderAsync(Guid merchantId, Guid parcelId, CancellationToken ct);
+    Task<(IReadOnlyList<Parcel> Items, int TotalCount)> ListMerchantOrdersAsync(
+        Guid merchantId, string? status, int offset, int limit, CancellationToken ct);
 
     /// The courier's open deliveries plus those they closed (Delivered/Failed) since closedSinceUtc.
     Task<IReadOnlyList<Parcel>> GetForCourierAsync(Guid courierId, DateTime closedSinceUtc, CancellationToken ct);

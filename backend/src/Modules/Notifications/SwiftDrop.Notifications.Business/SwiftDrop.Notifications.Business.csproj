@@ -1,14 +1,22 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Merchants\SwiftDrop.Merchants.Contracts\SwiftDrop.Merchants.Contracts.csproj" />
+    <ProjectReference Include="..\..\Identity\SwiftDrop.Identity.Contracts\SwiftDrop.Identity.Contracts.csproj" />
     <ProjectReference Include="..\SwiftDrop.Notifications.Data\SwiftDrop.Notifications.Data.csproj" />
     <ProjectReference Include="..\SwiftDrop.Notifications.Contracts\SwiftDrop.Notifications.Contracts.csproj" />
     <ProjectReference Include="..\..\..\SharedKernel\SwiftDrop.SharedKernel\SwiftDrop.SharedKernel.csproj" />
+    <ProjectReference Include="..\..\..\SharedKernel\SwiftDrop.SharedKernel.Messaging\SwiftDrop.SharedKernel.Messaging.csproj" />
+    <ProjectReference Include="..\..\Parcels\SwiftDrop.Parcels.Contracts\SwiftDrop.Parcels.Contracts.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="FluentValidation" Version="12.2.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.14" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="SwiftDrop.Notifications.UnitTests" />
   </ItemGroup>
 
   <PropertyGroup>

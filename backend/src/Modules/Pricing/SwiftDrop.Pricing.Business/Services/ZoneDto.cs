@@ -16,4 +16,7 @@ public interface IZoneService
     Task<ZoneDto?> UpdateAsync(Guid id, UpdateZoneCommand cmd, CancellationToken ct);
     Task<ZoneDto?> UpdateStatusAsync(Guid id, bool isActive, CancellationToken ct);
     Task<PricingRuleDto?> UpdatePricingRuleAsync (Guid zoneId, Guid ruleId, UpdatePricingRuleCommand cmd, CancellationToken ct);
+    Task<IReadOnlyList<PricingRuleDto>> GetPricingRulesAsync(
+    Guid zoneId,
+    CancellationToken ct);
 }

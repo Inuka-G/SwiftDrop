@@ -65,6 +65,7 @@
     <Project Path="src/Modules/Webhooks/SwiftDrop.Webhooks.Data/SwiftDrop.Webhooks.Data.csproj" />
   </Folder>
   <Folder Name="/src/SharedKernel/">
+    <Project Path="src/SharedKernel/SwiftDrop.SharedKernel.Messaging/SwiftDrop.SharedKernel.Messaging.csproj" />
     <Project Path="src/SharedKernel/SwiftDrop.SharedKernel/SwiftDrop.SharedKernel.csproj" />
   </Folder>
   <Folder Name="/tests/">

@@ -22,4 +22,11 @@ export const zonesApi = {
     const response = await apiClient.put<ZoneRateDto>(`/zones/${zoneId}/pricing-rules/${ruleId}`, request)
     return response.data
   },
+  async getPricingRules(zoneId: string): Promise<ZoneRateDto[]> {
+    const response = await apiClient.get<ZoneRateDto[]>(
+      `/zones/${zoneId}/pricing-rules`,
+    )
+
+    return response.data
+  },
 }

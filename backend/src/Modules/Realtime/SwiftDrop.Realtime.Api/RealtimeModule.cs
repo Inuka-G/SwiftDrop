@@ -1,9 +1,10 @@
-
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
+using SwiftDrop.Parcels.Contracts.Events;
 using SwiftDrop.Realtime.Api.Hubs;
 using SwiftDrop.Realtime.Api.Services;
 using SwiftDrop.Realtime.Business.Services;
+using SwiftDrop.SharedKernel.Messaging;
 
 namespace SwiftDrop.Realtime.Api;
 
@@ -16,7 +17,11 @@ public static class RealtimeModule
 
         services.AddScoped<ITrackingNotifier, TrackingNotifier>();
 
-        services.AddScoped<ParcelStatusChangedHandler>();
+        services.AddScoped<
+            IIntegrationEventHandler<ParcelStatusChanged>,
+            ParcelStatusChangedHandler>();
+
+        services.AddEventConsumer<ParcelStatusChanged>("q.realtime");
 
         return services;
     }

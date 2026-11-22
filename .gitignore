@@ -67,6 +67,8 @@ pnpm-debug.log*
 # =========================
 uploads/
 storage/
+# ...but not source-code folders named "Storage" (git ignores case on Windows)
+!backend/src/Modules/**/Storage/
 # *.db
 # *.sqlite
 # pgdata/
