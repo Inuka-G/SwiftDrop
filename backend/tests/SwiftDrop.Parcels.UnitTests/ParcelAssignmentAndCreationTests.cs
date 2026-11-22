@@ -8,6 +8,7 @@ using SwiftDrop.Parcels.Contracts.Dtos;
 using SwiftDrop.Parcels.Contracts.Events;
 using SwiftDrop.Parcels.UnitTests.TestSupport;
 using SwiftDrop.Pricing.Contracts;
+using SwiftDrop.SharedKernel.Messaging;
 
 namespace SwiftDrop.Parcels.UnitTests;
 

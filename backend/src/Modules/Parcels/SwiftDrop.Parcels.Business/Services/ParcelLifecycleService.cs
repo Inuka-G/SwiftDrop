@@ -154,7 +154,7 @@ internal sealed class ParcelLifecycleService(
         var eventId = Guid.NewGuid();
         repository.StageEvent(eventId, ParcelEventRoutingKeys.StatusChanged,
             new ParcelStatusChangedIntegrationEvent(eventId, parcel.Id, parcel.TrackingNumber, parcel.CustomerId,
-                parcel.CourierId, previous, newStatus, failureReason, now),
+                parcel.CourierId, previous, newStatus, failureReason, now, parcel.MerchantId),
             now);
     }
 

@@ -8,7 +8,8 @@ internal sealed class ParcelConfiguration : IEntityTypeConfiguration<Parcel>
 {
     public void Configure(EntityTypeBuilder<Parcel> b)
     {
-        b.ToTable("parcels");
+        b.ToTable("parcels", table => table.HasCheckConstraint("CK_parcels_single_owner",
+            """("CustomerId" IS NULL AND "MerchantId" IS NOT NULL) OR ("CustomerId" IS NOT NULL AND "MerchantId" IS NULL)"""));
         b.HasKey(p => p.Id);
 
         // Tracking Number: unique and indexed for fast public tracking
@@ -16,8 +17,8 @@ internal sealed class ParcelConfiguration : IEntityTypeConfiguration<Parcel>
         b.HasIndex(p => p.TrackingNumber).IsUnique();
 
         // Customer & Zone IDs
-        b.Property(p => p.CustomerId).IsRequired();
         b.HasIndex(p => p.CustomerId);
+        b.HasIndex(p => p.MerchantId);
         b.Property(p => p.ZoneId).IsRequired();
 
         // Addresses & Contacts

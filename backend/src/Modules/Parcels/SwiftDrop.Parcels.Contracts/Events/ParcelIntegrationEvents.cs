@@ -12,9 +12,10 @@ public sealed record ParcelCreatedIntegrationEvent(
     Guid EventId,
     Guid ParcelId,
     string TrackingNumber,
-    Guid CustomerId,
+    Guid? CustomerId,
     Guid ZoneId,
-    DateTime OccurredAtUtc);
+    DateTime OccurredAtUtc,
+    Guid? MerchantId = null);
 
 /// Consumed by Notifications (email/SMS), Webhooks (merchant callbacks), Realtime (live
 /// tracking), Reporting (daily stats) and Dispatch (courier workload).
@@ -22,9 +23,10 @@ public sealed record ParcelStatusChangedIntegrationEvent(
     Guid EventId,
     Guid ParcelId,
     string TrackingNumber,
-    Guid CustomerId,
+    Guid? CustomerId,
     Guid? CourierId,
     string PreviousStatus,
     string NewStatus,
     string? FailureReason,
-    DateTime OccurredAtUtc);
+    DateTime OccurredAtUtc,
+    Guid? MerchantId = null);

@@ -19,6 +19,7 @@ public static class ParcelsBusinessExtensions
         services.AddParcelsData(config);
         services.TryAddSingleton(TimeProvider.System);
         services.AddScoped<IParcelService, ParcelService>();
+        services.AddScoped<IMerchantOrderQueries>(sp => sp.GetRequiredService<IParcelService>());
         services.AddScoped<IValidator<CreateParcelRequest>, CreateParcelValidator>();
 
         // Parcel lifecycle (courier status updates, proof, failure reports)
