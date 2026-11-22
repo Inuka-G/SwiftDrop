@@ -6,7 +6,7 @@ public interface IEventPublisher
         where TEvent : IntegrationEvent;
 }
 
-public interface IIntegrationEventHandler<in TEvent> where TEvent : IntegrationEvent
+public interface IIntegrationEventHandler<in TEvent> where TEvent : class
 {
     Task HandleAsync(TEvent @event, CancellationToken ct);
 }

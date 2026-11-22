@@ -9,8 +9,9 @@ public static class NotificationsBusinessExtensions
 {
     public static IServiceCollection AddNotificationsBusiness(this IServiceCollection services)
     {
-        services.AddScoped<IIntegrationEventHandler<ParcelStatusChanged>, ParcelStatusNotificationHandler>();
-        services.AddEventConsumer<ParcelStatusChanged>("q.notifications");
+        services.AddScoped<IIntegrationEventHandler<ParcelStatusChangedIntegrationEvent>, ParcelStatusNotificationHandler>();
+        services.AddEventConsumer<ParcelStatusChangedIntegrationEvent>("q.notifications",
+            ParcelEventRoutingKeys.StatusChanged, previousRoutingKey: "parcel.status.changed");
         return services;
     }
 }
