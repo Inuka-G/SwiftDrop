@@ -48,6 +48,9 @@ builder.Services.AddAiAssistantModule(builder.Configuration);
 builder.Services.AddRealtimeModule();
 
 builder.Services.AddRabbitMq(builder.Configuration);
+builder.Services.PostConfigure<RabbitMqOptions>(options =>
+    options.RequiredOutboxRoutes = [.. options.RequiredOutboxRoutes,
+        SwiftDrop.Parcels.Contracts.Events.ParcelEventRoutingKeys.StatusChanged]);
 builder.Services.AddNotificationsModule(builder.Configuration);
 
 builder.Services.AddControllers();
@@ -62,6 +65,7 @@ await app.InitializeParcelsModuleAsync();
 await app.InitializeDispatchModuleAsync();
 await app.InitializeReportingModuleAsync();
 await app.InitializeMerchantsModuleAsync();
+await app.InitializeNotificationsModuleAsync();
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseStatusCodePages();

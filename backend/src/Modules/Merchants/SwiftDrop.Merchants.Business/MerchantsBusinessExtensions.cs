@@ -24,6 +24,7 @@ public static class MerchantsBusinessExtensions
         services.AddScoped<MerchantService>();
         services.AddScoped<IMerchantService>(sp => sp.GetRequiredService<MerchantService>());
         services.AddScoped<IMerchantAccess>(sp => sp.GetRequiredService<MerchantService>());
+        services.AddScoped<IMerchantContactDirectory, MerchantContactDirectory>();
         return services;
     }
 }

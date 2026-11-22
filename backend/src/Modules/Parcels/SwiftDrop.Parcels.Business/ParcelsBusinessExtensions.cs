@@ -8,7 +8,6 @@ using SwiftDrop.Parcels.Business.Validation;
 using SwiftDrop.Parcels.Contracts;
 using SwiftDrop.Parcels.Contracts.Dtos;
 using SwiftDrop.Parcels.Data;
-using SwiftDrop.SharedKernel.Messaging;
 
 namespace SwiftDrop.Parcels.Business;
 
@@ -33,7 +32,6 @@ public static class ParcelsBusinessExtensions
         services.Configure<OutboxOptions>(config.GetSection(OutboxOptions.SectionName));
         services.AddScoped<OutboxDispatcher>();
         services.AddHostedService<OutboxProcessor>();
-        services.AddIntegrationEventPublisherFallback();
         return services;
     }
 
