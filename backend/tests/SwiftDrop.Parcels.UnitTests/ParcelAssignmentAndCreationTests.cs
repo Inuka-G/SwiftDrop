@@ -65,4 +65,27 @@ public sealed class ParcelAssignmentAndCreationTests : IDisposable
         evt.CustomerId.Should().Be(customerId);
         evt.TrackingNumber.Should().Be(created.TrackingNumber);
     }
+
+    [Fact]
+    public async Task Creating_a_merchant_parcel_uses_the_requested_express_pricing()
+    {
+        var pricing = new Mock<IPricingService>();
+        var zoneId = Guid.NewGuid();
+        pricing.Setup(p => p.EstimateAsync(zoneId, 2m, ServiceType.Express, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new FeeEstimateDto(zoneId, "Kandy", 600m, 150m, 750m));
+        var service = new ParcelService(db.Repository, pricing.Object, Mock.Of<IEventPublisher>());
+        var merchantId = Guid.NewGuid();
+        var request = new CreateParcelRequest(zoneId, "Pickup", "Sender", "+94771234567",
+            "Dropoff", "Receiver", "+94779876543", 2m, "Small", ServiceType: ServiceType.Express);
+
+        var created = await service.CreateMerchantParcelAsync(merchantId, request, default);
+
+        created.EstimatedFee.Should().Be(750m);
+        pricing.Verify(p => p.EstimateAsync(zoneId, 2m, ServiceType.Express, It.IsAny<CancellationToken>()), Times.Once);
+        await using var check = db.NewContext();
+        var parcel = await check.Parcels.SingleAsync(p => p.Id == created.ParcelId);
+        parcel.MerchantId.Should().Be(merchantId);
+        parcel.CustomerId.Should().BeNull();
+        parcel.EstimatedFee.Should().Be(750m);
+    }
 }

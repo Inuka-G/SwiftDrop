@@ -3,6 +3,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\SharedKernel\SwiftDrop.SharedKernel\SwiftDrop.SharedKernel.csproj" />
     <ProjectReference Include="..\..\..\SharedKernel\SwiftDrop.SharedKernel.Messaging\SwiftDrop.SharedKernel.Messaging.csproj" />
+    <ProjectReference Include="..\..\Pricing\SwiftDrop.Pricing.Contracts\SwiftDrop.Pricing.Contracts.csproj" />
   </ItemGroup>
 
   <PropertyGroup>

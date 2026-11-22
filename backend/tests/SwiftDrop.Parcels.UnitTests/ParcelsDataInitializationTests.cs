@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using FluentAssertions;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
@@ -60,17 +61,38 @@ public sealed class ParcelsDataInitializationTests : IDisposable
         var db = scope.ServiceProvider.GetRequiredService<ParcelsDbContext>();
         var originalOwner = Guid.NewGuid();
         var parcelId = Guid.NewGuid();
-        var legacySchema = db.Database.GenerateCreateScript()
+        var legacyColumnsMissingFromParcels = new[] { "MerchantId", "CourierId", "AssignedAtUtc" };
+        var legacySchema = string.Join(";", db.Database.GenerateCreateScript()
+            .Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Where(statement => !(statement.StartsWith("CREATE ", StringComparison.Ordinal)
+                && statement.Contains("INDEX", StringComparison.Ordinal)
+                && statement.Contains(" ON \"parcels\" ", StringComparison.Ordinal)
+                && legacyColumnsMissingFromParcels.Any(column =>
+                    statement.Contains($"\"{column}\"", StringComparison.Ordinal)))))
             .Replace("    \"MerchantId\" TEXT NULL,", "")
+            .Replace("    \"CourierId\" TEXT NULL,", "")
+            .Replace("    \"AssignedAtUtc\" TEXT NULL,", "")
             .Replace("\"CustomerId\" TEXT NULL", "\"CustomerId\" TEXT NOT NULL")
-            .Replace("""
-                ,
-                    CONSTRAINT "CK_parcels_single_owner" CHECK (("CustomerId" IS NULL AND "MerchantId" IS NOT NULL) OR ("CustomerId" IS NOT NULL AND "MerchantId" IS NULL))
-                """, "")
-            .Replace("""CREATE INDEX "IX_parcels_MerchantId" ON "parcels" ("MerchantId");""", "")
             .Replace("\"ChangedByActorId\"", "\"ChangedByUserId\"")
             .Replace("""    "ChangedByActorType" TEXT NOT NULL DEFAULT 'User',""", "");
+        legacySchema = Regex.Replace(legacySchema,
+            @",\s*CONSTRAINT ""CK_parcels_single_owner"" CHECK \(\(""CustomerId"" IS NULL AND ""MerchantId"" IS NOT NULL\) OR \(""CustomerId"" IS NOT NULL AND ""MerchantId"" IS NULL\)\)",
+            string.Empty, RegexOptions.CultureInvariant);
+        var legacyStatements = legacySchema.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        var legacyParcelTable = legacyStatements.Single(statement => statement.StartsWith("CREATE TABLE \"parcels\" ", StringComparison.Ordinal));
+        var legacyParcelIndexes = legacyStatements.Where(statement => statement.StartsWith("CREATE ", StringComparison.Ordinal)
+            && statement.Contains("INDEX", StringComparison.Ordinal)
+            && statement.Contains(" ON \"parcels\" ", StringComparison.Ordinal));
+        foreach (var column in legacyColumnsMissingFromParcels)
+        {
+            legacyParcelTable.Should().NotContain($"\"{column}\"");
+            legacyParcelIndexes.Should().NotContain(statement => statement.Contains($"\"{column}\"", StringComparison.Ordinal));
+        }
+        legacyParcelTable.Should().NotContain("CK_parcels_single_owner");
         Execute(legacySchema);
+        ParcelColumnNames().Should().NotContain("MerchantId");
+        ParcelColumnNames().Should().NotContain("CourierId");
+        ParcelColumnNames().Should().NotContain("AssignedAtUtc");
         await db.Database.ExecuteSqlAsync($"""
             INSERT INTO parcels ("Id", "CreatedAtUtc", "UpdatedAtUtc", "CustomerId", "TrackingNumber",
                 "ZoneId", "PickupAddress", "PickupContactName", "PickupContactPhone",
@@ -91,6 +113,8 @@ public sealed class ParcelsDataInitializationTests : IDisposable
         var parcel = await db.Parcels.SingleAsync();
         parcel.CustomerId.Should().Be(originalOwner);
         parcel.MerchantId.Should().BeNull();
+        parcel.CourierId.Should().BeNull();
+        parcel.AssignedAtUtc.Should().BeNull();
         var history = await db.StatusHistory.SingleAsync();
         history.ParcelId.Should().Be(parcelId);
         history.ChangedByActorId.Should().Be(originalOwner);
@@ -99,6 +123,42 @@ public sealed class ParcelsDataInitializationTests : IDisposable
         Func<Task> twoOwners = () => db.Database.ExecuteSqlAsync($"""UPDATE parcels SET "MerchantId" = {Guid.NewGuid()}""");
         await noOwner.Should().ThrowAsync<SqliteException>().WithMessage("*CK_parcels_single_owner*");
         await twoOwners.Should().ThrowAsync<SqliteException>().WithMessage("*CK_parcels_single_owner*");
+    }
+
+    [Fact]
+    public async Task Creates_missing_history_table_for_existing_parcels_and_preserves_parcels()
+    {
+        using var scope = services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<ParcelsDbContext>();
+        var schemaStatements = db.Database.GenerateCreateScript()
+            .Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Where(statement => !statement.StartsWith("""CREATE TABLE "status_history" """, StringComparison.Ordinal)
+                && !(statement.StartsWith("CREATE ", StringComparison.Ordinal)
+                    && statement.Contains("INDEX", StringComparison.Ordinal)
+                    && statement.Contains(""" ON "status_history" """, StringComparison.Ordinal)));
+        Execute(string.Join(";", schemaStatements));
+
+        var originalOwner = Guid.NewGuid();
+        db.Parcels.Add(new Parcel(originalOwner, "SD-NO-HISTORY", Guid.NewGuid(),
+            "Pickup", "Sender", "+94771234567", "Dropoff", "Recipient", "+94779876543",
+            1m, "Small", 500m, "Card"));
+        await db.SaveChangesAsync();
+        TableNames().Should().NotContain("status_history");
+
+        await services.InitializeParcelsDataAsync();
+        await services.InitializeParcelsDataAsync();
+
+        var parcel = await db.Parcels.AsNoTracking().SingleAsync();
+        parcel.TrackingNumber.Should().Be("SD-NO-HISTORY");
+        parcel.CustomerId.Should().Be(originalOwner);
+        (await db.StatusHistory.CountAsync()).Should().Be(0);
+        (await db.Database.SqlQuery<int>($"""
+            SELECT COUNT(*) AS "Value" FROM pragma_foreign_key_list('status_history') WHERE "table" = 'parcels'
+            """).SingleAsync()).Should().Be(1);
+        (await db.Database.SqlQuery<int>($"""
+            SELECT COUNT(*) AS "Value" FROM sqlite_master
+            WHERE type = 'index' AND tbl_name = 'status_history' AND name LIKE 'IX_%'
+            """).SingleAsync()).Should().Be(1);
     }
 
     private void Execute(string sql)
@@ -115,6 +175,17 @@ public sealed class ParcelsDataInitializationTests : IDisposable
         using var reader = command.ExecuteReader();
         var names = new List<string>();
         while (reader.Read()) names.Add(reader.GetString(0));
+        return names;
+    }
+
+    private List<string> ParcelColumnNames()
+    {
+        using var command = connection.CreateCommand();
+        command.CommandText = "PRAGMA table_info('parcels')";
+        using var reader = command.ExecuteReader();
+        var nameOrdinal = reader.GetOrdinal("name");
+        var names = new List<string>();
+        while (reader.Read()) names.Add(reader.GetString(nameOrdinal));
         return names;
     }
 
