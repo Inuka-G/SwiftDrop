@@ -1,7 +1,9 @@
+using System.Text.Json;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using SwiftDrop.Parcels.Business.Lifecycle;
 using SwiftDrop.Parcels.Data.Repositories;
 using SwiftDrop.SharedKernel.Messaging;
 
@@ -17,10 +19,10 @@ public sealed class OutboxOptions
     public int MaxAttempts { get; set; } = 10;
 }
 
-/// Sends one batch of pending outbox messages to the broker.
+/// Sends one batch of pending outbox messages to RabbitMQ through the shared IEventPublisher.
 internal sealed class OutboxDispatcher(
     IOutboxRepository outbox,
-    IIntegrationEventPublisher publisher,
+    IEventPublisher publisher,
     TimeProvider clock,
     IOptions<OutboxOptions> options,
     ILogger<OutboxDispatcher> logger)
@@ -33,9 +35,21 @@ internal sealed class OutboxDispatcher(
 
         foreach (var message in batch)
         {
+            var eventType = ParcelEventTypes.Find(message.RoutingKey);
+            if (eventType is null)
+            {
+                // Not retryable, so it must not hold back the messages behind it.
+                message.MarkFailed($"Unknown routing key {message.RoutingKey}.");
+                logger.LogError("Outbox message {EventId} has unknown routing key {RoutingKey}.",
+                    message.Id, message.RoutingKey);
+                continue;
+            }
+
             try
             {
-                await publisher.PublishAsync(message.Id, message.RoutingKey, message.Payload, ct);
+                var integrationEvent = (IntegrationEvent)JsonSerializer.Deserialize(
+                    message.Payload, eventType, JsonSerializerOptions.Web)!;
+                await publisher.PublishAsync(integrationEvent, ct);
                 message.MarkProcessed(clock.GetUtcNow().UtcDateTime);
                 sent++;
             }
@@ -54,7 +68,8 @@ internal sealed class OutboxDispatcher(
     }
 }
 
-/// Polls the outbox in the background, so the courier's request never waits for the broker.
+/// Polls the outbox in the background, so the request that changed the parcel never
+/// waits for (or fails because of) the broker.
 internal sealed class OutboxProcessor(
     IServiceScopeFactory scopes,
     IOptions<OutboxOptions> options,

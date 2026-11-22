@@ -8,7 +8,6 @@ using SwiftDrop.Parcels.Business.Validation;
 using SwiftDrop.Parcels.Contracts;
 using SwiftDrop.Parcels.Contracts.Dtos;
 using SwiftDrop.Parcels.Data;
-using SwiftDrop.SharedKernel.Messaging;
 
 namespace SwiftDrop.Parcels.Business;
 
@@ -28,11 +27,11 @@ public static class ParcelsBusinessExtensions
         services.AddScoped<IValidator<ReportFailureRequest>, ReportFailureValidator>();
         services.AddScoped<IValidator<ConfirmDeliveryRequest>, ConfirmDeliveryValidator>();
 
-        // Status events: outbox rows are published to the broker in the background
+        // Events: outbox rows are published to RabbitMQ in the background
+        // (IEventPublisher is registered by AddRabbitMq in the Host)
         services.Configure<OutboxOptions>(config.GetSection(OutboxOptions.SectionName));
         services.AddScoped<OutboxDispatcher>();
         services.AddHostedService<OutboxProcessor>();
-        services.AddIntegrationEventPublisherFallback();
         return services;
     }
 

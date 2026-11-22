@@ -45,7 +45,7 @@ public sealed class ParcelAssignmentAndCreationTests : IDisposable
         pricing.Setup(p => p.EstimateAsync(It.IsAny<Guid>(), It.IsAny<decimal>(), It.IsAny<ServiceType>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(new FeeEstimateDto(Guid.NewGuid(), "Kandy", 500m, 100m, 600m));
-        var service = new ParcelService(db.Repository, pricing.Object, Mock.Of<SwiftDrop.SharedKernel.Messaging.IEventPublisher>());
+        var service = new ParcelService(db.Repository, pricing.Object, db.Clock);
         var customerId = Guid.NewGuid();
 
         var created = await service.CreateParcelAsync(customerId, new CreateParcelRequest(Guid.NewGuid(),
@@ -57,11 +57,41 @@ public sealed class ParcelAssignmentAndCreationTests : IDisposable
         history.FromStatus.Should().BeNull();
         history.ToStatus.Should().Be(ParcelStatuses.Created);
 
-        var outbox = await check.OutboxMessages.SingleAsync();
-        outbox.RoutingKey.Should().Be(ParcelEventRoutingKeys.Created);
-        var evt = JsonSerializer.Deserialize<ParcelCreatedIntegrationEvent>(outbox.Payload, JsonSerializerOptions.Web)!;
-        evt.ParcelId.Should().Be(created.ParcelId);
-        evt.CustomerId.Should().Be(customerId);
-        evt.TrackingNumber.Should().Be(created.TrackingNumber);
+        // Both events are in the outbox (same transaction as the parcel), nothing was sent directly
+        var outbox = await check.OutboxMessages.ToListAsync();
+        outbox.Select(m => m.RoutingKey).Should().BeEquivalentTo(["parcel.created", "parcel.status.changed"]);
+
+        var createdEvt = JsonSerializer.Deserialize<ParcelCreated>(
+            outbox.Single(m => m.RoutingKey == "parcel.created").Payload, JsonSerializerOptions.Web)!;
+        createdEvt.ParcelId.Should().Be(created.ParcelId);
+        createdEvt.CustomerId.Should().Be(customerId);
+        createdEvt.TrackingNumber.Should().Be(created.TrackingNumber);
+
+        var statusEvt = JsonSerializer.Deserialize<ParcelStatusChanged>(
+            outbox.Single(m => m.RoutingKey == "parcel.status.changed").Payload, JsonSerializerOptions.Web)!;
+        statusEvt.OldStatus.Should().Be("None");
+        statusEvt.NewStatus.Should().Be(ParcelStatuses.Created);
+    }
+
+    [Fact]
+    public async Task Admin_status_change_uses_the_lifecycle_rules()
+    {
+        var parcel = await db.AddParcelAsync();
+        var service = new ParcelService(db.Repository, Mock.Of<IPricingService>(), db.Clock);
+        var adminId = Guid.NewGuid();
+
+        var skip = () => service.UpdateStatusAsync(parcel.Id, ParcelStatuses.Delivered, null, adminId, "ADMIN", default);
+        await skip.Should().ThrowAsync<SwiftDrop.SharedKernel.Exceptions.ConflictException>();
+
+        (await service.UpdateStatusAsync(parcel.Id, ParcelStatuses.PickedUp, "  At depot  ", adminId, "ADMIN", default))
+            .Should().BeTrue();
+        (await service.UpdateStatusAsync(Guid.NewGuid(), ParcelStatuses.PickedUp, null, adminId, "ADMIN", default))
+            .Should().BeFalse();
+
+        await using var check = db.NewContext();
+        var history = await check.StatusHistory.SingleAsync();
+        history.Note.Should().Be("At depot");
+        history.ChangedByRole.Should().Be("ADMIN");
+        (await check.OutboxMessages.SingleAsync()).RoutingKey.Should().Be("parcel.status.changed");
     }
 }

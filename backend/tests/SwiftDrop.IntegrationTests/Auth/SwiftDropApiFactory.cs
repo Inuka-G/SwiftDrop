@@ -1,4 +1,6 @@
 using System.Collections.Concurrent;
+using System.Reflection;
+using System.Text.Json;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
@@ -47,19 +49,22 @@ public sealed class SwiftDropApiFactory : WebApplicationFactory<Program>
             services.AddScoped<IParcelAssignmentGateway, TestParcelAssignmentGateway>();
             services.AddScoped<IDispatchEventPublisher, TestDispatchEventPublisher>();
             services.AddScoped<IZoneLookup, TestZoneLookup>();
-            services.RemoveAll<IIntegrationEventPublisher>();
-            services.AddSingleton<IIntegrationEventPublisher>(Events);
+            services.RemoveAll<IEventPublisher>();
+            services.AddSingleton<IEventPublisher>(Events);
         });
     }
 }
 
-public sealed class RecordingEventPublisher : IIntegrationEventPublisher
+/// Records events the way RabbitMqEventPublisher would send them: routing key plus JSON body.
+public sealed class RecordingEventPublisher : IEventPublisher
 {
     public ConcurrentQueue<(Guid EventId, string RoutingKey, string Payload)> Published { get; } = new();
 
-    public Task PublishAsync(Guid eventId, string routingKey, string payloadJson, CancellationToken ct)
+    public Task PublishAsync<TEvent>(TEvent @event, CancellationToken ct = default) where TEvent : IntegrationEvent
     {
-        Published.Enqueue((eventId, routingKey, payloadJson));
+        var type = @event.GetType();
+        var routingKey = type.GetCustomAttribute<RoutingKeyAttribute>()!.Key;
+        Published.Enqueue((@event.EventId, routingKey, JsonSerializer.Serialize(@event, type, JsonSerializerOptions.Web)));
         return Task.CompletedTask;
     }
 }

@@ -84,12 +84,6 @@ public class Parcel : BaseEntity
         Touch(nowUtc);
     }
 
-    // Compatibility with the status-update method used by the Parcels service.
-    public void UpdateStatus(string newStatus)
-    {
-        ChangeStatus(newStatus, DateTime.UtcNow);
-    }
-
     private void Touch(DateTime nowUtc)
     {
         UpdatedAtUtc = nowUtc;

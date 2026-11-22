@@ -45,13 +45,15 @@ public sealed class ParcelLifecycleServiceTests : IDisposable
         history.ChangedByRole.Should().Be(Roles.Courier);
 
         var outbox = await check.OutboxMessages.SingleAsync();
-        outbox.RoutingKey.Should().Be(ParcelEventRoutingKeys.StatusChanged);
-        var evt = JsonSerializer.Deserialize<ParcelStatusChangedIntegrationEvent>(outbox.Payload, JsonSerializerOptions.Web)!;
+        outbox.RoutingKey.Should().Be("parcel.status.changed");
+        var evt = JsonSerializer.Deserialize<ParcelStatusChanged>(outbox.Payload, JsonSerializerOptions.Web)!;
         evt.EventId.Should().Be(outbox.Id);
         evt.ParcelId.Should().Be(parcel.Id);
         evt.CourierId.Should().Be(courierId);
-        evt.PreviousStatus.Should().Be(ParcelStatuses.Created);
+        evt.OldStatus.Should().Be(ParcelStatuses.Created);
         evt.NewStatus.Should().Be(ParcelStatuses.PickedUp);
+        evt.Note.Should().BeNull();   // free-text notes stay in the history table
+        evt.OccurredOnUtc.Should().Be(db.Clock.Now.UtcDateTime);
     }
 
     [Fact]
@@ -195,7 +197,7 @@ public sealed class ParcelLifecycleServiceTests : IDisposable
 
         await using var check = db.NewContext();
         var last = await check.OutboxMessages.OrderByDescending(m => m.CreatedAtUtc).FirstAsync();
-        var evt = JsonSerializer.Deserialize<ParcelStatusChangedIntegrationEvent>(last.Payload, JsonSerializerOptions.Web)!;
+        var evt = JsonSerializer.Deserialize<ParcelStatusChanged>(last.Payload, JsonSerializerOptions.Web)!;
         evt.NewStatus.Should().Be(ParcelStatuses.Failed);
         evt.FailureReason.Should().Be(FailureReasons.RecipientUnavailable);
     }

@@ -6,14 +6,13 @@ using SwiftDrop.Parcels.Data.Repositories;
 using SwiftDrop.Pricing.Contracts;
 using SwiftDrop.SharedKernel.Authorization;
 using SwiftDrop.SharedKernel.Exceptions;
-using SwiftDrop.SharedKernel.Messaging;
 
 namespace SwiftDrop.Parcels.Business.Services;
 
 internal sealed class ParcelService(
     IParcelRepository repository,
     IPricingService pricingService,
-    IEventPublisher eventPublisher) : IParcelService
+    TimeProvider clock) : IParcelService
 {
     public async Task<ParcelCreatedResponse> CreateParcelAsync(Guid customerId, CreateParcelRequest req, CancellationToken ct)
     {
@@ -41,29 +40,19 @@ internal sealed class ParcelService(
             req.PaymentMethod
         );
 
-        // 4. Save to DB, with the first status history row and the ParcelCreated event
-        //    (Dispatch consumes it to list the parcel as unassigned)
+        // 4. Save to DB in one transaction, with the first status history row and the
+        //    ParcelCreated + ParcelStatusChanged events. The outbox publishes them to RabbitMQ
+        //    in the background, so booking still works while the broker is down.
         await repository.AddAsync(parcel, ct);
         repository.AddHistory(new ParcelStatusHistory(parcel.Id, null, parcel.CurrentStatus, null,
             customerId, Roles.Customer, parcel.CreatedAtUtc));
-        var eventId = Guid.NewGuid();
-        repository.StageEvent(eventId, ParcelEventRoutingKeys.Created,
-            new ParcelCreatedIntegrationEvent(eventId, parcel.Id, parcel.TrackingNumber, customerId, parcel.ZoneId,
-                parcel.CreatedAtUtc),
-            parcel.CreatedAtUtc);
+        repository.StageEvent(new ParcelCreated(parcel.Id, parcel.TrackingNumber, customerId, parcel.ZoneId)
+            { OccurredOnUtc = parcel.CreatedAtUtc });
+        repository.StageEvent(new ParcelStatusChanged(parcel.Id, parcel.TrackingNumber,
+            OldStatus: "None", NewStatus: parcel.CurrentStatus, Note: "Parcel created.",
+            CustomerId: customerId, MerchantId: null, CourierId: null)
+            { OccurredOnUtc = parcel.CreatedAtUtc });
         await repository.SaveChangesAsync(ct);
-
-        // 5. Publish status changed integration event
-        await eventPublisher.PublishAsync(new ParcelStatusChanged(
-            parcel.Id,
-            parcel.TrackingNumber,
-            OldStatus: "None",
-            NewStatus: parcel.CurrentStatus,
-            Note: "Parcel created.",
-            CustomerId: parcel.CustomerId,
-            MerchantId: null,
-            CourierId: null
-        ), ct);
 
         return new ParcelCreatedResponse(parcel.Id, parcel.TrackingNumber, parcel.EstimatedFee, parcel.CurrentStatus, parcel.CreatedAtUtc);
     }
@@ -118,26 +107,17 @@ internal sealed class ParcelService(
         );
     }
 
-    public async Task<bool> UpdateStatusAsync(Guid parcelId, string newStatus, string? note = null, Guid? courierId = null, CancellationToken ct = default)
+    /// Status change by a dispatcher or admin. Uses the same state machine, history and
+    /// outbox event as the courier app; an invalid move throws ConflictException (409).
+    public async Task<bool> UpdateStatusAsync(Guid parcelId, string newStatus, string? note,
+        Guid changedById, string changedByRole, CancellationToken ct = default)
     {
         var parcel = await repository.GetByIdAsync(parcelId, ct);
         if (parcel is null) return false;
 
-        var oldStatus = parcel.CurrentStatus;
-        parcel.UpdateStatus(newStatus);
+        repository.ApplyTransition(parcel, newStatus, string.IsNullOrWhiteSpace(note) ? null : note.Trim(),
+            changedById, changedByRole, failureReason: null, clock.GetUtcNow().UtcDateTime);
         await repository.SaveChangesAsync(ct);
-
-        await eventPublisher.PublishAsync(new ParcelStatusChanged(
-            parcel.Id,
-            parcel.TrackingNumber,
-            OldStatus: oldStatus,
-            NewStatus: newStatus,
-            Note: note,
-            CustomerId: parcel.CustomerId,
-            MerchantId: null,
-            CourierId: courierId
-        ), ct);
-
         return true;
     }
 

@@ -1,4 +1,5 @@
 
+using System.Text.Json;
 using FluentAssertions;
 using Moq;
 using SwiftDrop.Parcels.Business.Services;
@@ -17,10 +18,20 @@ public sealed class ParcelServiceTests
 {
     private readonly Mock<IParcelRepository> _repository = new();
     private readonly Mock<IPricingService> _pricingService = new();
-    private readonly Mock<IEventPublisher> _eventPublisher = new();
+    private readonly List<OutboxMessage> _outbox = [];
 
-    private ParcelService CreateService() =>
-        new(_repository.Object, _pricingService.Object, _eventPublisher.Object);
+    // Events are staged in the outbox (published later by the OutboxProcessor), so the
+    // tests capture what was added to it instead of mocking a publisher.
+    private ParcelService CreateService()
+    {
+        _repository.Setup(r => r.AddOutboxMessage(It.IsAny<OutboxMessage>())).Callback<OutboxMessage>(_outbox.Add);
+        return new(_repository.Object, _pricingService.Object, TimeProvider.System);
+    }
+
+    private List<ParcelStatusChanged> StagedStatusEvents() => _outbox
+        .Where(m => m.RoutingKey == "parcel.status.changed")
+        .Select(m => JsonSerializer.Deserialize<ParcelStatusChanged>(m.Payload, JsonSerializerOptions.Web)!)
+        .ToList();
 
     private static CreateParcelRequest CreateSampleRequest(Guid zoneId) => new(
         ZoneId: zoneId,
@@ -95,14 +106,10 @@ public sealed class ParcelServiceTests
             r => r.SaveChangesAsync(It.IsAny<CancellationToken>()),
             Times.Once);
 
-        _eventPublisher.Verify(
-            p => p.PublishAsync(
-                It.Is<ParcelStatusChanged>(e =>
-                    e.ParcelId == savedParcel!.Id &&
-                    e.TrackingNumber == result.TrackingNumber &&
-                    e.NewStatus == "Created"),
-                It.IsAny<CancellationToken>()),
-            Times.Once);
+        StagedStatusEvents().Should().ContainSingle(e =>
+            e.ParcelId == savedParcel!.Id &&
+            e.TrackingNumber == result.TrackingNumber &&
+            e.NewStatus == "Created");
     }
 
     [Fact]
@@ -143,11 +150,7 @@ public sealed class ParcelServiceTests
             r => r.SaveChangesAsync(It.IsAny<CancellationToken>()),
             Times.Never);
 
-        _eventPublisher.Verify(
-            p => p.PublishAsync(
-                It.IsAny<ParcelStatusChanged>(),
-                It.IsAny<CancellationToken>()),
-            Times.Never);
+        _outbox.Should().BeEmpty();
     }
 
     [Fact]
@@ -373,21 +376,38 @@ public async Task UpdateStatusAsync_ShouldUpdateStatus_AndPublishEvent_WhenParce
 
     var service = CreateService();
 
-    var result = await service.UpdateStatusAsync(parcel.Id, "InTransit", "Picked up by courier", null, CancellationToken.None);
+    var result = await service.UpdateStatusAsync(parcel.Id, "PickedUp", "Picked up by courier",
+        Guid.NewGuid(), "DISPATCHER", CancellationToken.None);
 
     result.Should().BeTrue();
-    parcel.CurrentStatus.Should().Be("InTransit");
+    parcel.CurrentStatus.Should().Be("PickedUp");
 
     _repository.Verify(r => r.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
-    _eventPublisher.Verify(
-        p => p.PublishAsync(
-            It.Is<ParcelStatusChanged>(e =>
-                e.ParcelId == parcel.Id &&
-                e.OldStatus == "Created" &&
-                e.NewStatus == "InTransit" &&
-                e.Note == "Picked up by courier"),
-            It.IsAny<CancellationToken>()),
-        Times.Once);
+    _repository.Verify(r => r.AddHistory(It.Is<ParcelStatusHistory>(h =>
+        h.ToStatus == "PickedUp" && h.Note == "Picked up by courier")), Times.Once);
+    StagedStatusEvents().Should().ContainSingle(e =>
+        e.ParcelId == parcel.Id &&
+        e.OldStatus == "Created" &&
+        e.NewStatus == "PickedUp");
+}
+
+[Fact]
+public async Task UpdateStatusAsync_ShouldReject_SkippingLifecycleStages()
+{
+    var parcel = new Parcel(Guid.NewGuid(), "SD-261109-A1B2C4", Guid.NewGuid(),
+        "123 Galle Road, Colombo", "Kasun", "+94771234567",
+        "456 Main Street, Kandy", "Nimal", "+94719876543", 3m, "Medium", 500m, "COD");
+    _repository
+        .Setup(r => r.GetByIdAsync(parcel.Id, It.IsAny<CancellationToken>()))
+        .ReturnsAsync(parcel);
+
+    var act = () => CreateService().UpdateStatusAsync(parcel.Id, "InTransit", null,
+        Guid.NewGuid(), "DISPATCHER", CancellationToken.None);
+
+    await act.Should().ThrowAsync<ConflictException>();
+    parcel.CurrentStatus.Should().Be("Created");
+    _repository.Verify(r => r.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+    _outbox.Should().BeEmpty();
 }
 
 [Fact]
@@ -400,12 +420,11 @@ public async Task UpdateStatusAsync_ShouldReturnFalse_WhenParcelDoesNotExist()
 
     var service = CreateService();
 
-    var result = await service.UpdateStatusAsync(parcelId, "InTransit", null, null, CancellationToken.None);
+    var result = await service.UpdateStatusAsync(parcelId, "PickedUp", null, Guid.NewGuid(), "DISPATCHER",
+        CancellationToken.None);
 
     result.Should().BeFalse();
     _repository.Verify(r => r.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
-    _eventPublisher.Verify(
-        p => p.PublishAsync(It.IsAny<ParcelStatusChanged>(), It.IsAny<CancellationToken>()),
-        Times.Never);
+    _outbox.Should().BeEmpty();
 }
 }

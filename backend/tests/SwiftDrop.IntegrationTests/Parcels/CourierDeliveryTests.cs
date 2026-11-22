@@ -82,12 +82,47 @@ public sealed class CourierDeliveryTests(SwiftDropApiFactory factory)
 
         // The outbox processor publishes in the background, so wait for it.
         var published = await WaitForEventAsync(parcelId);
-        Assert.Equal(ParcelEventRoutingKeys.StatusChanged, published.RoutingKey);
-        var evt = JsonSerializer.Deserialize<ParcelStatusChangedIntegrationEvent>(published.Payload, JsonSerializerOptions.Web)!;
-        Assert.Equal(ParcelStatuses.Created, evt.PreviousStatus);
+        Assert.Equal("parcel.status.changed", published.RoutingKey);
+        var evt = JsonSerializer.Deserialize<ParcelStatusChanged>(published.Payload, JsonSerializerOptions.Web)!;
+        Assert.Equal(ParcelStatuses.Created, evt.OldStatus);
         Assert.Equal(ParcelStatuses.PickedUp, evt.NewStatus);
         Assert.Equal(courierId, evt.CourierId);
+        Assert.Null(evt.Note);   // the courier's note ("Collected") never leaves the module
         Assert.Equal(published.EventId, evt.EventId);
+    }
+
+    [Theory]
+    [InlineData("customer1")]
+    [InlineData("merchant1")]
+    [InlineData("courier1")]
+    public async Task Only_dispatchers_and_admins_can_set_a_parcel_status_directly(string username)
+    {
+        var token = await client.LoginAsync(username);
+        var parcelId = await SeedAssignedParcelAsync(Guid.NewGuid());
+
+        var response = await SendAsync(HttpMethod.Patch, $"/api/v1/parcels/{parcelId}/status", token,
+            JsonContent.Create(new { status = ParcelStatuses.Delivered }));
+
+        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task Admin_status_change_follows_the_lifecycle_rules_and_is_published()
+    {
+        var token = await client.LoginAsync("admin");
+        var parcelId = await SeedAssignedParcelAsync(Guid.NewGuid());
+        var url = $"/api/v1/parcels/{parcelId}/status";
+
+        var skip = await SendAsync(HttpMethod.Patch, url, token, JsonContent.Create(new { status = ParcelStatuses.Delivered }));
+        Assert.Equal(HttpStatusCode.Conflict, skip.StatusCode);
+
+        var ok = await SendAsync(HttpMethod.Patch, url, token, JsonContent.Create(new { status = ParcelStatuses.PickedUp }));
+        ok.EnsureSuccessStatusCode();
+
+        var published = await WaitForEventAsync(parcelId);
+        var evt = JsonSerializer.Deserialize<ParcelStatusChanged>(published.Payload, JsonSerializerOptions.Web)!;
+        Assert.Equal(ParcelStatuses.PickedUp, evt.NewStatus);
+        Assert.Single(factory.Events.Published, e => e.Payload.Contains(parcelId.ToString()));   // the 409 published nothing
     }
 
     [Fact]

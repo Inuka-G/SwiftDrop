@@ -1,7 +1,6 @@
 using SwiftDrop.Parcels.Business.Lifecycle;
 using SwiftDrop.Parcels.Contracts;
 using SwiftDrop.Parcels.Contracts.Dtos;
-using SwiftDrop.Parcels.Contracts.Events;
 using SwiftDrop.Parcels.Data.Entities;
 using SwiftDrop.Parcels.Data.Repositories;
 using SwiftDrop.Parcels.Data.Storage;
@@ -139,24 +138,9 @@ internal sealed class ParcelLifecycleService(
     private static string? ContentTypeOf(string? photoKey) =>
         photoKey is null ? null : ProofPhotoRules.ContentTypeFor(photoKey);
 
-    /// The one place a status changes: checks the state machine, then stages the new status,
-    /// a history row and the integration event. The caller saves them in one transaction.
-    private void ApplyTransition(Parcel parcel, string newStatus, string? note, Guid courierId, string? failureReason)
-    {
-        var previous = parcel.CurrentStatus;
-        if (!ParcelStatusTransitions.CanMove(previous, newStatus))
-            throw new ConflictException($"A parcel in status {previous} cannot move to {newStatus}.");
-
-        var now = clock.GetUtcNow().UtcDateTime;
-        parcel.ChangeStatus(newStatus, now);
-        repository.AddHistory(new ParcelStatusHistory(parcel.Id, previous, newStatus, note, courierId, Roles.Courier, now));
-
-        var eventId = Guid.NewGuid();
-        repository.StageEvent(eventId, ParcelEventRoutingKeys.StatusChanged,
-            new ParcelStatusChangedIntegrationEvent(eventId, parcel.Id, parcel.TrackingNumber, parcel.CustomerId,
-                parcel.CourierId, previous, newStatus, failureReason, now),
-            now);
-    }
+    private void ApplyTransition(Parcel parcel, string newStatus, string? note, Guid courierId, string? failureReason) =>
+        repository.ApplyTransition(parcel, newStatus, note, courierId, Roles.Courier, failureReason,
+            clock.GetUtcNow().UtcDateTime);
 
     private async Task<Parcel> LoadAssignedAsync(Guid courierId, Guid parcelId, CancellationToken ct)
     {

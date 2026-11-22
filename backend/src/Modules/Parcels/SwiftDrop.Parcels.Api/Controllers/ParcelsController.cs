@@ -67,13 +67,17 @@ public sealed class ParcelsController(
         return File(pdfBytes, "application/pdf", $"SwiftDrop-Receipt-{details.TrackingNumber}.pdf");
     }
 
+    /// Manual status change by a dispatcher or admin. Couriers use /api/v1/courier/deliveries.
     [HttpPatch("{id:guid}/status")]
-    [Authorize]
+    [Authorize(Roles = Roles.DispatcherOrAdmin)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> UpdateStatus(Guid id, [FromBody] UpdateParcelStatusRequest request, CancellationToken ct)
     {
-        var updated = await parcelService.UpdateStatusAsync(id, request.Status, request.Note, null, ct);
+        var userId = User.GetUserId() ?? throw new UnauthorizedException("Missing user id.");
+        var role = User.IsInRole(Roles.Admin) ? Roles.Admin : Roles.Dispatcher;
+        var updated = await parcelService.UpdateStatusAsync(id, request.Status, request.Note, userId, role, ct);
         return updated ? Ok(new { message = "Parcel status updated successfully." }) : NotFound(new { message = "Parcel not found." });
     }
 }

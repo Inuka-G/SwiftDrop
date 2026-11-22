@@ -1,8 +1,10 @@
+using System.Text.Json;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using SwiftDrop.Parcels.Business.Outbox;
+using SwiftDrop.Parcels.Contracts.Events;
 using SwiftDrop.Parcels.Data.Entities;
 using SwiftDrop.Parcels.Data.Repositories;
 using SwiftDrop.Parcels.UnitTests.TestSupport;
@@ -26,11 +28,23 @@ public sealed class OutboxDispatcherTests : IDisposable
         var sent = await Dispatcher().DispatchPendingAsync(default);
 
         sent.Should().Be(2);
-        publisher.Published.Should().Equal(first, second);
+        publisher.Published.Select(e => e.EventId).Should().Equal(first, second);
         await using var check = db.NewContext();
         (await check.OutboxMessages.AllAsync(m => m.ProcessedAtUtc != null)).Should().BeTrue();
 
         (await Dispatcher().DispatchPendingAsync(default)).Should().Be(0);   // nothing is sent twice
+    }
+
+    [Fact]
+    public async Task Rebuilds_the_typed_event_with_its_original_id()
+    {
+        var id = await AddMessageAsync(minutes: 0);
+
+        await Dispatcher().DispatchPendingAsync(default);
+
+        var evt = publisher.Published.Should().ContainSingle().Which.Should().BeOfType<ParcelStatusChanged>().Subject;
+        evt.EventId.Should().Be(id);
+        evt.NewStatus.Should().Be("PickedUp");
     }
 
     [Fact]
@@ -60,7 +74,7 @@ public sealed class OutboxDispatcherTests : IDisposable
 
         publisher.FailFor.Clear();
         (await Dispatcher().DispatchPendingAsync(default)).Should().Be(1);
-        publisher.Published.Should().Equal(first);
+        publisher.Published.Select(e => e.EventId).Should().Equal(first);
     }
 
     [Fact]
@@ -74,28 +88,42 @@ public sealed class OutboxDispatcherTests : IDisposable
         (await Dispatcher(maxAttempts: 3).DispatchPendingAsync(default)).Should().Be(0);
     }
 
+    [Fact]
+    public async Task Unknown_routing_key_does_not_block_later_messages()
+    {
+        db.Context.OutboxMessages.Add(new OutboxMessage(Guid.NewGuid(), "parcels.old-name", "{}",
+            db.Clock.Now.UtcDateTime));
+        await db.Context.SaveChangesAsync();
+        var valid = await AddMessageAsync(minutes: 1);
+
+        (await Dispatcher().DispatchPendingAsync(default)).Should().Be(1);
+        publisher.Published.Select(e => e.EventId).Should().Equal(valid);
+    }
+
     private OutboxDispatcher Dispatcher(int maxAttempts = 10) =>
         new(new OutboxRepository(db.NewContext()), publisher, db.Clock,
             Options.Create(new OutboxOptions { MaxAttempts = maxAttempts }), NullLogger<OutboxDispatcher>.Instance);
 
     private async Task<Guid> AddMessageAsync(int minutes)
     {
-        var id = Guid.NewGuid();
-        db.Context.OutboxMessages.Add(new OutboxMessage(id, "parcels.status-changed", "{}",
-            db.Clock.Now.UtcDateTime.AddMinutes(minutes)));
+        var at = db.Clock.Now.UtcDateTime.AddMinutes(minutes);
+        var evt = new ParcelStatusChanged(Guid.NewGuid(), "SD-TEST-0001", "Created", "PickedUp", null,
+            Guid.NewGuid(), null, Guid.NewGuid()) { OccurredOnUtc = at };
+        db.Context.OutboxMessages.Add(new OutboxMessage(evt.EventId, "parcel.status.changed",
+            JsonSerializer.Serialize(evt, JsonSerializerOptions.Web), at));
         await db.Context.SaveChangesAsync();
-        return id;
+        return evt.EventId;
     }
 
-    private sealed class RecordingPublisher : IIntegrationEventPublisher
+    private sealed class RecordingPublisher : IEventPublisher
     {
-        public List<Guid> Published { get; } = [];
+        public List<IntegrationEvent> Published { get; } = [];
         public HashSet<Guid> FailFor { get; } = [];
 
-        public Task PublishAsync(Guid eventId, string routingKey, string payloadJson, CancellationToken ct)
+        public Task PublishAsync<TEvent>(TEvent @event, CancellationToken ct = default) where TEvent : IntegrationEvent
         {
-            if (FailFor.Contains(eventId)) throw new InvalidOperationException("broker down");
-            Published.Add(eventId);
+            if (FailFor.Contains(@event.EventId)) throw new InvalidOperationException("broker down");
+            Published.Add(@event);
             return Task.CompletedTask;
         }
     }
