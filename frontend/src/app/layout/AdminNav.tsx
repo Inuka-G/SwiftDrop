@@ -5,11 +5,11 @@ import { authService } from '../../services/auth.service'
 const navItems = [
   { label: 'Dashboard', path: '/admin', enabled: true },
   { label: 'Merchant Approvals', path: '/admin/merchants', enabled: true },
-  { label: 'Dispatch Board', path: '/admin/dispatch', enabled: false },
-  { label: 'Couriers', path: '/admin/couriers', enabled: false },
-  { label: 'Reports', path: '/admin/reports', enabled: false },
-  { label: 'Users', path: '/admin/users', enabled: false },
-  { label: 'Pricing & Zones', path: '/admin/pricing', enabled: false },
+  { label: 'Dispatch Board', path: '/admin/dispatch', enabled: true },
+  { label: 'Couriers', path: '/admin/couriers', enabled: true },
+  { label: 'Reports', path: '/admin/reports', enabled: true },
+  { label: 'Users', path: '/admin/users', enabled: true },
+  { label: 'Pricing & Zones', path: '/admin/pricing', enabled: true },
 ]
 
 export function AdminNav({ hasConnectionIssue, user, onLogout }: { hasConnectionIssue: boolean; user: { fullName: string; role: string } | null; onLogout: () => void }) {

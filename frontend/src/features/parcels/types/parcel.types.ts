@@ -1,5 +1,6 @@
 export interface CreateParcelRequest {
   zoneId: string
+  serviceType: number
   pickupAddress: string
   pickupContactName: string
   pickupContactPhone: string
@@ -54,3 +55,4 @@ export interface Zone {
 }
 
 export const STANDARD_SERVICE_TYPE = 1
+export const EXPRESS_SERVICE_TYPE = 2

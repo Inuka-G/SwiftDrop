@@ -1,14 +1,139 @@
-
-import { useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
+import { useParams } from 'react-router-dom'
 import { parcelsApi } from '../api/parcels.api'
 import type { PublicTrackingDto } from '../types/parcel.types'
+import { createSignalRConnection } from '../../../integrations/signalr/connection'
+import { onDeliveryStatusUpdated } from '../../../integrations/signalr/eventHandlers'
 
 export function PublicTrackingPage() {
+  const { trackingNumber: urlTrackingNumber } = useParams()
+
   const [trackingNumber, setTrackingNumber] = useState('')
   const [parcel, setParcel] = useState<PublicTrackingDto | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
+  // Automatically track a parcel when its number is provided in the URL.
+  useEffect(() => {
+    if (!urlTrackingNumber) return
+
+    const number = urlTrackingNumber.trim()
+
+    setTrackingNumber(number)
+    setLoading(true)
+    setError('')
+    setParcel(null)
+
+    let cancelled = false
+
+    const fetchParcel = async () => {
+      try {
+        const result = await parcelsApi.trackParcel(number)
+
+        if (!cancelled) {
+          setParcel(result)
+        }
+      } catch (err: any) {
+        if (!cancelled) {
+          const message =
+            err?.response?.data?.message ||
+            'We could not find a parcel with that tracking number. Please check it and try again.'
+
+          setError(message)
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false)
+        }
+      }
+    }
+
+    fetchParcel()
+
+    return () => {
+      cancelled = true
+    }
+  }, [urlTrackingNumber])
+
+  // Listen for real-time delivery status updates.
+  useEffect(() => {
+    const activeTrackingNumber = parcel?.trackingNumber
+
+    if (!activeTrackingNumber) return
+
+    const connection = createSignalRConnection()
+    let disposed = false
+
+    const unsubscribeFromEvents = onDeliveryStatusUpdated(
+      connection,
+      (update) => {
+        if (
+          update.trackingNumber.trim().toUpperCase() !==
+          activeTrackingNumber.trim().toUpperCase()
+        ) {
+          return
+        }
+
+        setParcel((currentParcel) => {
+          if (!currentParcel) return currentParcel
+
+          return {
+            ...currentParcel,
+            currentStatus: update.status,
+            updatedAtUtc: update.statusChangedAtUtc,
+          }
+        })
+      },
+    )
+
+    const startConnection = async () => {
+      try {
+        await connection.start()
+
+        if (disposed) {
+          await connection.stop()
+          return
+        }
+
+        await connection.invoke(
+          'SubscribeToTracking',
+          activeTrackingNumber,
+        )
+
+        console.log(
+          `Subscribed to tracking updates: ${activeTrackingNumber}`,
+        )
+      } catch (error) {
+        if (!disposed) {
+          console.error('SignalR connection failed:', error)
+        }
+      }
+    }
+
+    void startConnection()
+
+    return () => {
+      disposed = true
+      unsubscribeFromEvents()
+
+      void (async () => {
+        try {
+          if (connection.state === 'Connected') {
+            await connection.invoke(
+              'UnsubscribeFromTracking',
+              activeTrackingNumber,
+            )
+          }
+        } catch (error) {
+          console.error('SignalR unsubscribe failed:', error)
+        } finally {
+          await connection.stop()
+        }
+      })()
+    }
+  }, [parcel?.trackingNumber])
+
+  // Manually track a parcel using the search form.
   const handleTrack = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
@@ -223,7 +348,6 @@ const styles: Record<string, React.CSSProperties> = {
     minHeight: '100vh',
     background: '#f5f7fb',
     padding: '48px 20px',
-    fontFamily: 'Arial, sans-serif',
   },
   container: {
     maxWidth: '850px',

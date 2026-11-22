@@ -3,10 +3,12 @@ using FluentAssertions;
 using Moq;
 using SwiftDrop.Parcels.Business.Services;
 using SwiftDrop.Parcels.Contracts.Dtos;
+using SwiftDrop.Parcels.Contracts.Events;
 using SwiftDrop.Parcels.Data.Entities;
 using SwiftDrop.Parcels.Data.Repositories;
 using SwiftDrop.Pricing.Contracts;
 using SwiftDrop.SharedKernel.Exceptions;
+using SwiftDrop.SharedKernel.Messaging;
 using Xunit;
 
 namespace SwiftDrop.Parcels.UnitTests;
@@ -15,9 +17,10 @@ public sealed class ParcelServiceTests
 {
     private readonly Mock<IParcelRepository> _repository = new();
     private readonly Mock<IPricingService> _pricingService = new();
+    private readonly Mock<IEventPublisher> _eventPublisher = new();
 
     private ParcelService CreateService() =>
-        new(_repository.Object, _pricingService.Object);
+        new(_repository.Object, _pricingService.Object, _eventPublisher.Object);
 
     private static CreateParcelRequest CreateSampleRequest(Guid zoneId) => new(
         ZoneId: zoneId,
@@ -91,6 +94,15 @@ public sealed class ParcelServiceTests
         _repository.Verify(
             r => r.SaveChangesAsync(It.IsAny<CancellationToken>()),
             Times.Once);
+
+        _eventPublisher.Verify(
+            p => p.PublishAsync(
+                It.Is<ParcelStatusChanged>(e =>
+                    e.ParcelId == savedParcel!.Id &&
+                    e.TrackingNumber == result.TrackingNumber &&
+                    e.NewStatus == "Created"),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]
@@ -129,6 +141,12 @@ public sealed class ParcelServiceTests
 
         _repository.Verify(
             r => r.SaveChangesAsync(It.IsAny<CancellationToken>()),
+            Times.Never);
+
+        _eventPublisher.Verify(
+            p => p.PublishAsync(
+                It.IsAny<ParcelStatusChanged>(),
+                It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
@@ -327,5 +345,67 @@ public async Task GetReceiptDetailsAsync_ShouldReturnNull_WhenParcelDoesNotExist
         CancellationToken.None);
 
     result.Should().BeNull();
+}
+
+[Fact]
+public async Task UpdateStatusAsync_ShouldUpdateStatus_AndPublishEvent_WhenParcelExists()
+{
+    var customerId = Guid.NewGuid();
+    var parcel = new Parcel(
+        customerId,
+        "SD-261109-A1B2C3",
+        Guid.NewGuid(),
+        "123 Galle Road, Colombo",
+        "Kasun",
+        "+94771234567",
+        "456 Main Street, Kandy",
+        "Nimal",
+        "+94719876543",
+        3m,
+        "Medium",
+        500m,
+        "COD"
+    );
+
+    _repository
+        .Setup(r => r.GetByIdAsync(parcel.Id, It.IsAny<CancellationToken>()))
+        .ReturnsAsync(parcel);
+
+    var service = CreateService();
+
+    var result = await service.UpdateStatusAsync(parcel.Id, "InTransit", "Picked up by courier", null, CancellationToken.None);
+
+    result.Should().BeTrue();
+    parcel.CurrentStatus.Should().Be("InTransit");
+
+    _repository.Verify(r => r.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+    _eventPublisher.Verify(
+        p => p.PublishAsync(
+            It.Is<ParcelStatusChanged>(e =>
+                e.ParcelId == parcel.Id &&
+                e.OldStatus == "Created" &&
+                e.NewStatus == "InTransit" &&
+                e.Note == "Picked up by courier"),
+            It.IsAny<CancellationToken>()),
+        Times.Once);
+}
+
+[Fact]
+public async Task UpdateStatusAsync_ShouldReturnFalse_WhenParcelDoesNotExist()
+{
+    var parcelId = Guid.NewGuid();
+    _repository
+        .Setup(r => r.GetByIdAsync(parcelId, It.IsAny<CancellationToken>()))
+        .ReturnsAsync((Parcel?)null);
+
+    var service = CreateService();
+
+    var result = await service.UpdateStatusAsync(parcelId, "InTransit", null, null, CancellationToken.None);
+
+    result.Should().BeFalse();
+    _repository.Verify(r => r.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+    _eventPublisher.Verify(
+        p => p.PublishAsync(It.IsAny<ParcelStatusChanged>(), It.IsAny<CancellationToken>()),
+        Times.Never);
 }
 }

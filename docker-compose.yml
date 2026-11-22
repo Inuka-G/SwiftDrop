@@ -64,10 +64,24 @@ services:
       RabbitMQ__Port: "5672"
       RabbitMQ__Username: ${RABBITMQ_USER:-swiftdrop}
       RabbitMQ__Password: ${RABBITMQ_PASSWORD:-change_me_rabbit}
+      Notifications__Email__Enabled: "${NOTIFICATION_EMAIL_ENABLED:-false}"
+      Notifications__Email__Host: ${NOTIFICATION_SMTP_HOST:-mailpit}
+      Notifications__Email__Port: "${NOTIFICATION_SMTP_PORT:-1025}"
+      Notifications__Email__EnableSsl: "${NOTIFICATION_SMTP_ENABLE_SSL:-false}"
+      Notifications__Email__Username: ${NOTIFICATION_SMTP_USERNAME:-}
+      Notifications__Email__Password: ${NOTIFICATION_SMTP_PASSWORD:-}
+      Notifications__Email__FromAddress: ${NOTIFICATION_EMAIL_FROM:-notifications@example.test}
+      Notifications__Email__TrackingBaseUrl: ${NOTIFICATION_TRACKING_BASE_URL:-http://localhost:5173}
     volumes:
       - uploads:/app/uploads
     ports:
       - "${BACKEND_PORT:-5017}:8080"
+
+  mailpit:
+    image: axllent/mailpit:v1.27.8
+    profiles: ["email"]
+    ports:
+      - "127.0.0.1:8025:8025"
 
   frontend:
     build:

@@ -4,6 +4,8 @@
     <ProjectReference Include="..\SwiftDrop.Realtime.Data\SwiftDrop.Realtime.Data.csproj" />
     <ProjectReference Include="..\SwiftDrop.Realtime.Contracts\SwiftDrop.Realtime.Contracts.csproj" />
     <ProjectReference Include="..\..\..\SharedKernel\SwiftDrop.SharedKernel\SwiftDrop.SharedKernel.csproj" />
+    <ProjectReference Include="..\..\Parcels\SwiftDrop.Parcels.Contracts\SwiftDrop.Parcels.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\SharedKernel\SwiftDrop.SharedKernel.Messaging\SwiftDrop.SharedKernel.Messaging.csproj" />
   </ItemGroup>
 
   <ItemGroup>

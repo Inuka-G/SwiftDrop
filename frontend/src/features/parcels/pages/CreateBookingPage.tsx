@@ -2,14 +2,17 @@
 import { useEffect, useState } from 'react'
 import type { FormEvent, CSSProperties } from 'react'
 import { parcelsApi } from '../api/parcels.api'
-import type {
-  CreateParcelRequest,
-  ParcelCreatedResponse,
-  Zone,
+import {
+  STANDARD_SERVICE_TYPE,
+  EXPRESS_SERVICE_TYPE,
+  type CreateParcelRequest,
+  type ParcelCreatedResponse,
+  type Zone,
 } from '../types/parcel.types'
 
 const initialForm: CreateParcelRequest = {
   zoneId: '',
+  serviceType: STANDARD_SERVICE_TYPE,
   pickupAddress: '',
   pickupContactName: '',
   pickupContactPhone: '',
@@ -98,6 +101,7 @@ export function CreateBookingPage() {
         const result = await parcelsApi.estimateFee(
           form.zoneId,
           form.weightKg,
+          form.serviceType,
         )
 
         if (!cancelled) {
@@ -119,7 +123,7 @@ export function CreateBookingPage() {
     return () => {
       cancelled = true
     }
-  }, [form.zoneId, form.weightKg])
+  }, [form.zoneId, form.weightKg, form.serviceType])
 
   function updateField<K extends keyof CreateParcelRequest>(
     field: K,
@@ -143,15 +147,15 @@ export function CreateBookingPage() {
       const message =
         typeof err === 'object' && err !== null && 'response' in err
           ? (err as {
-              response?: {
-                data?: { detail?: string; message?: string }
-              }
-            }).response?.data?.detail ??
-            (err as {
-              response?: {
-                data?: { message?: string }
-              }
-            }).response?.data?.message
+            response?: {
+              data?: { detail?: string; message?: string }
+            }
+          }).response?.data?.detail ??
+          (err as {
+            response?: {
+              data?: { message?: string }
+            }
+          }).response?.data?.message
           : null
 
       setError(message || 'Failed to book parcel. Please try again.')
@@ -253,7 +257,9 @@ export function CreateBookingPage() {
 
         <div style={styles.statusBadge}>
           <span style={styles.statusDot} />
-          Standard Delivery
+          {form.serviceType === EXPRESS_SERVICE_TYPE
+            ? 'Express Delivery'
+            : 'Standard Delivery'}
         </div>
       </div>
 
@@ -414,7 +420,51 @@ export function CreateBookingPage() {
                   </p>
                 </div>
               </div>
+              <label style={styles.label}>Delivery Type</label>
 
+              <div style={styles.sizeGrid}>
+                <button
+                  type="button"
+                  onClick={() =>
+                    updateField('serviceType', STANDARD_SERVICE_TYPE)
+                  }
+                  style={{
+                    ...styles.sizeCard,
+                    ...(form.serviceType === STANDARD_SERVICE_TYPE
+                      ? styles.selectedSizeCard
+                      : {}),
+                  }}
+                >
+                  <strong style={styles.sizeName}>Standard</strong>
+                  <span style={styles.sizeDescription}>
+                    Regular delivery
+                  </span>
+                  {form.serviceType === STANDARD_SERVICE_TYPE && (
+                    <span style={styles.selectedMark}>✓</span>
+                  )}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    updateField('serviceType', EXPRESS_SERVICE_TYPE)
+                  }
+                  style={{
+                    ...styles.sizeCard,
+                    ...(form.serviceType === EXPRESS_SERVICE_TYPE
+                      ? styles.selectedSizeCard
+                      : {}),
+                  }}
+                >
+                  <strong style={styles.sizeName}>Express</strong>
+                  <span style={styles.sizeDescription}>
+                    Priority delivery
+                  </span>
+                  {form.serviceType === EXPRESS_SERVICE_TYPE && (
+                    <span style={styles.selectedMark}>✓</span>
+                  )}
+                </button>
+              </div>
               <label style={styles.label}>Package Size</label>
 
               <div style={styles.sizeGrid}>

@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Merchants\SwiftDrop.Merchants.Contracts\SwiftDrop.Merchants.Contracts.csproj" />
     <ProjectReference Include="..\SwiftDrop.Parcels.Business\SwiftDrop.Parcels.Business.csproj" />
     <ProjectReference Include="..\SwiftDrop.Parcels.Contracts\SwiftDrop.Parcels.Contracts.csproj" />
     <ProjectReference Include="..\..\..\SharedKernel\SwiftDrop.SharedKernel\SwiftDrop.SharedKernel.csproj" />

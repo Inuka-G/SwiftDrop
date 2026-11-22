@@ -4,6 +4,8 @@
     <ProjectReference Include="..\SwiftDrop.Webhooks.Data\SwiftDrop.Webhooks.Data.csproj" />
     <ProjectReference Include="..\SwiftDrop.Webhooks.Contracts\SwiftDrop.Webhooks.Contracts.csproj" />
     <ProjectReference Include="..\..\..\SharedKernel\SwiftDrop.SharedKernel\SwiftDrop.SharedKernel.csproj" />
+    <ProjectReference Include="..\..\..\SharedKernel\SwiftDrop.SharedKernel.Messaging\SwiftDrop.SharedKernel.Messaging.csproj" />
+    <ProjectReference Include="..\..\Parcels\SwiftDrop.Parcels.Contracts\SwiftDrop.Parcels.Contracts.csproj" />
   </ItemGroup>
 
   <ItemGroup>

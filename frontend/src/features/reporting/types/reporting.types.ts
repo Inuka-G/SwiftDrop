@@ -14,3 +14,13 @@ export interface DailyDeliveryCountDto {
 }
 
 export type DeliveriesPerDayDto = DailyDeliveryCountDto[]
+
+// Mirrors SuccessFailureRateResponse in SwiftDrop.Reporting.Contracts.
+export interface SuccessFailureRateDto {
+  from: string
+  to: string
+  deliveredCount: number
+  failedCount: number
+  totalCount: number
+  successRate: number | null
+}

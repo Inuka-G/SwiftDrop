@@ -1,3 +1,4 @@
+
 using SwiftDrop.SharedKernel.Abstractions;
 
 namespace SwiftDrop.Parcels.Data.Entities;
@@ -7,7 +8,7 @@ public class Parcel : BaseEntity
     private Parcel() { } // Required by EF Core
 
     public Parcel(
-        Guid customerId,
+        Guid? customerId,
         string trackingNumber,
         Guid zoneId,
         string pickupAddress,
@@ -19,9 +20,14 @@ public class Parcel : BaseEntity
         decimal weightKg,
         string sizeCategory,
         decimal estimatedFee,
-        string paymentMethod)
+        string paymentMethod,
+        Guid? merchantId = null)
     {
+        if (customerId.HasValue == merchantId.HasValue || customerId == Guid.Empty || merchantId == Guid.Empty)
+            throw new ArgumentException("A parcel must have exactly one valid owner.");
+
         CustomerId = customerId;
+        MerchantId = merchantId;
         TrackingNumber = trackingNumber;
         ZoneId = zoneId;
         PickupAddress = pickupAddress;
@@ -39,7 +45,8 @@ public class Parcel : BaseEntity
         UpdatedAtUtc = DateTime.UtcNow;
     }
 
-    public Guid CustomerId { get; private set; }
+    public Guid? CustomerId { get; private set; }
+    public Guid? MerchantId { get; private set; }
     public string TrackingNumber { get; private set; } = default!;
     public Guid ZoneId { get; private set; }
 
@@ -65,4 +72,33 @@ public class Parcel : BaseEntity
     public string CurrentStatus { get; private set; } = "Created";
     public DateTime UpdatedAtUtc { get; private set; }
     public int Version { get; private set; } = 1;
+
+    // Courier assignment
+    public Guid? CourierId { get; private set; }
+    public DateTime? AssignedAtUtc { get; private set; }
+
+    public void AssignCourier(Guid courierId, DateTime nowUtc)
+    {
+        CourierId = courierId;
+        AssignedAtUtc = nowUtc;
+        Touch(nowUtc);
+    }
+
+    public void ChangeStatus(string newStatus, DateTime nowUtc)
+    {
+        CurrentStatus = newStatus;
+        Touch(nowUtc);
+    }
+
+    // Compatibility with the status-update method used by the Parcels service.
+    public void UpdateStatus(string newStatus)
+    {
+        ChangeStatus(newStatus, DateTime.UtcNow);
+    }
+
+    private void Touch(DateTime nowUtc)
+    {
+        UpdatedAtUtc = nowUtc;
+        Version++;
+    }
 }

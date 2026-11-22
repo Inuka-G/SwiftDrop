@@ -23,6 +23,7 @@ public static class IdentityBusinessExtensions
         services.AddSingleton<IGoogleLoginCodeStore, GoogleLoginCodeStore>();
         services.AddScoped<IUserAdministrationService, UserAdministrationService>();
         services.AddScoped<IIdentityEventPublisher, UnconfiguredIdentityEventPublisher>();
+        services.AddScoped<IUserEmailDirectory, UserEmailDirectory>();
         return services;
     }
 
