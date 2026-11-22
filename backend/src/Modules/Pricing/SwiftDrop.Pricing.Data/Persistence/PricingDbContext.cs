@@ -3,8 +3,12 @@ using SwiftDrop.Pricing.Data.Entities;
 
 namespace SwiftDrop.Pricing.Data.Persistence;
 
-public sealed class PricingDbContext(DbContextOptions<PricingDbContext> options) : DbContext(options)
+public class PricingDbContext : DbContext
 {
+    public PricingDbContext(DbContextOptions<PricingDbContext> options) : base(options) { }
+
+    protected PricingDbContext(DbContextOptions options) : base(options) { }
+
     public DbSet<Zone> Zones => Set<Zone>();
     public DbSet<PricingRule> PricingRules => Set<PricingRule>();
 

@@ -11,7 +11,15 @@ public static class PricingDataExtensions
 {
     public static IServiceCollection AddPricingData(this IServiceCollection services, IConfiguration config)
     {
-        services.AddModuleDbContext<PricingDbContext>(config, "Pricing");
+        if (string.Equals(config["Database:Provider"], "Postgres", StringComparison.OrdinalIgnoreCase))
+        {
+            services.AddModuleDbContext<PostgresPricingDbContext>(config, "Pricing");
+            services.AddScoped<PricingDbContext>(sp => sp.GetRequiredService<PostgresPricingDbContext>());
+        }
+        else
+        {
+            services.AddModuleDbContext<PricingDbContext>(config, "Pricing");
+        }
         services.AddScoped<IZoneRepository, ZoneRepository>();
         return services;
     }
