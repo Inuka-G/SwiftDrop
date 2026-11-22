@@ -3,6 +3,7 @@ using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using SwiftDrop.Parcels.Data;
+using SwiftDrop.Parcels.Data.Entities;
 using SwiftDrop.Parcels.Data.Persistence;
 
 namespace SwiftDrop.Parcels.UnitTests;
@@ -49,6 +50,55 @@ public sealed class ParcelsDataInitializationTests : IDisposable
 
         using var check = services.CreateScope();
         (await check.ServiceProvider.GetRequiredService<ParcelsDbContext>().Parcels.CountAsync()).Should().Be(1);
+    }
+
+    [Fact]
+    public async Task Upgrades_existing_customer_parcels_and_preserves_history()
+    {
+        Execute("PRAGMA foreign_keys = ON");
+        using var scope = services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<ParcelsDbContext>();
+        var originalOwner = Guid.NewGuid();
+        var parcelId = Guid.NewGuid();
+        var legacySchema = db.Database.GenerateCreateScript()
+            .Replace("    \"MerchantId\" TEXT NULL,", "")
+            .Replace("\"CustomerId\" TEXT NULL", "\"CustomerId\" TEXT NOT NULL")
+            .Replace("""
+                ,
+                    CONSTRAINT "CK_parcels_single_owner" CHECK (("CustomerId" IS NULL AND "MerchantId" IS NOT NULL) OR ("CustomerId" IS NOT NULL AND "MerchantId" IS NULL))
+                """, "")
+            .Replace("""CREATE INDEX "IX_parcels_MerchantId" ON "parcels" ("MerchantId");""", "")
+            .Replace("\"ChangedByActorId\"", "\"ChangedByUserId\"")
+            .Replace("""    "ChangedByActorType" TEXT NOT NULL DEFAULT 'User',""", "");
+        Execute(legacySchema);
+        await db.Database.ExecuteSqlAsync($"""
+            INSERT INTO parcels ("Id", "CreatedAtUtc", "UpdatedAtUtc", "CustomerId", "TrackingNumber",
+                "ZoneId", "PickupAddress", "PickupContactName", "PickupContactPhone",
+                "DropoffAddress", "RecipientName", "RecipientPhone", "WeightKg", "SizeCategory",
+                "EstimatedFee", "PaymentMethod", "PaymentStatus", "CurrentStatus", "Version")
+            VALUES ({parcelId}, {DateTime.UtcNow}, {DateTime.UtcNow}, {originalOwner}, 'SD-LEGACY',
+                {Guid.NewGuid()}, 'Pickup', 'Sender', '+94771234567', 'Dropoff', 'Recipient', '+94779876543',
+                1, 'Small', 500, 'COD', 'Pending', 'Created', 1)
+            """);
+        await db.Database.ExecuteSqlAsync($"""
+            INSERT INTO status_history ("Id", "ParcelId", "ToStatus", "ChangedByUserId", "ChangedByRole", "CreatedAtUtc")
+            VALUES ({Guid.NewGuid()}, {parcelId}, 'Created', {originalOwner}, 'Customer', {DateTime.UtcNow})
+            """);
+
+        await services.InitializeParcelsDataAsync();
+        await services.InitializeParcelsDataAsync();
+
+        var parcel = await db.Parcels.SingleAsync();
+        parcel.CustomerId.Should().Be(originalOwner);
+        parcel.MerchantId.Should().BeNull();
+        var history = await db.StatusHistory.SingleAsync();
+        history.ParcelId.Should().Be(parcelId);
+        history.ChangedByActorId.Should().Be(originalOwner);
+        history.ChangedByActorType.Should().Be(ParcelStatusActorTypes.User);
+        Func<Task> noOwner = () => db.Database.ExecuteSqlRawAsync("""UPDATE parcels SET "CustomerId" = NULL""");
+        Func<Task> twoOwners = () => db.Database.ExecuteSqlAsync($"""UPDATE parcels SET "MerchantId" = {Guid.NewGuid()}""");
+        await noOwner.Should().ThrowAsync<SqliteException>().WithMessage("*CK_parcels_single_owner*");
+        await twoOwners.Should().ThrowAsync<SqliteException>().WithMessage("*CK_parcels_single_owner*");
     }
 
     private void Execute(string sql)

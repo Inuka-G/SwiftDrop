@@ -8,7 +8,7 @@ public class Parcel : BaseEntity
     private Parcel() { } // Required by EF Core
 
     public Parcel(
-        Guid customerId,
+        Guid? customerId,
         string trackingNumber,
         Guid zoneId,
         string pickupAddress,
@@ -20,9 +20,14 @@ public class Parcel : BaseEntity
         decimal weightKg,
         string sizeCategory,
         decimal estimatedFee,
-        string paymentMethod)
+        string paymentMethod,
+        Guid? merchantId = null)
     {
+        if (customerId.HasValue == merchantId.HasValue || customerId == Guid.Empty || merchantId == Guid.Empty)
+            throw new ArgumentException("A parcel must have exactly one valid owner.");
+
         CustomerId = customerId;
+        MerchantId = merchantId;
         TrackingNumber = trackingNumber;
         ZoneId = zoneId;
         PickupAddress = pickupAddress;
@@ -40,7 +45,8 @@ public class Parcel : BaseEntity
         UpdatedAtUtc = DateTime.UtcNow;
     }
 
-    public Guid CustomerId { get; private set; }
+    public Guid? CustomerId { get; private set; }
+    public Guid? MerchantId { get; private set; }
     public string TrackingNumber { get; private set; } = default!;
     public Guid ZoneId { get; private set; }
 

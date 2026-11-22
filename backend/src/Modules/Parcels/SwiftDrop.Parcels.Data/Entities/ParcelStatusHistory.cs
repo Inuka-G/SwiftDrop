@@ -9,13 +9,15 @@ public class ParcelStatusHistory : BaseEntity
     private ParcelStatusHistory() { } // Required by EF Core
 
     public ParcelStatusHistory(Guid parcelId, string? fromStatus, string toStatus, string? note,
-        Guid changedByUserId, string changedByRole, DateTime occurredAtUtc)
+        Guid changedByActorId, string changedByRole, DateTime occurredAtUtc,
+        string changedByActorType = ParcelStatusActorTypes.User)
     {
         ParcelId = parcelId;
         FromStatus = fromStatus;
         ToStatus = toStatus;
         Note = note;
-        ChangedByUserId = changedByUserId;
+        ChangedByActorId = changedByActorId;
+        ChangedByActorType = changedByActorType;
         ChangedByRole = changedByRole;
         CreatedAtUtc = occurredAtUtc;
     }
@@ -24,6 +26,13 @@ public class ParcelStatusHistory : BaseEntity
     public string? FromStatus { get; private set; }
     public string ToStatus { get; private set; } = default!;
     public string? Note { get; private set; }
-    public Guid ChangedByUserId { get; private set; }
+    public Guid ChangedByActorId { get; private set; }
+    public string ChangedByActorType { get; private set; } = ParcelStatusActorTypes.User;
     public string ChangedByRole { get; private set; } = default!;
+}
+
+public static class ParcelStatusActorTypes
+{
+    public const string User = "User";
+    public const string Merchant = "Merchant";
 }

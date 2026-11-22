@@ -16,6 +16,7 @@ internal sealed class ParcelStatusHistoryConfiguration : IEntityTypeConfiguratio
         b.Property(h => h.FromStatus).HasMaxLength(50);
         b.Property(h => h.ToStatus).HasMaxLength(50).IsRequired();
         b.Property(h => h.Note).HasMaxLength(500);
+        b.Property(h => h.ChangedByActorType).HasMaxLength(16).HasDefaultValue(ParcelStatusActorTypes.User);
         b.Property(h => h.ChangedByRole).HasMaxLength(50).IsRequired();
     }
 }

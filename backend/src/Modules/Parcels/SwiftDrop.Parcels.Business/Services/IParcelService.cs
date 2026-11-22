@@ -1,10 +1,12 @@
+using SwiftDrop.Parcels.Contracts;
 using SwiftDrop.Parcels.Contracts.Dtos;
 
 namespace SwiftDrop.Parcels.Business.Services;
 
-public interface IParcelService
+public interface IParcelService : IMerchantOrderQueries
 {
     Task<ParcelCreatedResponse> CreateParcelAsync(Guid customerId, CreateParcelRequest request, CancellationToken ct);
+    Task<ParcelCreatedResponse> CreateMerchantParcelAsync(Guid merchantId, CreateParcelRequest request, CancellationToken ct);
     Task<IReadOnlyList<ParcelSummaryDto>> GetCustomerHistoryAsync(Guid customerId, CancellationToken ct);
     Task<PublicTrackingDto?> GetPublicTrackingAsync(string trackingNumber, CancellationToken ct);
     Task<ParcelDetailsDto?> GetReceiptDetailsAsync(Guid parcelId, Guid customerId, CancellationToken ct);

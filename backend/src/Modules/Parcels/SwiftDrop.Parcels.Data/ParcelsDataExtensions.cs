@@ -43,6 +43,8 @@ public static class ParcelsDataExtensions
 
         if (!await ParcelsTableExistsAsync(db))
             await creator.CreateTablesAsync();   // also creates the "parcels" schema on Postgres
+        else
+            await ParcelOwnershipUpgrade.ApplyAsync(db);
     }
 
     private static async Task<bool> ParcelsTableExistsAsync(ParcelsDbContext db)

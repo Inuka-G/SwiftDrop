@@ -16,6 +16,22 @@ internal sealed class ParcelRepository(ParcelsDbContext db) : IParcelRepository
     public Task<Parcel?> GetByTrackingNumberAsync(string trackingNumber, CancellationToken ct) =>
         db.Parcels.AsNoTracking().FirstOrDefaultAsync(p => p.TrackingNumber == trackingNumber, ct);
 
+    public Task<Parcel?> GetMerchantOrderAsync(Guid merchantId, Guid parcelId, CancellationToken ct) =>
+        db.Parcels.AsNoTracking().SingleOrDefaultAsync(p => p.MerchantId == merchantId && p.Id == parcelId, ct);
+
+    public async Task<(IReadOnlyList<Parcel> Items, int TotalCount)> ListMerchantOrdersAsync(
+        Guid merchantId, string? status, int offset, int limit, CancellationToken ct)
+    {
+        var query = db.Parcels.AsNoTracking().Where(p => p.MerchantId == merchantId);
+        if (status is not null)
+            query = query.Where(p => p.CurrentStatus == status);
+
+        var count = await query.CountAsync(ct);
+        var items = await query.OrderByDescending(p => p.CreatedAtUtc).ThenByDescending(p => p.Id)
+            .Skip(offset).Take(limit).ToListAsync(ct);
+        return (items, count);
+    }
+
     public async Task<IReadOnlyList<Parcel>> GetByCustomerIdAsync(Guid customerId, CancellationToken ct) =>
         await db.Parcels
             .AsNoTracking()
