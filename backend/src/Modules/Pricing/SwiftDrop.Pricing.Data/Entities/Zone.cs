@@ -12,6 +12,13 @@ public class Zone : BaseEntity
         Description = description;
     }
 
+    public Zone(Guid id, string zoneName, string? description)
+    {
+        Id = id;
+        ZoneName = zoneName;
+        Description = description;
+    }
+
     public void UpdateDetails(string zoneName, string? description)
     {
         ZoneName = zoneName;

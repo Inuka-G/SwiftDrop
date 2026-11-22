@@ -36,22 +36,22 @@ public static class ParcelsDataExtensions
     {
         using var scope = sp.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<ParcelsDbContext>();
-        var creator = db.GetService<IRelationalDatabaseCreator>();
 
-        if (!await creator.ExistsAsync())
-            await creator.CreateAsync();
-
-        if (!await ParcelsTablesExistAsync(db))
+        if (db.Database.IsNpgsql())
         {
-            if (db.Database.IsNpgsql())
-                await creator.CreateTablesAsync();
-            else
-                await CreateMissingSqliteTablesAsync(db);
+            await db.Database.MigrateAsync();
         }
-        if (!await ParcelsTableExistsAsync(db))
-            await creator.CreateTablesAsync();   // also creates the "parcels" schema on Postgres
         else
+        {
+            var creator = db.GetService<IRelationalDatabaseCreator>();
+            if (!await creator.ExistsAsync())
+                await creator.CreateAsync();
+
+            if (!await ParcelsTablesExistAsync(db))
+                await CreateMissingSqliteTablesAsync(db);
+
             await ParcelOwnershipUpgrade.ApplyAsync(db);
+        }
     }
 
     private static async Task CreateMissingSqliteTablesAsync(ParcelsDbContext db)

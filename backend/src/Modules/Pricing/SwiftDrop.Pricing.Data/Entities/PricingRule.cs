@@ -21,6 +21,21 @@ public class PricingRule : BaseEntity
         ServiceType = serviceType;
     }
 
+    public PricingRule(
+        Guid id,
+        Guid zoneId,
+        decimal baseRate,
+        decimal additionalKgRate,
+        ServiceType serviceType
+    )
+    {
+        Id = id;
+        ZoneId = zoneId;
+        BaseRate = baseRate;
+        AdditionalKgRate = additionalKgRate;
+        ServiceType = serviceType;
+    }
+
     public Guid ZoneId {get; private set;}
 
     public decimal BaseRate {get; private set;}

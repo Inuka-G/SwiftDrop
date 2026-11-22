@@ -20,7 +20,10 @@ public static class MerchantsDataExtensions
     {
         using var scope = sp.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<MerchantsDbContext>();
-        await db.Database.EnsureCreatedAsync();
+        if (db.Database.IsNpgsql())
+            await db.Database.MigrateAsync();
+        else
+            await db.Database.EnsureCreatedAsync();
     }
 }
 

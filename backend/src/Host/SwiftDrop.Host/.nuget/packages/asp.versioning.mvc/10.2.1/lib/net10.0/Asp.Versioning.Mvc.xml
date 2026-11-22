@@ -1,0 +1,1321 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Asp.Versioning.Mvc</name>
+    </assembly>
+    <members>
+        <member name="T:Microsoft.AspNetCore.Mvc.Abstractions.ActionDescriptorExtensions">
+            <summary>
+            Provides extension methods for the <see cref="T:Microsoft.AspNetCore.Mvc.Abstractions.ActionDescriptor"/> class.
+            </summary>
+        </member>
+        <member name="M:Microsoft.AspNetCore.Mvc.Abstractions.ActionDescriptorExtensions.get_ApiVersionMetadata(Microsoft.AspNetCore.Mvc.Abstractions.ActionDescriptor)">
+            <inheritdoc cref="P:Microsoft.AspNetCore.Mvc.Abstractions.ActionDescriptorExtensions.&lt;G&gt;$F2A9D97691614AC79A22987D7FDADE2A.ApiVersionMetadata"/>
+        </member>
+        <member name="T:Microsoft.AspNetCore.Mvc.Abstractions.ActionDescriptorExtensions.&lt;G&gt;$F2A9D97691614AC79A22987D7FDADE2A.&lt;M&gt;$3F2CB5FFE41ECB039FFFA24987B386F6">
+            <param name="action">The extended <see cref="T:Microsoft.AspNetCore.Mvc.Abstractions.ActionDescriptor">action</see>.</param>
+        </member>
+        <member name="P:Microsoft.AspNetCore.Mvc.Abstractions.ActionDescriptorExtensions.&lt;G&gt;$F2A9D97691614AC79A22987D7FDADE2A.ApiVersionMetadata">
+            <summary>
+            Gets the API version information associated with an action.
+            </summary>
+            <returns>The <see cref="T:Asp.Versioning.ApiVersionMetadata">API version information</see> for the action.</returns>
+        </member>
+        <member name="T:Microsoft.AspNetCore.Mvc.ApplicationModels.ModelExtensions">
+            <summary>
+            Provides extension methods for <see cref="T:Microsoft.AspNetCore.Mvc.ApplicationModels.ApplicationModel">application models</see>, <see cref="T:Microsoft.AspNetCore.Mvc.ApplicationModels.ControllerModel">controller models</see>,
+            and <see cref="T:Microsoft.AspNetCore.Mvc.ApplicationModels.ActionModel">action models</see>.
+            </summary>
+        </member>
+        <member name="M:Microsoft.AspNetCore.Mvc.ApplicationModels.ModelExtensions.get_ApiVersionModel(Microsoft.AspNetCore.Mvc.ApplicationModels.ControllerModel)">
+            <inheritdoc cref="P:Microsoft.AspNetCore.Mvc.ApplicationModels.ModelExtensions.&lt;G&gt;$3A7CDBDA1412C80581C80DA13956B4AC.ApiVersionModel"/>
+        </member>
+        <member name="T:Microsoft.AspNetCore.Mvc.ApplicationModels.ModelExtensions.&lt;G&gt;$3A7CDBDA1412C80581C80DA13956B4AC.&lt;M&gt;$E2659396B527005C470A5F6757319F91">
+            <param name="controller">The extended controller .</param>
+        </member>
+        <member name="P:Microsoft.AspNetCore.Mvc.ApplicationModels.ModelExtensions.&lt;G&gt;$3A7CDBDA1412C80581C80DA13956B4AC.ApiVersionModel">
+            <summary>
+            Gets the API version information associated with an action.
+            </summary>
+            <returns>The <see cref="T:Asp.Versioning.ApiVersionModel">API version information</see> for the controller.</returns>
+            <remarks>This API is meant for infrastructure and should not be used by application code.</remarks>
+        </member>
+        <member name="T:Microsoft.AspNetCore.Mvc.IUrlHelperExtensions">
+            <summary>
+            Provides extension methods for the <see cref="T:Microsoft.AspNetCore.Mvc.IUrlHelper"/> interface.
+            </summary>
+        </member>
+        <member name="M:Microsoft.AspNetCore.Mvc.IUrlHelperExtensions.WithoutApiVersion(Microsoft.AspNetCore.Mvc.IUrlHelper)">
+            <inheritdoc cref="M:Microsoft.AspNetCore.Mvc.IUrlHelperExtensions.&lt;G&gt;$0665EAD1A5B8A7CB2BAB14412CA95F90.WithoutApiVersion"/>
+        </member>
+        <member name="T:Microsoft.AspNetCore.Mvc.IUrlHelperExtensions.&lt;G&gt;$0665EAD1A5B8A7CB2BAB14412CA95F90.&lt;M&gt;$23AF20DE0DCB833D4B67CD59AF55001B">
+            <param name="urlHelper">The extended <see cref="T:Microsoft.AspNetCore.Mvc.IUrlHelper">URL helper</see>.</param>
+        </member>
+        <member name="M:Microsoft.AspNetCore.Mvc.IUrlHelperExtensions.&lt;G&gt;$0665EAD1A5B8A7CB2BAB14412CA95F90.WithoutApiVersion">
+            <summary>
+            Returns a new URL helper that includes the requested API version.
+            </summary>
+            <returns>A new <see cref="T:Microsoft.AspNetCore.Mvc.IUrlHelper">URL helper</see> that excludes the requested
+            API version or the original URL helper, if unnecessary.</returns>
+            <remarks>Excluding the requested API version is useful in a limited set of scenarios
+            such as building a URL from an API that versions by URL segment to an API that is
+            version-neutral. A version-neutral API would not use the specified route value and
+            it would be erroneously added as a query string parameter.</remarks>
+        </member>
+        <member name="T:Microsoft.Extensions.DependencyInjection.IApiVersioningBuilderExtensions">
+            <summary>
+            Provides ASP.NET Core MVC specific extension methods for <see cref="T:Asp.Versioning.IApiVersioningBuilder"/>.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Extensions.DependencyInjection.IApiVersioningBuilderExtensions.AddMvc(Asp.Versioning.IApiVersioningBuilder)">
+            <inheritdoc cref="M:Microsoft.Extensions.DependencyInjection.IApiVersioningBuilderExtensions.&lt;G&gt;$AC82D6003D6AD6029E9F10D9923B23B5.AddMvc"/>
+        </member>
+        <member name="M:Microsoft.Extensions.DependencyInjection.IApiVersioningBuilderExtensions.AddMvc(Asp.Versioning.IApiVersioningBuilder,System.Action{Asp.Versioning.MvcApiVersioningOptions})">
+            <inheritdoc cref="M:Microsoft.Extensions.DependencyInjection.IApiVersioningBuilderExtensions.&lt;G&gt;$AC82D6003D6AD6029E9F10D9923B23B5.AddMvc(System.Action{Asp.Versioning.MvcApiVersioningOptions})"/>
+        </member>
+        <member name="T:Microsoft.Extensions.DependencyInjection.IApiVersioningBuilderExtensions.&lt;G&gt;$AC82D6003D6AD6029E9F10D9923B23B5.&lt;M&gt;$C15B6DD9D86CBD980DDF3546E098EEE7">
+            <param name="builder">The extended <see cref="T:Asp.Versioning.IApiVersioningBuilder">API versioning builder</see>.</param>
+            <returns>The original <paramref name="builder"/>.</returns>
+        </member>
+        <member name="M:Microsoft.Extensions.DependencyInjection.IApiVersioningBuilderExtensions.&lt;G&gt;$AC82D6003D6AD6029E9F10D9923B23B5.AddMvc">
+            <summary>
+            Adds ASP.NET Core MVC support for API versioning.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Extensions.DependencyInjection.IApiVersioningBuilderExtensions.&lt;G&gt;$AC82D6003D6AD6029E9F10D9923B23B5.AddMvc(System.Action{Asp.Versioning.MvcApiVersioningOptions})">
+            <summary>
+            Adds ASP.NET Core MVC support for API versioning.
+            </summary>
+            <param name="setupAction">An <see cref="T:System.Action`1">action</see> used to configure the provided options.</param>
+        </member>
+        <member name="T:Asp.Versioning.ApiExplorer.ActionApiVersionMetadataCollationProvider">
+            <summary>
+            Represents an API version metadata collection provider for controller actions.
+            </summary>
+        </member>
+        <member name="M:Asp.Versioning.ApiExplorer.ActionApiVersionMetadataCollationProvider.#ctor(Microsoft.AspNetCore.Mvc.Infrastructure.IActionDescriptorCollectionProvider)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.ApiExplorer.ActionApiVersionMetadataCollationProvider"/> class.
+            </summary>
+            <param name="actionDescriptorCollectionProvider">The underlying
+            <see cref="T:Microsoft.AspNetCore.Mvc.Infrastructure.IActionDescriptorCollectionProvider">action descriptor collection provider</see>.</param>
+        </member>
+        <member name="P:Asp.Versioning.ApiExplorer.ActionApiVersionMetadataCollationProvider.Version">
+            <inheritdoc />
+        </member>
+        <member name="M:Asp.Versioning.ApiExplorer.ActionApiVersionMetadataCollationProvider.Execute(Asp.Versioning.ApiExplorer.ApiVersionMetadataCollationContext)">
+            <inheritdoc />
+        </member>
+        <member name="T:Asp.Versioning.ApiExplorer.MvcEndpointInspector">
+            <summary>
+            Represents the <see cref="T:Asp.Versioning.ApiExplorer.IEndpointInspector">inspector</see> that understands
+            <see cref="T:Microsoft.AspNetCore.Http.Endpoint">endpoints</see> defined by MVC controllers.
+            </summary>
+        </member>
+        <member name="M:Asp.Versioning.ApiExplorer.MvcEndpointInspector.IsControllerAction(Microsoft.AspNetCore.Http.Endpoint)">
+            <inheritdoc />
+        </member>
+        <member name="T:Asp.Versioning.ApiVersionCollator">
+            <summary>
+            Represents an object that collates <see cref="T:Asp.Versioning.ApiVersion">API versions</see> per <see cref="T:Microsoft.AspNetCore.Mvc.Abstractions.ActionDescriptor">action</see>.
+            </summary>
+        </member>
+        <member name="M:Asp.Versioning.ApiVersionCollator.#ctor(Asp.Versioning.Conventions.IControllerNameConvention)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.ApiVersionCollator"/> class.
+            </summary>
+            <param name="namingConvention">The <see cref="T:Asp.Versioning.Conventions.IControllerNameConvention">controller naming convention</see>.</param>
+        </member>
+        <member name="P:Asp.Versioning.ApiVersionCollator.NamingConvention">
+            <summary>
+            Gets the controller naming convention associated with the collator.
+            </summary>
+            <value>The <see cref="T:Asp.Versioning.Conventions.IControllerNameConvention">controller naming convention</see>.</value>
+        </member>
+        <member name="P:Asp.Versioning.ApiVersionCollator.Order">
+            <inheritdoc />
+        </member>
+        <member name="M:Asp.Versioning.ApiVersionCollator.OnProvidersExecuted(Microsoft.AspNetCore.Mvc.Abstractions.ActionDescriptorProviderContext)">
+            <inheritdoc />
+        </member>
+        <member name="M:Asp.Versioning.ApiVersionCollator.OnProvidersExecuting(Microsoft.AspNetCore.Mvc.Abstractions.ActionDescriptorProviderContext)">
+            <inheritdoc />
+        </member>
+        <member name="M:Asp.Versioning.ApiVersionCollator.GetControllerName(Microsoft.AspNetCore.Mvc.Abstractions.ActionDescriptor)">
+            <summary>
+            Resolves and returns the logical controller name for the specified action.
+            </summary>
+            <param name="action">The <see cref="T:Microsoft.AspNetCore.Mvc.Abstractions.ActionDescriptor">action</see> to get the controller name from.</param>
+            <returns>The logical name of the associated controller.</returns>
+            <remarks>
+            <para>
+            The logical controller name is used to collate actions together and aggregate API versions. The
+            default implementation uses the "controller" route parameter and falls back to the
+            <see cref="P:Microsoft.AspNetCore.Mvc.Controllers.ControllerActionDescriptor.ControllerName"/> property when available.
+            </para>
+            <para>
+            The default implementation will also trim trailing numbers in the controller name by convention. For example,
+            the type "Values2Controller" will have the controller name "Values2", which will be trimmed to just "Values".
+            This behavior can be changed by using the <see cref="T:Asp.Versioning.ControllerNameAttribute"/> or overriding the default
+            implementation.
+            </para>
+            </remarks>
+        </member>
+        <member name="T:Asp.Versioning.ApiVersioningApplicationModelProvider">
+            <summary>
+            Represents an <see cref="T:Microsoft.AspNetCore.Mvc.ApplicationModels.IApplicationModelProvider">application model provider</see>, which
+            applies convention-based API versions controllers and their actions.
+            </summary>
+        </member>
+        <member name="M:Asp.Versioning.ApiVersioningApplicationModelProvider.#ctor(Asp.Versioning.ApplicationModels.IApiControllerFilter,Asp.Versioning.Conventions.IControllerNameConvention,Microsoft.Extensions.Options.IOptions{Asp.Versioning.ApiVersioningOptions},Microsoft.Extensions.Options.IOptions{Asp.Versioning.MvcApiVersioningOptions})">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.ApiVersioningApplicationModelProvider"/> class.
+            </summary>
+            <param name="controllerFilter">The <see cref="T:Asp.Versioning.ApplicationModels.IApiControllerFilter">filter</see> used for API controllers.</param>
+            <param name="namingConvention">The <see cref="T:Asp.Versioning.Conventions.IControllerNameConvention">controller naming convention</see>.</param>
+            <param name="options">The current <see cref="T:Asp.Versioning.ApiVersioningOptions">API versioning options</see>.</param>
+            <param name="mvcOptions">The MVC <see cref="T:Asp.Versioning.MvcApiVersioningOptions">API versioning options</see>.</param>
+        </member>
+        <member name="P:Asp.Versioning.ApiVersioningApplicationModelProvider.Order">
+            <inheritdoc />
+        </member>
+        <member name="P:Asp.Versioning.ApiVersioningApplicationModelProvider.ControllerFilter">
+            <summary>
+            Gets the filter used for API controllers.
+            </summary>
+            <value>The <see cref="T:Asp.Versioning.ApplicationModels.IApiControllerFilter"/> used to filter API controllers.</value>
+        </member>
+        <member name="P:Asp.Versioning.ApiVersioningApplicationModelProvider.NamingConvention">
+            <summary>
+            Gets the controller naming convention associated with the collator.
+            </summary>
+            <value>The <see cref="T:Asp.Versioning.Conventions.IControllerNameConvention">controller naming convention</see>.</value>
+        </member>
+        <member name="P:Asp.Versioning.ApiVersioningApplicationModelProvider.ConventionBuilder">
+            <summary>
+            Gets the builder used to define API version conventions.
+            </summary>
+            <value>An <see cref="T:Asp.Versioning.Conventions.IApiVersionConventionBuilder">API version convention builder</see>.</value>
+        </member>
+        <member name="P:Asp.Versioning.ApiVersioningApplicationModelProvider.Options">
+            <summary>
+            Gets the API versioning options associated with the model provider.
+            </summary>
+            <value>The current <see cref="T:Asp.Versioning.ApiVersioningOptions">API versioning options</see>.</value>
+        </member>
+        <member name="M:Asp.Versioning.ApiVersioningApplicationModelProvider.OnProvidersExecuted(Microsoft.AspNetCore.Mvc.ApplicationModels.ApplicationModelProviderContext)">
+            <inheritdoc />
+        </member>
+        <member name="M:Asp.Versioning.ApiVersioningApplicationModelProvider.OnProvidersExecuting(Microsoft.AspNetCore.Mvc.ApplicationModels.ApplicationModelProviderContext)">
+            <inheritdoc />
+        </member>
+        <member name="T:Asp.Versioning.ApiVersioningMvcOptionsSetup">
+            <summary>
+            Represents the API versioning configuration for ASP.NET Core <see cref="T:Microsoft.AspNetCore.Mvc.MvcOptions">MVC options</see>.
+            </summary>
+        </member>
+        <member name="M:Asp.Versioning.ApiVersioningMvcOptionsSetup.#ctor(Microsoft.Extensions.Options.IOptions{Asp.Versioning.ApiVersioningOptions})">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.ApiVersioningMvcOptionsSetup"/> class.
+            </summary>
+            <param name="options">The <see cref="T:Asp.Versioning.ApiVersioningOptions">API versioning options</see> used to configure the MVC options.</param>
+        </member>
+        <member name="M:Asp.Versioning.ApiVersioningMvcOptionsSetup.PostConfigure(System.String,Microsoft.AspNetCore.Mvc.MvcOptions)">
+            <inheritdoc />
+        </member>
+        <member name="T:Asp.Versioning.ApiVersionModelBinder">
+            <summary>
+            Represents a model binder for an <see cref="T:Asp.Versioning.ApiVersion">API version</see>.
+            </summary>
+        </member>
+        <member name="M:Asp.Versioning.ApiVersionModelBinder.BindModelAsync(Microsoft.AspNetCore.Mvc.ModelBinding.ModelBindingContext)">
+            <inheritdoc />
+        </member>
+        <member name="T:Asp.Versioning.ApplicationModels.ApiBehaviorSpecification">
+            <summary>
+            Represents a specification that matches API controllers by the presence of API behaviors.
+            </summary>
+        </member>
+        <member name="M:Asp.Versioning.ApplicationModels.ApiBehaviorSpecification.IsSatisfiedBy(Microsoft.AspNetCore.Mvc.ApplicationModels.ControllerModel)">
+            <inheritdoc />
+        </member>
+        <member name="T:Asp.Versioning.ApplicationModels.DefaultApiControllerFilter">
+            <summary>
+            Represents the default API controller filter.
+            </summary>
+        </member>
+        <member name="M:Asp.Versioning.ApplicationModels.DefaultApiControllerFilter.#ctor(System.Collections.Generic.IEnumerable{Asp.Versioning.ApplicationModels.IApiControllerSpecification})">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.ApplicationModels.DefaultApiControllerFilter"/> class.
+            </summary>
+            <param name="specifications">The <see cref="T:System.Collections.Generic.IEnumerable`1">sequence</see> of
+            <see cref="T:Asp.Versioning.ApplicationModels.IApiControllerSpecification">specifications</see> used by the filter
+            to identify API controllers.</param>
+        </member>
+        <member name="M:Asp.Versioning.ApplicationModels.DefaultApiControllerFilter.Apply(System.Collections.Generic.IList{Microsoft.AspNetCore.Mvc.ApplicationModels.ControllerModel})">
+            <inheritdoc />
+        </member>
+        <member name="T:Asp.Versioning.ApplicationModels.IApiControllerFilter">
+            <summary>
+            Defines the behavior of an API controller filter.
+            </summary>
+        </member>
+        <member name="M:Asp.Versioning.ApplicationModels.IApiControllerFilter.Apply(System.Collections.Generic.IList{Microsoft.AspNetCore.Mvc.ApplicationModels.ControllerModel})">
+            <summary>
+            Applies the filter to the provided list of controllers.
+            </summary>
+            <param name="controllers">The <see cref="T:System.Collections.Generic.IList`1">list</see> of
+            <see cref="T:Microsoft.AspNetCore.Mvc.ApplicationModels.ControllerModel">controllers</see> to filter.</param>
+            <returns>A new, filtered <see cref="T:System.Collections.Generic.IList`1">list</see> of API
+            <see cref="T:Microsoft.AspNetCore.Mvc.ApplicationModels.ControllerModel">controllers</see>.</returns>
+        </member>
+        <member name="T:Asp.Versioning.ApplicationModels.IApiControllerSpecification">
+            <summary>
+            Defines the behavior of an API controller specification.
+            </summary>
+        </member>
+        <member name="M:Asp.Versioning.ApplicationModels.IApiControllerSpecification.IsSatisfiedBy(Microsoft.AspNetCore.Mvc.ApplicationModels.ControllerModel)">
+            <summary>
+            Determines whether the specification is satisfied by the provided controller model.
+            </summary>
+            <param name="controller">The <see cref="T:Microsoft.AspNetCore.Mvc.ApplicationModels.ControllerModel">controller model</see> to evaluate.</param>
+            <returns>True if the <paramref name="controller"/> satisfies the specification; otherwise, false.</returns>
+        </member>
+        <member name="T:Asp.Versioning.ApplicationModels.NoControllerFilter">
+            <summary>
+            Represents an API controller filter that performs no filtering and includes all controllers.
+            </summary>
+        </member>
+        <member name="M:Asp.Versioning.ApplicationModels.NoControllerFilter.Apply(System.Collections.Generic.IList{Microsoft.AspNetCore.Mvc.ApplicationModels.ControllerModel})">
+            <inheritdoc />
+        </member>
+        <member name="T:Asp.Versioning.ControllerNameAttribute">
+            <content>
+            Provides additional implementation specific to ASP.NET Core.
+            </content>
+            <summary>
+            Represents the metadata to describe the name of a controller.
+            </summary>
+            <remarks>This attribute is required to support service versioning on ASP.NET controllers that use
+            convention-based routing because the route is inferred from the type name and service API versions
+            may be implemented using different controller types.</remarks>
+        </member>
+        <member name="M:Asp.Versioning.ControllerNameAttribute.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.ControllerNameAttribute"/> class.
+            </summary>
+            <param name="name">The name of the controller.</param>
+        </member>
+        <member name="P:Asp.Versioning.ControllerNameAttribute.Name">
+            <summary>
+            Gets the name of the controller.
+            </summary>
+            <value>The controller name.</value>
+        </member>
+        <member name="T:Asp.Versioning.Conventions.ActionApiVersionConventionBuilderBase">
+            <content>
+            Provides additional implementation specific to Microsoft ASP.NET Core.
+            </content>
+            <summary>
+            Represents the base implementation of a builder for API versions applied to a controller action.
+            </summary>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ActionApiVersionConventionBuilderBase.ApplyTo(Microsoft.AspNetCore.Mvc.ApplicationModels.ActionModel)">
+            <summary>
+            Applies the builder conventions to the specified controller action.
+            </summary>
+            <param name="item">The <see cref="T:Microsoft.AspNetCore.Mvc.ApplicationModels.ActionModel">action model</see> to apply the conventions to.</param>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ActionApiVersionConventionBuilderBase.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.Conventions.ActionApiVersionConventionBuilderBase"/> class.
+            </summary>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ActionApiVersionConventionBuilderBase.#ctor(Asp.Versioning.Conventions.IControllerNameConvention)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.Conventions.ActionApiVersionConventionBuilderBase"/> class.
+            </summary>
+            <param name="namingConvention">The <see cref="T:Asp.Versioning.Conventions.IControllerNameConvention">controller naming convention</see>.</param>
+        </member>
+        <member name="P:Asp.Versioning.Conventions.ActionApiVersionConventionBuilderBase.IsEmpty">
+            <inheritdoc />
+        </member>
+        <member name="P:Asp.Versioning.Conventions.ActionApiVersionConventionBuilderBase.MappedVersions">
+            <summary>
+            Gets the collection of API versions mapped to the current action.
+            </summary>
+            <value>A <see cref="T:System.Collections.Generic.ICollection`1">collection</see> of mapped <see cref="T:Asp.Versioning.ApiVersion">API versions</see>.</value>
+        </member>
+        <member name="P:Asp.Versioning.Conventions.ActionApiVersionConventionBuilderBase.NamingConvention">
+            <summary>
+            Gets the controller naming convention associated with the builder.
+            </summary>
+            <value>The <see cref="T:Asp.Versioning.Conventions.IControllerNameConvention">controller naming convention</see>.</value>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ActionApiVersionConventionBuilderBase.MergeAttributesWithConventions(System.Collections.Generic.IReadOnlyList{System.Object})">
+            <inheritdoc />
+        </member>
+        <member name="T:Asp.Versioning.Conventions.ApiVersionConventionBuilder">
+            <content>
+            Provides additional implementation specific ASP.NET Core.
+            </content>
+            <summary>
+            Represents an object used to configure and create API version conventions for a controllers and their actions.
+            </summary>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ApiVersionConventionBuilder.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.Conventions.ApiVersionConventionBuilder"/> class.
+            </summary>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ApiVersionConventionBuilder.#ctor(Asp.Versioning.Conventions.IControllerNameConvention)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.Conventions.ApiVersionConventionBuilder"/> class.
+            </summary>
+            <param name="namingConvention">The <see cref="T:Asp.Versioning.Conventions.IControllerNameConvention">controller naming convention</see>.</param>
+        </member>
+        <member name="P:Asp.Versioning.Conventions.ApiVersionConventionBuilder.NamingConvention">
+            <summary>
+            Gets the controller naming convention associated with the builder.
+            </summary>
+            <value>The <see cref="T:Asp.Versioning.Conventions.IControllerNameConvention">controller naming convention</see>.</value>
+        </member>
+        <member name="P:Asp.Versioning.Conventions.ApiVersionConventionBuilder.ControllerConventionBuilders">
+            <summary>
+            Gets a collection of controller convention builders.
+            </summary>
+            <value>A <see cref="T:System.Collections.Generic.IDictionary`2">collection</see> of <see cref="T:Asp.Versioning.Conventions.IControllerConventionBuilder">controller convention builders</see>.</value>
+        </member>
+        <member name="P:Asp.Versioning.Conventions.ApiVersionConventionBuilder.ControllerConventions">
+            <summary>
+            Gets a collection of controller conventions.
+            </summary>
+            <value>A <see cref="T:System.Collections.Generic.IList`1">list</see> of <see cref="T:Asp.Versioning.Conventions.IControllerConvention">controller conventions</see>.</value>
+        </member>
+        <member name="P:Asp.Versioning.Conventions.ApiVersionConventionBuilder.Count">
+            <inheritdoc />
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ApiVersionConventionBuilder.Controller``1">
+            <inheritdoc />
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ApiVersionConventionBuilder.Controller(System.Type)">
+            <inheritdoc />
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ApiVersionConventionBuilder.Add(Asp.Versioning.Conventions.IControllerConvention)">
+            <inheritdoc />
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ApiVersionConventionBuilder.ApplyTo(Microsoft.AspNetCore.Mvc.ApplicationModels.ControllerModel)">
+            <inheritdoc />
+        </member>
+        <member name="T:Asp.Versioning.Conventions.ControllerApiVersionConventionBuilderBase">
+            <summary>
+            Represents the base implementation of a builder for API versions applied to a controller.
+            </summary>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ControllerApiVersionConventionBuilderBase.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.Conventions.ControllerApiVersionConventionBuilderBase"/> class.
+            </summary>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ControllerApiVersionConventionBuilderBase.#ctor(Asp.Versioning.Conventions.IControllerNameConvention)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.Conventions.ControllerApiVersionConventionBuilderBase"/> class.
+            </summary>
+            <param name="namingConvention">The <see cref="T:Asp.Versioning.Conventions.IControllerNameConvention">controller naming convention</see>.</param>
+        </member>
+        <member name="P:Asp.Versioning.Conventions.ControllerApiVersionConventionBuilderBase.NamingConvention">
+            <summary>
+            Gets the controller naming convention associated with the builder.
+            </summary>
+            <value>The <see cref="T:Asp.Versioning.Conventions.IControllerNameConvention">controller naming convention</see>.</value>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ControllerApiVersionConventionBuilderBase.ApplyTo(Microsoft.AspNetCore.Mvc.ApplicationModels.ControllerModel)">
+            <summary>
+            Applies the builder conventions to the specified controller.
+            </summary>
+            <param name="item">The <see cref="T:Microsoft.AspNetCore.Mvc.ApplicationModels.ControllerModel">controller model</see> to apply the conventions to.</param>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ControllerApiVersionConventionBuilderBase.TryGetConvention(System.Reflection.MethodInfo,Asp.Versioning.Conventions.IApiVersionConvention{Microsoft.AspNetCore.Mvc.ApplicationModels.ActionModel}@)">
+            <summary>
+            Attempts to get the convention for the specified action method.
+            </summary>
+            <param name="method">The <see cref="T:System.Reflection.MethodInfo">method</see> representing the action to retrieve the convention for.</param>
+            <param name="convention">The retrieved <see cref="T:Asp.Versioning.Conventions.IApiVersionConvention`1">convention</see> or <c>null</c>.</param>
+            <returns>True if the convention was successfully retrieved; otherwise, false.</returns>
+        </member>
+        <member name="T:Asp.Versioning.Conventions.DefaultControllerNameConvention">
+            <summary>
+            Represents the default <see cref="T:Asp.Versioning.Conventions.IControllerNameConvention">controller name convention</see>.
+            </summary>
+            <remarks>This convention will strip the <b>Controller</b> suffix as well as any trailing numeric values.</remarks>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.DefaultControllerNameConvention.NormalizeName(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="T:Asp.Versioning.Conventions.OriginalControllerNameConvention">
+            <content>
+            Provides additional implementation specific ASP.NET Core.
+            </content>
+            <summary>
+            Represents the original <see cref="T:Asp.Versioning.Conventions.IControllerNameConvention">controller name convention</see>.
+            </summary>
+            <remarks>This convention will apply the original convention which only strips the <b>Controller</b> suffix.</remarks>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.OriginalControllerNameConvention.NormalizeName(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Asp.Versioning.Conventions.OriginalControllerNameConvention.GroupName(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="T:Asp.Versioning.Conventions.ActionApiVersionConventionBuilder">
+            <summary>
+            Represents a builder for API versions applied to a controller action.
+            </summary>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ActionApiVersionConventionBuilder.#ctor(Asp.Versioning.Conventions.ControllerApiVersionConventionBuilder)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.Conventions.ActionApiVersionConventionBuilder"/> class.
+            </summary>
+            <param name="controllerBuilder">The <see cref="T:Asp.Versioning.Conventions.ControllerApiVersionConventionBuilder">controller builder</see>
+            the action builder belongs to.</param>
+        </member>
+        <member name="P:Asp.Versioning.Conventions.ActionApiVersionConventionBuilder.ControllerBuilder">
+            <summary>
+            Gets the controller builder the action builder belongs to.
+            </summary>
+            <value>The associated <see cref="T:Asp.Versioning.Conventions.ControllerApiVersionConventionBuilder"/>.</value>
+        </member>
+        <member name="P:Asp.Versioning.Conventions.ActionApiVersionConventionBuilder.ControllerType">
+            <inheritdoc />
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ActionApiVersionConventionBuilder.Action(System.Reflection.MethodInfo)">
+            <summary>
+            Gets or creates the convention builder for the specified controller action method.
+            </summary>
+            <param name="actionMethod">The <see cref="T:System.Reflection.MethodInfo">method</see> representing the controller action.</param>
+            <returns>A new or existing <see cref="T:Asp.Versioning.Conventions.ActionApiVersionConventionBuilder"/>.</returns>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ActionApiVersionConventionBuilder.MapToApiVersion(Asp.Versioning.ApiVersion)">
+            <summary>
+            Maps the specified API version to the configured controller action.
+            </summary>
+            <param name="apiVersion">The <see cref="T:Asp.Versioning.ApiVersion">API version</see> to map to the action.</param>
+            <returns>The original <see cref="T:Asp.Versioning.Conventions.ActionApiVersionConventionBuilder"/>.</returns>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ActionApiVersionConventionBuilder.IsApiVersionNeutral">
+            <summary>
+            Indicates that the action is API version-neutral.
+            </summary>
+            <returns>The original <see cref="T:Asp.Versioning.Conventions.ActionApiVersionConventionBuilder"/>.</returns>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ActionApiVersionConventionBuilder.HasApiVersion(Asp.Versioning.ApiVersion)">
+            <summary>
+            Indicates that the specified API version is supported by the configured action.
+            </summary>
+            <param name="apiVersion">The supported <see cref="T:Asp.Versioning.ApiVersion">API version</see> implemented by the action.</param>
+            <returns>The original <see cref="T:Asp.Versioning.Conventions.ActionApiVersionConventionBuilder"/>.</returns>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ActionApiVersionConventionBuilder.HasDeprecatedApiVersion(Asp.Versioning.ApiVersion)">
+            <summary>
+            Indicates that the specified API version is deprecated by the configured action.
+            </summary>
+            <param name="apiVersion">The deprecated <see cref="T:Asp.Versioning.ApiVersion">API version</see> implemented by the action.</param>
+            <returns>The original <see cref="T:Asp.Versioning.Conventions.ActionApiVersionConventionBuilder"/>.</returns>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ActionApiVersionConventionBuilder.AdvertisesApiVersion(Asp.Versioning.ApiVersion)">
+            <summary>
+            Indicates that the specified API version is advertised by the configured action.
+            </summary>
+            <param name="apiVersion">The advertised <see cref="T:Asp.Versioning.ApiVersion">API version</see> not directly implemented by the action.</param>
+            <returns>The original <see cref="T:Asp.Versioning.Conventions.ActionApiVersionConventionBuilder"/>.</returns>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ActionApiVersionConventionBuilder.AdvertisesDeprecatedApiVersion(Asp.Versioning.ApiVersion)">
+            <summary>
+            Indicates that the specified API version is advertised and deprecated by the configured action.
+            </summary>
+            <param name="apiVersion">The advertised, but deprecated <see cref="T:Asp.Versioning.ApiVersion">API version</see> not directly implemented by the action.</param>
+            <returns>The original <see cref="T:Asp.Versioning.Conventions.ActionApiVersionConventionBuilder"/>.</returns>
+        </member>
+        <member name="T:Asp.Versioning.Conventions.ActionApiVersionConventionBuilderCollection">
+            <summary>
+            Represents a collection of controller action convention builders.
+            </summary>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ActionApiVersionConventionBuilderCollection.#ctor(Asp.Versioning.Conventions.ControllerApiVersionConventionBuilder)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.Conventions.ActionApiVersionConventionBuilderCollection"/> class.
+            </summary>
+            <param name="controllerBuilder">The associated <see cref="T:Asp.Versioning.Conventions.ControllerApiVersionConventionBuilder">controller convention builder</see>.</param>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ActionApiVersionConventionBuilderCollection.GetOrAdd(System.Reflection.MethodInfo)">
+            <summary>
+            Gets or adds a controller action convention builder for the specified method.
+            </summary>
+            <param name="actionMethod">The controller action method to get or add the convention builder for.</param>
+            <returns>A new or existing <see cref="T:Asp.Versioning.Conventions.ActionApiVersionConventionBuilder">controller action convention builder</see>.</returns>
+        </member>
+        <member name="P:Asp.Versioning.Conventions.ActionApiVersionConventionBuilderCollection.Count">
+            <inheritdoc />
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ActionApiVersionConventionBuilderCollection.TryGetValue(System.Reflection.MethodInfo,Asp.Versioning.Conventions.ActionApiVersionConventionBuilder@)">
+            <summary>
+            Attempts to retrieve the controller action convention builder for the specified method.
+            </summary>
+            <param name="actionMethod">The controller action method to get the convention builder for.</param>
+            <param name="actionBuilder">The <see cref="T:Asp.Versioning.Conventions.ActionApiVersionConventionBuilder">controller action convention builder</see> or <c>null</c>.</param>
+            <returns>True if the <paramref name="actionBuilder">action builder</paramref> is successfully retrieved; otherwise, false.</returns>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ActionApiVersionConventionBuilderCollection.GetEnumerator">
+            <inheritdoc />
+        </member>
+        <member name="T:Asp.Versioning.Conventions.ActionApiVersionConventionBuilderCollection`1">
+            <summary>
+            Represents a collection of controller action convention builders.
+            </summary>
+            <typeparam name="T">The type of item the convention builder is for.</typeparam>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ActionApiVersionConventionBuilderCollection`1.#ctor(Asp.Versioning.Conventions.ControllerApiVersionConventionBuilder{`0})">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.Conventions.ActionApiVersionConventionBuilderCollection`1"/> class.
+            </summary>
+            <param name="controllerBuilder">The associated <see cref="T:Asp.Versioning.Conventions.ControllerApiVersionConventionBuilder`1">controller convention builder</see>.</param>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ActionApiVersionConventionBuilderCollection`1.GetOrAdd(System.Reflection.MethodInfo)">
+            <summary>
+            Gets or adds a controller action convention builder for the specified method.
+            </summary>
+            <param name="actionMethod">The controller action method to get or add the convention builder for.</param>
+            <returns>A new or existing <see cref="T:Asp.Versioning.Conventions.ActionApiVersionConventionBuilder`1">controller action convention builder</see>.</returns>
+        </member>
+        <member name="P:Asp.Versioning.Conventions.ActionApiVersionConventionBuilderCollection`1.Count">
+            <inheritdoc />
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ActionApiVersionConventionBuilderCollection`1.TryGetValue(System.Reflection.MethodInfo,Asp.Versioning.Conventions.ActionApiVersionConventionBuilder{`0}@)">
+            <summary>
+            Attempts to retrieve the controller action convention builder for the specified method.
+            </summary>
+            <param name="actionMethod">The controller action method to get the convention builder for.</param>
+            <param name="actionBuilder">The <see cref="T:Asp.Versioning.Conventions.ActionApiVersionConventionBuilder`1">controller action convention builder</see> or <c>null</c>.</param>
+            <returns>True if the <paramref name="actionBuilder">action builder</paramref> is successfully retrieved; otherwise, false.</returns>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ActionApiVersionConventionBuilderCollection`1.GetEnumerator">
+            <inheritdoc />
+        </member>
+        <member name="T:Asp.Versioning.Conventions.ActionApiVersionConventionBuilder`1">
+            <summary>
+            Represents a builder for API versions applied to a controller action.
+            </summary>
+            <typeparam name="T">The type of item the convention builder is for.</typeparam>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ActionApiVersionConventionBuilder`1.#ctor(Asp.Versioning.Conventions.ControllerApiVersionConventionBuilder{`0})">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.Conventions.ActionApiVersionConventionBuilder`1"/> class.
+            </summary>
+            <param name="controllerBuilder">The <see cref="T:Asp.Versioning.Conventions.ControllerApiVersionConventionBuilder`1">controller builder</see>
+            the action builder belongs to.</param>
+        </member>
+        <member name="P:Asp.Versioning.Conventions.ActionApiVersionConventionBuilder`1.ControllerBuilder">
+            <summary>
+            Gets the controller builder the action builder belongs to.
+            </summary>
+            <value>The associated <see cref="T:Asp.Versioning.Conventions.ControllerApiVersionConventionBuilder`1"/>.</value>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ActionApiVersionConventionBuilder`1.Action(System.Reflection.MethodInfo)">
+            <summary>
+            Gets or creates the convention builder for the specified controller action method.
+            </summary>
+            <param name="actionMethod">The <see cref="T:System.Reflection.MethodInfo">method</see> representing the controller action.</param>
+            <returns>A new or existing <see cref="T:Asp.Versioning.Conventions.ActionApiVersionConventionBuilder`1"/>.</returns>
+            <remarks>This API is meant for infrastructure and should not be used by application code.</remarks>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ActionApiVersionConventionBuilder`1.MapToApiVersion(Asp.Versioning.ApiVersion)">
+            <summary>
+            Maps the specified API version to the configured controller action.
+            </summary>
+            <param name="apiVersion">The <see cref="T:Asp.Versioning.ApiVersion">API version</see> to map to the action.</param>
+            <returns>The original <see cref="T:Asp.Versioning.Conventions.ActionApiVersionConventionBuilder`1"/>.</returns>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ActionApiVersionConventionBuilder`1.IsApiVersionNeutral">
+            <summary>
+            Indicates that the action is API version-neutral.
+            </summary>
+            <returns>The original <see cref="T:Asp.Versioning.Conventions.ActionApiVersionConventionBuilder`1"/>.</returns>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ActionApiVersionConventionBuilder`1.HasApiVersion(Asp.Versioning.ApiVersion)">
+            <summary>
+            Indicates that the specified API version is supported by the configured action.
+            </summary>
+            <param name="apiVersion">The supported <see cref="T:Asp.Versioning.ApiVersion">API version</see> implemented by the action.</param>
+            <returns>The original <see cref="T:Asp.Versioning.Conventions.ActionApiVersionConventionBuilder`1"/>.</returns>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ActionApiVersionConventionBuilder`1.HasDeprecatedApiVersion(Asp.Versioning.ApiVersion)">
+            <summary>
+            Indicates that the specified API version is deprecated by the configured action.
+            </summary>
+            <param name="apiVersion">The deprecated <see cref="T:Asp.Versioning.ApiVersion">API version</see> implemented by the action.</param>
+            <returns>The original <see cref="T:Asp.Versioning.Conventions.ActionApiVersionConventionBuilder`1"/>.</returns>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ActionApiVersionConventionBuilder`1.AdvertisesApiVersion(Asp.Versioning.ApiVersion)">
+            <summary>
+            Indicates that the specified API version is advertised by the configured action.
+            </summary>
+            <param name="apiVersion">The advertised <see cref="T:Asp.Versioning.ApiVersion">API version</see> not directly implemented by the action.</param>
+            <returns>The original <see cref="T:Asp.Versioning.Conventions.ActionApiVersionConventionBuilder`1"/>.</returns>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ActionApiVersionConventionBuilder`1.AdvertisesDeprecatedApiVersion(Asp.Versioning.ApiVersion)">
+            <summary>
+            Indicates that the specified API version is advertised and deprecated by the configured action.
+            </summary>
+            <param name="apiVersion">The advertised, but deprecated <see cref="T:Asp.Versioning.ApiVersion">API version</see> not directly implemented by the action.</param>
+            <returns>The original <see cref="T:Asp.Versioning.Conventions.ActionApiVersionConventionBuilder`1"/>.</returns>
+        </member>
+        <member name="T:Asp.Versioning.Conventions.ActionConventionBuilderExtensions">
+            <summary>
+            Provides extension methods for <see cref="T:Asp.Versioning.Conventions.IActionConventionBuilder"/> and <see cref="T:Asp.Versioning.Conventions.IActionConventionBuilder`1"/> interfaces.
+            </summary>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ActionConventionBuilderExtensions.Action``1(Asp.Versioning.Conventions.IActionConventionBuilder{``0},System.Linq.Expressions.Expression{System.Action{``0}})">
+            <inheritdoc cref="M:Asp.Versioning.Conventions.ActionConventionBuilderExtensions.&lt;G&gt;$10E03184D328E30C90081A07FCD3F7D0`1.Action(System.Linq.Expressions.Expression{System.Action{`0}})"/>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ActionConventionBuilderExtensions.Action``2(Asp.Versioning.Conventions.IActionConventionBuilder{``0},System.Linq.Expressions.Expression{System.Func{``0,``1}})">
+            <inheritdoc cref="M:Asp.Versioning.Conventions.ActionConventionBuilderExtensions.&lt;G&gt;$10E03184D328E30C90081A07FCD3F7D0`1.Action``1(System.Linq.Expressions.Expression{System.Func{`0,``0}})"/>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ActionConventionBuilderExtensions.Action(Asp.Versioning.Conventions.IActionConventionBuilder,System.String,System.Type[])">
+            <inheritdoc cref="M:Asp.Versioning.Conventions.ActionConventionBuilderExtensions.&lt;G&gt;$6297AAD066E4FCBD889799197E605766.Action(System.String,System.Type[])"/>
+        </member>
+        <member name="T:Asp.Versioning.Conventions.ActionConventionBuilderExtensions.&lt;G&gt;$10E03184D328E30C90081A07FCD3F7D0`1.&lt;M&gt;$5DCD29F80874FBF19DF8E32BA6AEF428">
+            <typeparam name="TController">The type of controller.</typeparam>
+            <param name="builder">The extended <see cref="T:Asp.Versioning.Conventions.IActionConventionBuilder`1"/>.</param>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ActionConventionBuilderExtensions.&lt;G&gt;$10E03184D328E30C90081A07FCD3F7D0`1.Action(System.Linq.Expressions.Expression{System.Action{`0}})">
+            <summary>
+            Gets or creates the convention builder for the specified controller action method.
+            </summary>
+            <param name="actionExpression">The <see cref="T:System.Linq.Expressions.Expression`1">expression</see> representing the controller action method.</param>
+            <returns>A new or existing <see cref="T:Asp.Versioning.Conventions.IActionConventionBuilder`1"/>.</returns>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ActionConventionBuilderExtensions.&lt;G&gt;$10E03184D328E30C90081A07FCD3F7D0`1.Action``1(System.Linq.Expressions.Expression{System.Func{`0,``0}})">
+            <summary>
+            Gets or creates the convention builder for the specified controller action method.
+            </summary>
+            <typeparam name="TResult">The type of action result.</typeparam>
+            <param name="actionExpression">The <see cref="T:System.Linq.Expressions.Expression`1">expression</see> representing the controller action method.</param>
+            <returns>A new or existing <see cref="T:Asp.Versioning.Conventions.IActionConventionBuilder`1"/>.</returns>
+        </member>
+        <member name="T:Asp.Versioning.Conventions.ActionConventionBuilderExtensions.&lt;G&gt;$6297AAD066E4FCBD889799197E605766.&lt;M&gt;$CAF875A4469E9BA6F29C247F1E65510B">
+            <param name="builder">The extended <see cref="T:Asp.Versioning.Conventions.ActionApiVersionConventionBuilder"/>.</param>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ActionConventionBuilderExtensions.&lt;G&gt;$6297AAD066E4FCBD889799197E605766.Action(System.String,System.Type[])">
+            <summary>
+            Gets or creates the convention builder for the specified controller action method.
+            </summary>
+            <param name="methodName">The name of the action method.</param>
+            <param name="argumentTypes">The optional array of action method argument types.</param>
+            <returns>A new or existing <see cref="T:Asp.Versioning.Conventions.IActionConventionBuilder"/>.</returns>
+            <remarks>The specified <paramref name="methodName">method name</paramref> must refer to a public, non-static action method.
+            If there is only one corresponding match found, then the <paramref name="argumentTypes">argument types</paramref> are ignored;
+            otherwise, the <paramref name="argumentTypes">argument types</paramref> are used for method overload resolution. Action
+            methods that have the <see cref="T:Microsoft.AspNetCore.Mvc.NonActionAttribute"/> applied will also be ignored.</remarks>
+        </member>
+        <member name="T:Asp.Versioning.Conventions.ControllerApiVersionConventionBuilder">
+            <summary>
+            Represents a builder for API versions applied to a controller.
+            </summary>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ControllerApiVersionConventionBuilder.#ctor(System.Type)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.Conventions.ControllerApiVersionConventionBuilder"/> class.
+            </summary>
+            <param name="controllerType">The <see cref="T:System.Type">type</see> of controller the convention builder is for.</param>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ControllerApiVersionConventionBuilder.#ctor(System.Type,Asp.Versioning.Conventions.IControllerNameConvention)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.Conventions.ControllerApiVersionConventionBuilder"/> class.
+            </summary>
+            <param name="controllerType">The <see cref="T:System.Type">type</see> of controller the convention builder is for.</param>
+            <param name="namingConvention">The <see cref="T:Asp.Versioning.Conventions.IControllerNameConvention">controller naming convention</see>.</param>
+        </member>
+        <member name="P:Asp.Versioning.Conventions.ControllerApiVersionConventionBuilder.ControllerType">
+            <inheritdoc />
+        </member>
+        <member name="P:Asp.Versioning.Conventions.ControllerApiVersionConventionBuilder.ActionBuilders">
+            <summary>
+            Gets a collection of controller action convention builders.
+            </summary>
+            <value>A <see cref="T:Asp.Versioning.Conventions.ActionApiVersionConventionBuilderCollection">collection</see> of
+            <see cref="T:Asp.Versioning.Conventions.ActionApiVersionConventionBuilder">controller action convention builders</see>.</value>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ControllerApiVersionConventionBuilder.IsApiVersionNeutral">
+            <summary>
+            Indicates that the controller is API version-neutral.
+            </summary>
+            <returns>The original <see cref="T:Asp.Versioning.Conventions.ControllerApiVersionConventionBuilder"/>.</returns>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ControllerApiVersionConventionBuilder.HasApiVersion(Asp.Versioning.ApiVersion)">
+            <summary>
+            Indicates that the specified API version is supported by the configured controller.
+            </summary>
+            <param name="apiVersion">The supported <see cref="T:Asp.Versioning.ApiVersion">API version</see> implemented by the controller.</param>
+            <returns>The original <see cref="T:Asp.Versioning.Conventions.ControllerApiVersionConventionBuilder"/>.</returns>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ControllerApiVersionConventionBuilder.HasDeprecatedApiVersion(Asp.Versioning.ApiVersion)">
+            <summary>
+            Indicates that the specified API version is deprecated by the configured controller.
+            </summary>
+            <param name="apiVersion">The deprecated <see cref="T:Asp.Versioning.ApiVersion">API version</see> implemented by the controller.</param>
+            <returns>The original <see cref="T:Asp.Versioning.Conventions.ControllerApiVersionConventionBuilder"/>.</returns>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ControllerApiVersionConventionBuilder.AdvertisesApiVersion(Asp.Versioning.ApiVersion)">
+            <summary>
+            Indicates that the specified API version is advertised by the configured controller.
+            </summary>
+            <param name="apiVersion">The advertised <see cref="T:Asp.Versioning.ApiVersion">API version</see> not directly implemented by the controller.</param>
+            <returns>The original <see cref="T:Asp.Versioning.Conventions.ControllerApiVersionConventionBuilder"/>.</returns>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ControllerApiVersionConventionBuilder.AdvertisesDeprecatedApiVersion(Asp.Versioning.ApiVersion)">
+            <summary>
+            Indicates that the specified API version is advertised and deprecated by the configured controller.
+            </summary>
+            <param name="apiVersion">The advertised, but deprecated <see cref="T:Asp.Versioning.ApiVersion">API version</see> not directly implemented by the controller.</param>
+            <returns>The original <see cref="T:Asp.Versioning.Conventions.ControllerApiVersionConventionBuilder"/>.</returns>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ControllerApiVersionConventionBuilder.Action(System.Reflection.MethodInfo)">
+            <summary>
+            Gets or creates the convention builder for the specified controller action method.
+            </summary>
+            <param name="actionMethod">The <see cref="T:System.Reflection.MethodInfo">method</see> representing the controller action.</param>
+            <returns>A new or existing <see cref="T:Asp.Versioning.Conventions.ActionApiVersionConventionBuilder"/>.</returns>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ControllerApiVersionConventionBuilder.TryGetConvention(System.Reflection.MethodInfo,Asp.Versioning.Conventions.IApiVersionConvention{Microsoft.AspNetCore.Mvc.ApplicationModels.ActionModel}@)">
+            <summary>
+            Attempts to get the convention for the specified action method.
+            </summary>
+            <param name="method">The <see cref="T:System.Reflection.MethodInfo">method</see> representing the action to retrieve the convention for.</param>
+            <param name="convention">The retrieved <see cref="T:Asp.Versioning.Conventions.IApiVersionConvention`1">convention</see> or <c>null</c>.</param>
+            <returns>True if the convention was successfully retrieved; otherwise, false.</returns>
+        </member>
+        <member name="T:Asp.Versioning.Conventions.ControllerApiVersionConventionBuilder`1">
+            <summary>
+            Represents a builder for API versions applied to a controller.
+            </summary>
+            <typeparam name="T">The type of item the convention builder is for.</typeparam>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ControllerApiVersionConventionBuilder`1.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.Conventions.ControllerApiVersionConventionBuilder`1"/> class.
+            </summary>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ControllerApiVersionConventionBuilder`1.#ctor(Asp.Versioning.Conventions.IControllerNameConvention)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.Conventions.ControllerApiVersionConventionBuilder`1"/> class.
+            </summary>
+            <param name="namingConvention">The <see cref="T:Asp.Versioning.Conventions.IControllerNameConvention">controller naming convention</see>.</param>
+        </member>
+        <member name="P:Asp.Versioning.Conventions.ControllerApiVersionConventionBuilder`1.ActionBuilders">
+            <summary>
+            Gets a collection of controller action convention builders.
+            </summary>
+            <value>A <see cref="T:Asp.Versioning.Conventions.ActionApiVersionConventionBuilderCollection`1">collection</see> of
+            <see cref="T:Asp.Versioning.Conventions.ActionApiVersionConventionBuilder`1">controller action convention builders</see>.</value>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ControllerApiVersionConventionBuilder`1.IsApiVersionNeutral">
+            <summary>
+            Indicates that the controller is API version-neutral.
+            </summary>
+            <returns>The original <see cref="T:Asp.Versioning.Conventions.ControllerApiVersionConventionBuilder`1"/>.</returns>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ControllerApiVersionConventionBuilder`1.HasApiVersion(Asp.Versioning.ApiVersion)">
+            <summary>
+            Indicates that the specified API version is supported by the configured controller.
+            </summary>
+            <param name="apiVersion">The supported <see cref="T:Asp.Versioning.ApiVersion">API version</see> implemented by the controller.</param>
+            <returns>The original <see cref="T:Asp.Versioning.Conventions.ControllerApiVersionConventionBuilder`1"/>.</returns>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ControllerApiVersionConventionBuilder`1.HasDeprecatedApiVersion(Asp.Versioning.ApiVersion)">
+            <summary>
+            Indicates that the specified API version is deprecated by the configured controller.
+            </summary>
+            <param name="apiVersion">The deprecated <see cref="T:Asp.Versioning.ApiVersion">API version</see> implemented by the controller.</param>
+            <returns>The original <see cref="T:Asp.Versioning.Conventions.ControllerApiVersionConventionBuilder`1"/>.</returns>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ControllerApiVersionConventionBuilder`1.AdvertisesApiVersion(Asp.Versioning.ApiVersion)">
+            <summary>
+            Indicates that the specified API version is advertised by the configured controller.
+            </summary>
+            <param name="apiVersion">The advertised <see cref="T:Asp.Versioning.ApiVersion">API version</see> not directly implemented by the controller.</param>
+            <returns>The original <see cref="T:Asp.Versioning.Conventions.ControllerApiVersionConventionBuilder`1"/>.</returns>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ControllerApiVersionConventionBuilder`1.AdvertisesDeprecatedApiVersion(Asp.Versioning.ApiVersion)">
+            <summary>
+            Indicates that the specified API version is advertised and deprecated by the configured controller.
+            </summary>
+            <param name="apiVersion">The advertised, but deprecated <see cref="T:Asp.Versioning.ApiVersion">API version</see> not directly implemented by the controller.</param>
+            <returns>The original <see cref="T:Asp.Versioning.Conventions.ControllerApiVersionConventionBuilder`1"/>.</returns>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ControllerApiVersionConventionBuilder`1.Action(System.Reflection.MethodInfo)">
+            <summary>
+            Gets or creates the convention builder for the specified controller action method.
+            </summary>
+            <param name="actionMethod">The <see cref="T:System.Reflection.MethodInfo">method</see> representing the controller action.</param>
+            <returns>A new or existing <see cref="T:Asp.Versioning.Conventions.ActionApiVersionConventionBuilder`1"/>.</returns>
+            <remarks>This API is meant for infrastructure and should not be used by application code.</remarks>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ControllerApiVersionConventionBuilder`1.TryGetConvention(System.Reflection.MethodInfo,Asp.Versioning.Conventions.IApiVersionConvention{Microsoft.AspNetCore.Mvc.ApplicationModels.ActionModel}@)">
+            <summary>
+            Attempts to get the convention for the specified action method.
+            </summary>
+            <param name="method">The <see cref="T:System.Reflection.MethodInfo">method</see> representing the action to retrieve the convention for.</param>
+            <param name="convention">The retrieved <see cref="T:Asp.Versioning.Conventions.IApiVersionConvention`1">convention</see> or <c>null</c>.</param>
+            <returns>True if the convention was successfully retrieved; otherwise, false.</returns>
+        </member>
+        <member name="T:Asp.Versioning.Conventions.ControllerConventionBuilderExtensions">
+            <summary>
+            Provides extension methods for <see cref="T:Asp.Versioning.Conventions.IControllerConventionBuilder"/> and <see cref="T:Asp.Versioning.Conventions.IControllerConventionBuilder`1"/> interfaces.
+            </summary>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ControllerConventionBuilderExtensions.Action``1(Asp.Versioning.Conventions.IControllerConventionBuilder{``0},System.Linq.Expressions.Expression{System.Action{``0}})">
+            <inheritdoc cref="M:Asp.Versioning.Conventions.ControllerConventionBuilderExtensions.&lt;G&gt;$C2F898D73CF437F739E423663BE9F327`1.Action(System.Linq.Expressions.Expression{System.Action{`0}})"/>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ControllerConventionBuilderExtensions.Action``2(Asp.Versioning.Conventions.IControllerConventionBuilder{``0},System.Linq.Expressions.Expression{System.Func{``0,``1}})">
+            <inheritdoc cref="M:Asp.Versioning.Conventions.ControllerConventionBuilderExtensions.&lt;G&gt;$C2F898D73CF437F739E423663BE9F327`1.Action``1(System.Linq.Expressions.Expression{System.Func{`0,``0}})"/>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ControllerConventionBuilderExtensions.Action(Asp.Versioning.Conventions.IControllerConventionBuilder,System.String,System.Type[])">
+            <inheritdoc cref="M:Asp.Versioning.Conventions.ControllerConventionBuilderExtensions.&lt;G&gt;$197F3999F384405565CD3FD35F4E9AC4.Action(System.String,System.Type[])"/>
+        </member>
+        <member name="T:Asp.Versioning.Conventions.ControllerConventionBuilderExtensions.&lt;G&gt;$C2F898D73CF437F739E423663BE9F327`1.&lt;M&gt;$3555E5E43A21AEACAB660A8821458D67">
+            <typeparam name="TController">The type of controller.</typeparam>
+            <param name="builder">The extended <see cref="T:Asp.Versioning.Conventions.IControllerConventionBuilder`1"/>.</param>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ControllerConventionBuilderExtensions.&lt;G&gt;$C2F898D73CF437F739E423663BE9F327`1.Action(System.Linq.Expressions.Expression{System.Action{`0}})">
+            <summary>
+            Gets or creates the convention builder for the specified controller action method.
+            </summary>
+            <param name="actionExpression">The <see cref="T:System.Linq.Expressions.Expression`1">expression</see> representing the controller action method.</param>
+            <returns>A new or existing <see cref="T:Asp.Versioning.Conventions.IActionConventionBuilder`1"/>.</returns>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ControllerConventionBuilderExtensions.&lt;G&gt;$C2F898D73CF437F739E423663BE9F327`1.Action``1(System.Linq.Expressions.Expression{System.Func{`0,``0}})">
+            <summary>
+            Gets or creates the convention builder for the specified controller action method.
+            </summary>
+            <typeparam name="TResult">The type of action result.</typeparam>
+            <param name="actionExpression">The <see cref="T:System.Linq.Expressions.Expression`1">expression</see> representing the controller action method.</param>
+            <returns>A new or existing <see cref="T:Asp.Versioning.Conventions.IActionConventionBuilder`1"/>.</returns>
+        </member>
+        <member name="T:Asp.Versioning.Conventions.ControllerConventionBuilderExtensions.&lt;G&gt;$197F3999F384405565CD3FD35F4E9AC4.&lt;M&gt;$481A0B889A89AE7A36795749DE4B2CDA">
+            <param name="builder">The extended <see cref="T:Asp.Versioning.Conventions.IActionConventionBuilder"/>.</param>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ControllerConventionBuilderExtensions.&lt;G&gt;$197F3999F384405565CD3FD35F4E9AC4.Action(System.String,System.Type[])">
+            <summary>
+            Gets or creates the convention builder for the specified controller action method.
+            </summary>
+            <param name="methodName">The name of the action method.</param>
+            <param name="argumentTypes">The optional array of action method argument types.</param>
+            <returns>A new or existing <see cref="T:Asp.Versioning.Conventions.IActionConventionBuilder"/>.</returns>
+            <remarks>The specified <paramref name="methodName">method name</paramref> must refer to a public, non-static action method.
+            If there is only one corresponding match found, then the <paramref name="argumentTypes">argument types</paramref> are ignored;
+            otherwise, the <paramref name="argumentTypes">argument types</paramref> are used for method overload resolution. Action
+            methods that have the <see cref="T:Microsoft.AspNetCore.Mvc.NonActionAttribute"/> applied will also be ignored.</remarks>
+        </member>
+        <member name="T:Asp.Versioning.Conventions.ControllerNameConvention">
+            <summary>
+            Represents the base implementation for a <see cref="T:Asp.Versioning.Conventions.IControllerNameConvention">controller name convention</see>.
+            </summary>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ControllerNameConvention.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.Conventions.ControllerNameConvention"/> class.
+            </summary>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ControllerNameConvention.NormalizeName(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ControllerNameConvention.GroupName(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="P:Asp.Versioning.Conventions.ControllerNameConvention.Default">
+            <summary>
+            Gets the default controller name convention.
+            </summary>
+            <value>The default <see cref="T:Asp.Versioning.Conventions.IControllerNameConvention">controller name convention</see>.</value>
+            <remarks>This convention will strip the <b>Controller</b> suffix as well as any trailing numeric values.</remarks>
+        </member>
+        <member name="P:Asp.Versioning.Conventions.ControllerNameConvention.Original">
+            <summary>
+            Gets the original controller name convention.
+            </summary>
+            <value>The original <see cref="T:Asp.Versioning.Conventions.IControllerNameConvention">controller name convention</see>.</value>
+            <remarks>This convention will apply the original convention which only strips the <b>Controller</b> suffix.</remarks>
+        </member>
+        <member name="P:Asp.Versioning.Conventions.ControllerNameConvention.Grouped">
+            <summary>
+            Gets the grouped controller name convention.
+            </summary>
+            <value>The grouped <see cref="T:Asp.Versioning.Conventions.IControllerNameConvention">controller name convention</see>.</value>
+            <remarks>This convention will apply the original convention which strips the <b>Controller</b> suffix from the
+            controller name. Any trailing numbers will also be stripped from controller name, but only for the purposes
+            of grouping.</remarks>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ControllerNameConvention.TrimTrailingNumbers(System.String)">
+            <summary>
+            Trims any trailing numeric characters from the specified name.
+            </summary>
+            <param name="name">The name to trim any trailing numbers from.</param>
+            <returns>The <paramref name="name"/> with any trailing numbers from its suffix.</returns>
+        </member>
+        <member name="T:Asp.Versioning.Conventions.GroupedControllerNameConvention">
+            <summary>
+            Represents the grouped <see cref="T:Asp.Versioning.Conventions.IControllerNameConvention">controller name convention</see>.
+            </summary>
+            <remarks>This convention will apply the original convention which strips the <b>Controller</b> suffix from the
+            controller name. Any trailing numbers will also be stripped from controller name, but only for the purposes
+            of grouping.</remarks>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.GroupedControllerNameConvention.GroupName(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="T:Asp.Versioning.Conventions.IActionConventionBuilder">
+            <summary>
+            Defines the behavior of a convention builder for a controller action.
+            </summary>
+        </member>
+        <member name="P:Asp.Versioning.Conventions.IActionConventionBuilder.ControllerType">
+            <summary>
+            Gets the type of controller the convention builder is for.
+            </summary>
+            <value>The corresponding controller <see cref="T:System.Type">type</see>.</value>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.IActionConventionBuilder.Action(System.Reflection.MethodInfo)">
+            <summary>
+            Gets or creates a convention builder for the specified controller action method.
+            </summary>
+            <param name="actionMethod">The controller action <see cref="T:System.Reflection.MethodInfo">method</see>
+            to get or create a convention for.</param>
+            <returns>A new or existing <see cref="T:Asp.Versioning.Conventions.IActionConventionBuilder"/>.</returns>
+        </member>
+        <member name="T:Asp.Versioning.Conventions.IActionConventionBuilder`1">
+            <summary>
+            Defines the behavior of a convention builder for a controller action.
+            </summary>
+            <typeparam name="T">The type of item the convention builder is for.</typeparam>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.IActionConventionBuilder`1.Action(System.Reflection.MethodInfo)">
+            <summary>
+            Gets or creates a convention builder for the specified controller action method.
+            </summary>
+            <param name="actionMethod">The controller action <see cref="T:System.Reflection.MethodInfo">method</see>
+            to get or create a convention for.</param>
+            <returns>A new or existing <see cref="T:Asp.Versioning.Conventions.IActionConventionBuilder`1"/>.</returns>
+        </member>
+        <member name="T:Asp.Versioning.Conventions.IApiVersionConventionBuilder">
+            <summary>
+            Defines the behavior of an API version convention builder.
+            </summary>
+        </member>
+        <member name="P:Asp.Versioning.Conventions.IApiVersionConventionBuilder.Count">
+            <summary>
+            Gets the count of configured conventions.
+            </summary>
+            <value>The total count of configured conventions.</value>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.IApiVersionConventionBuilder.Controller(System.Type)">
+            <summary>
+            Gets or creates the convention builder for the specified controller.
+            </summary>
+            <param name="controllerType">The <see cref="T:System.Type">type</see> of controller to build conventions for.</param>
+            <returns>A new or existing <see cref="T:Asp.Versioning.Conventions.IControllerConventionBuilder"/>.</returns>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.IApiVersionConventionBuilder.Controller``1">
+            <summary>
+            Gets or creates the convention builder for the specified controller.
+            </summary>
+            <typeparam name="TController">The <see cref="T:System.Type">type</see> of controller to build conventions for.</typeparam>
+            <returns>A new or existing <see cref="T:Asp.Versioning.Conventions.IControllerConventionBuilder`1"/>.</returns>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.IApiVersionConventionBuilder.ApplyTo(Microsoft.AspNetCore.Mvc.ApplicationModels.ControllerModel)">
+            <summary>
+            Applies the defined API version conventions to the specified controller.
+            </summary>
+            <param name="controller">The <see cref="T:Microsoft.AspNetCore.Mvc.ApplicationModels.ControllerModel">controller</see> to apply configured conventions to.</param>
+            <returns>True if any conventions were applied to the <paramref name="controller">controller</paramref>;
+            otherwise, false.</returns>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.IApiVersionConventionBuilder.Add(Asp.Versioning.Conventions.IControllerConvention)">
+            <summary>
+            Adds a new convention applied to all controllers.
+            </summary>
+            <param name="convention">The <see cref="T:Asp.Versioning.Conventions.IControllerConvention">convention</see> to be applied.</param>
+        </member>
+        <member name="T:Asp.Versioning.Conventions.IControllerConvention">
+            <summary>
+            Defines the behavior of a controller convention.
+            </summary>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.IControllerConvention.Apply(Asp.Versioning.Conventions.IControllerConventionBuilder,Microsoft.AspNetCore.Mvc.ApplicationModels.ControllerModel)">
+            <summary>
+            Applies a controller convention given the specified builder and model.
+            </summary>
+            <param name="builder">The <see cref="T:Asp.Versioning.Conventions.IControllerConventionBuilder">builder</see> used to apply conventions.</param>
+            <param name="controller">The controller to build conventions from.</param>
+            <returns>True if any conventions were applied to the <paramref name="controller">descriptor</paramref>; otherwise, false.</returns>
+        </member>
+        <member name="T:Asp.Versioning.Conventions.IControllerConventionBuilder">
+            <summary>
+            Defines the behavior of a convention builder for a controller.
+            </summary>
+        </member>
+        <member name="P:Asp.Versioning.Conventions.IControllerConventionBuilder.ControllerType">
+            <summary>
+            Gets the type of controller the convention builder is for.
+            </summary>
+            <value>The corresponding controller <see cref="T:System.Type">type</see>.</value>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.IControllerConventionBuilder.Action(System.Reflection.MethodInfo)">
+            <summary>
+            Gets or creates a convention builder for the specified controller action method.
+            </summary>
+            <param name="actionMethod">The controller action <see cref="T:System.Reflection.MethodInfo">method</see>
+            to get or create a convention for.</param>
+            <returns>A new or existing <see cref="T:Asp.Versioning.Conventions.IActionConventionBuilder"/>.</returns>
+        </member>
+        <member name="T:Asp.Versioning.Conventions.IControllerConventionBuilder`1">
+            <summary>
+            Defines the behavior of a convention builder for a controller.
+            </summary>
+            <typeparam name="T">The type of item the convention builder is for.</typeparam>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.IControllerConventionBuilder`1.Action(System.Reflection.MethodInfo)">
+            <summary>
+            Gets or creates a convention builder for the specified controller action method.
+            </summary>
+            <param name="actionMethod">The controller action <see cref="T:System.Reflection.MethodInfo">method</see>
+            to get or create a convention for.</param>
+            <returns>A new or existing <see cref="T:Asp.Versioning.Conventions.IActionConventionBuilder`1"/>.</returns>
+        </member>
+        <member name="T:Asp.Versioning.Conventions.IControllerNameConvention">
+            <summary>
+             Defines the behavior of a convention for controller names.
+            </summary>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.IControllerNameConvention.NormalizeName(System.String)">
+            <summary>
+            Normalizes the specified controller name.
+            </summary>
+            <param name="controllerName">The name of the controller.</param>
+            <returns>The normalized name of the specified controller.</returns>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.IControllerNameConvention.GroupName(System.String)">
+            <summary>
+            Gets the name used for grouping the specified controller.
+            </summary>
+            <param name="controllerName">The name of the controller.</param>
+            <returns>The group name of the specified controller.</returns>
+        </member>
+        <member name="T:Asp.Versioning.Conventions.VersionByNamespaceConvention">
+            <summary>
+            Represents a convention which applies an API to a controller by its defined namespace.
+            </summary>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.VersionByNamespaceConvention.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.Conventions.VersionByNamespaceConvention"/> class.
+            </summary>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.VersionByNamespaceConvention.#ctor(Asp.Versioning.NamespaceParser)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.Conventions.VersionByNamespaceConvention"/> class.
+            </summary>
+            <param name="parser">The <see cref="T:Asp.Versioning.NamespaceParser">parser</see> used by the convention.</param>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.VersionByNamespaceConvention.Apply(Asp.Versioning.Conventions.IControllerConventionBuilder,Microsoft.AspNetCore.Mvc.ApplicationModels.ControllerModel)">
+            <inheritdoc />
+        </member>
+        <member name="T:Asp.Versioning.Json.MemberVisibilityMvcJsonOptionsSetup">
+            <summary>
+            Applies API version member visibility to the JSON options used by MVC.
+            </summary>
+            <remarks>MVC resolves its own JSON options, which are distinct from the options used by minimal APIs. Both are
+            configured so that a member is filtered the same way regardless of how the endpoint was defined.</remarks>
+        </member>
+        <member name="M:Asp.Versioning.Json.MemberVisibilityMvcJsonOptionsSetup.#ctor(Asp.Versioning.IAnnotation{System.Reflection.MemberInfo,Asp.Versioning.ApiVersionRange},Microsoft.AspNetCore.Http.IHttpContextAccessor)">
+            <summary>
+            Applies API version member visibility to the JSON options used by MVC.
+            </summary>
+            <remarks>MVC resolves its own JSON options, which are distinct from the options used by minimal APIs. Both are
+            configured so that a member is filtered the same way regardless of how the endpoint was defined.</remarks>
+        </member>
+        <member name="T:Asp.Versioning.MvcApiVersioningOptions">
+            <summary>
+            Represents the API versioning options specific to ASP.NET Core MVC.
+            </summary>
+        </member>
+        <member name="P:Asp.Versioning.MvcApiVersioningOptions.Conventions">
+            <summary>
+            Gets or sets the builder used to define API version conventions.
+            </summary>
+            <value>An <see cref="T:Asp.Versioning.Conventions.IApiVersionConventionBuilder">API version convention builder</see>.</value>
+        </member>
+        <member name="T:Asp.Versioning.MvcApiVersioningOptionsFactory`1">
+            <summary>
+            Represents a factory to create API versioning options specific to ASP.NET Core MVC.
+            </summary>
+            <typeparam name="T">The type of options to create.</typeparam>
+        </member>
+        <member name="M:Asp.Versioning.MvcApiVersioningOptionsFactory`1.#ctor(Asp.Versioning.Conventions.IApiVersionConventionBuilder,System.Collections.Generic.IEnumerable{Microsoft.Extensions.Options.IConfigureOptions{`0}},System.Collections.Generic.IEnumerable{Microsoft.Extensions.Options.IPostConfigureOptions{`0}})">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.MvcApiVersioningOptionsFactory`1"/> class.
+            </summary>
+            <param name="conventionBuilder">The configured <see cref="T:Asp.Versioning.Conventions.IApiVersionConventionBuilder">convention builder</see>.</param>
+            <param name="setups">The <see cref="T:System.Collections.Generic.IEnumerable`1">sequence</see> of
+            <see cref="T:Microsoft.Extensions.Options.IConfigureOptions`1">configuration actions</see> to run.</param>
+            <param name="postConfigures">The <see cref="T:System.Collections.Generic.IEnumerable`1">sequence</see> of
+            <see cref="T:Microsoft.Extensions.Options.IPostConfigureOptions`1">initialization actions</see> to run.</param>
+        </member>
+        <member name="M:Asp.Versioning.MvcApiVersioningOptionsFactory`1.CreateInstance(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="T:Asp.Versioning.ReportApiVersionsAttribute">
+            <content>
+            Provides additional implementation specific to ASP.NET Core.
+            </content>
+            <summary>
+            Represents an <see cref="T:Microsoft.AspNetCore.Mvc.Filters.ActionFilterAttribute">action filter</see> which reports API version information for
+            an entire service or specific service action.
+            </summary>
+        </member>
+        <member name="M:Asp.Versioning.ReportApiVersionsAttribute.OnActionExecuting(Microsoft.AspNetCore.Mvc.Filters.ActionExecutingContext)">
+            <summary>
+            Reports the discovered service API versions for the given context before an action has executed.
+            </summary>
+            <param name="context">The <see cref="T:Microsoft.AspNetCore.Mvc.Filters.ActionExecutingContext">context</see> for the executing action.</param>
+            <remarks>This method will write the "api-supported-versions" and "api-deprecated-versions" HTTP headers into the
+            response provided the executing action is not version-neutral. This operation should be performed before the
+            action is executed instead of after as HTTP headers cannot be specified after the response body has started
+            streaming to the client.</remarks>
+        </member>
+        <member name="M:Asp.Versioning.ReportApiVersionsAttribute.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.ReportApiVersionsAttribute"/> class.
+            </summary>
+        </member>
+        <member name="M:Asp.Versioning.ReportApiVersionsAttribute.#ctor(Asp.Versioning.IReportApiVersions)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.ReportApiVersionsAttribute"/> class.
+            </summary>
+            <param name="reportApiVersions">The <see cref="T:Asp.Versioning.IReportApiVersions">object</see> used to report API versions.</param>
+        </member>
+        <member name="T:Asp.Versioning.Routing.ApiVersionUrlHelper">
+            <summary>
+            Represents an API version aware <see cref="T:Microsoft.AspNetCore.Mvc.IUrlHelper">URL helper</see>.
+            </summary>
+        </member>
+        <member name="M:Asp.Versioning.Routing.ApiVersionUrlHelper.#ctor(Microsoft.AspNetCore.Mvc.ActionContext,Microsoft.AspNetCore.Mvc.IUrlHelper)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.Routing.ApiVersionUrlHelper"/> class.
+            </summary>
+            <param name="actionContext">The current <see cref="P:Asp.Versioning.Routing.ApiVersionUrlHelper.ActionContext">action context</see>.</param>
+            <param name="url">The inner <see cref="T:Microsoft.AspNetCore.Mvc.IUrlHelper">URL helper</see>.</param>
+        </member>
+        <member name="P:Asp.Versioning.Routing.ApiVersionUrlHelper.Url">
+            <summary>
+            Gets the inner URL helper.
+            </summary>
+            <value>The inner <see cref="T:Microsoft.AspNetCore.Mvc.IUrlHelper">URL helper</see>.</value>
+        </member>
+        <member name="P:Asp.Versioning.Routing.ApiVersionUrlHelper.RouteParameter">
+            <summary>
+            Gets the name of the API version route parameter.
+            </summary>
+            <value>The API version route parameter name.</value>
+        </member>
+        <member name="P:Asp.Versioning.Routing.ApiVersionUrlHelper.ApiVersion">
+            <summary>
+            Gets the API version value.
+            </summary>
+            <value>The raw API version value.</value>
+        </member>
+        <member name="P:Asp.Versioning.Routing.ApiVersionUrlHelper.ActionContext">
+            <inheritdoc />
+        </member>
+        <member name="M:Asp.Versioning.Routing.ApiVersionUrlHelper.Action(Microsoft.AspNetCore.Mvc.Routing.UrlActionContext)">
+            <inheritdoc />
+        </member>
+        <member name="M:Asp.Versioning.Routing.ApiVersionUrlHelper.Content(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Asp.Versioning.Routing.ApiVersionUrlHelper.Link(System.String,System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:Asp.Versioning.Routing.ApiVersionUrlHelper.IsLocalUrl(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Asp.Versioning.Routing.ApiVersionUrlHelper.RouteUrl(Microsoft.AspNetCore.Mvc.Routing.UrlRouteContext)">
+            <inheritdoc />
+        </member>
+        <member name="T:Asp.Versioning.Routing.ApiVersionUrlHelperFactory">
+            <summary>
+            Represents an API version aware <see cref="T:Microsoft.AspNetCore.Mvc.Routing.IUrlHelperFactory">URL helper factory</see>.
+            </summary>
+        </member>
+        <member name="M:Asp.Versioning.Routing.ApiVersionUrlHelperFactory.#ctor(Microsoft.AspNetCore.Mvc.Routing.IUrlHelperFactory)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.Routing.ApiVersionUrlHelperFactory"/> class.
+            </summary>
+            <param name="factory">The inner <see cref="T:Microsoft.AspNetCore.Mvc.Routing.IUrlHelperFactory">URL helper factory</see>.</param>
+        </member>
+        <member name="P:Asp.Versioning.Routing.ApiVersionUrlHelperFactory.Factory">
+            <summary>
+            Gets the inner factory used to create URL helpers.
+            </summary>
+            <value>The inner <see cref="T:Microsoft.AspNetCore.Mvc.Routing.IUrlHelperFactory">URL helper factory</see>.</value>
+        </member>
+        <member name="M:Asp.Versioning.Routing.ApiVersionUrlHelperFactory.GetUrlHelper(Microsoft.AspNetCore.Mvc.ActionContext)">
+            <inheritdoc />
+        </member>
+        <member name="T:Asp.Versioning.MvcSR">
+            <summary>
+              A strongly-typed resource class, for looking up localized strings, etc.
+            </summary>
+        </member>
+        <member name="P:Asp.Versioning.MvcSR.ResourceManager">
+            <summary>
+              Returns the cached ResourceManager instance used by this class.
+            </summary>
+        </member>
+        <member name="P:Asp.Versioning.MvcSR.Culture">
+            <summary>
+              Overrides the current thread's CurrentUICulture property for all
+              resource lookups using this strongly typed resource class.
+            </summary>
+        </member>
+        <member name="P:Asp.Versioning.MvcSR.ActionMethodNotFound">
+            <summary>
+              Looks up a localized string similar to An action method with the name &apos;{0}&apos; could not be found. The method must be public, non-static, and not have the NonActionAttribute applied..
+            </summary>
+        </member>
+        <member name="P:Asp.Versioning.MvcSR.AmbiguousActionMethod">
+            <summary>
+              Looks up a localized string similar to Multiple action methods with the name &apos;{0}&apos; were found, but could not be resolved using the provided arguments..
+            </summary>
+        </member>
+        <member name="P:Asp.Versioning.MvcSR.ConventionStyleMismatch">
+            <summary>
+              Looks up a localized string similar to API version conventions cannot be applied to the controller type {0} using both typed and untyped convention builders..
+            </summary>
+        </member>
+        <member name="P:Asp.Versioning.MvcSR.InvalidActionMethodExpression">
+            <summary>
+              Looks up a localized string similar to The expression &apos;{0}&apos; must refer to a controller action method..
+            </summary>
+        </member>
+        <member name="P:Asp.Versioning.MvcSR.RequiredInterfaceNotImplemented">
+            <summary>
+              Looks up a localized string similar to The type {0} does not implement the {1} interface..
+            </summary>
+        </member>
+        <member name="P:Asp.Versioning.MvcSR.MultipleApiVersionsInferredFromNamespaces">
+            <summary>
+              Looks up a localized string similar to Multiple API versions were inferred from the namespace '{0}'. The convention must match exactly zero or one API versions..
+            </summary>
+        </member>
+    </members>
+</doc>

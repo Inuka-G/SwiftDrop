@@ -4,7 +4,7 @@ using SwiftDrop.SharedKernel.Messaging;
 
 namespace SwiftDrop.Webhooks.Business.Handlers;
 
-internal sealed class ParcelStatusWebhookHandler(ILogger<ParcelStatusWebhookHandler> log)
+public sealed class ParcelStatusWebhookHandler(ILogger<ParcelStatusWebhookHandler> log)
     : IIntegrationEventHandler<ParcelStatusChanged>
 {
     public Task HandleAsync(ParcelStatusChanged e, CancellationToken ct)

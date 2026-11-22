@@ -20,6 +20,18 @@ public class User : BaseEntity
         UpdatedAtUtc = CreatedAtUtc;
     }
 
+    public User(Guid id, string fullName, string email, string? username, string? phoneNumber, Role role)
+    {
+        Id = id;
+        FullName = fullName;
+        Email = email;
+        Username = username;
+        PhoneNumber = phoneNumber;
+        Role = role;
+        RoleId = role.Id;
+        UpdatedAtUtc = CreatedAtUtc;
+    }
+
     /// Creates a customer who signs in with Google. They have no password here,
     /// and are found again later by Google's id for them (the "sub" value).
     public static User CreateGoogleUser(string fullName, string email, string googleUserId, Role role)

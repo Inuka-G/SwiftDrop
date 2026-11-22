@@ -19,6 +19,10 @@ public static class DispatchDataExtensions
     public static async Task InitializeDispatchDataAsync(this IServiceProvider sp)
     {
         using var scope = sp.CreateScope();
-        await scope.ServiceProvider.GetRequiredService<DispatchDbContext>().Database.EnsureCreatedAsync();
+        var db = scope.ServiceProvider.GetRequiredService<DispatchDbContext>();
+        if (db.Database.IsNpgsql())
+            await db.Database.MigrateAsync();
+        else
+            await db.Database.EnsureCreatedAsync();
     }
 }

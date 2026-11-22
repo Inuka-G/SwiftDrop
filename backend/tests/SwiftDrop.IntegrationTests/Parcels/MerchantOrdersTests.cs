@@ -180,7 +180,18 @@ public sealed class MerchantOrdersTests(SwiftDropApiFactory factory)
     [Fact]
     public async Task Browser_JWT_requires_an_approved_profile_and_only_returns_its_orders()
     {
-        var browserToken = await client.LoginAsync("merchant1");
+        var email = $"merchant_user_{Guid.NewGuid():N}@example.test";
+        var signupResponse = await client.PostAsJsonAsync("/api/v1/auth/signup", new
+        {
+            fullName = "Dashboard Merchant User",
+            email,
+            password = "SecurePass123!",
+            phoneNumber = "+15555550199"
+        });
+        signupResponse.EnsureSuccessStatusCode();
+        var signupBody = await signupResponse.Content.ReadFromJsonAsync<JsonElement>();
+        var browserToken = signupBody.GetProperty("accessToken").GetString()!;
+
         var unlinkedToken = await client.LoginAsync("customer1");
         using var unlinked = await client.GetWithTokenAsync(Orders, unlinkedToken);
         Assert.Equal(HttpStatusCode.Forbidden, unlinked.StatusCode);

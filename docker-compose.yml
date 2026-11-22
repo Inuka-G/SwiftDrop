@@ -9,17 +9,17 @@ name: swiftdrop
 
 services:
   postgres:
-    image: postgres:16-alpine
+    image: postgres:15
     restart: unless-stopped
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-swiftdrop}
-      POSTGRES_USER: ${POSTGRES_USER:-swiftdrop}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change_me_postgres}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - ./database-data:/var/lib/postgresql/data
       - ./infrastructure/postgres/init.sql:/docker-entrypoint-initdb.d/01-schemas.sql:ro
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT:-5433}:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 5s
@@ -27,11 +27,11 @@ services:
       retries: 10
 
   rabbitmq:
-    image: rabbitmq:3.13-management-alpine
+    image: rabbitmq:management
     restart: unless-stopped
     environment:
-      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-swiftdrop}
-      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-change_me_rabbit}
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-guest}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-guest}
     volumes:
       - rabbitmqdata:/var/lib/rabbitmq
     ports:
@@ -58,7 +58,7 @@ services:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
       # Overrides appsettings.Development.json (which says Sqlite)
       Database__Provider: Postgres
-      ConnectionStrings__Postgres: "Host=postgres;Port=5432;Database=${POSTGRES_DB:-swiftdrop};Username=${POSTGRES_USER:-swiftdrop};Password=${POSTGRES_PASSWORD:-change_me_postgres}"
+      ConnectionStrings__Postgres: "Host=postgres;Port=5432;Database=${POSTGRES_DB:-swiftdrop};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-postgres}"
       # RabbitMQ - the Messaging owner must read these names (or tell us theirs)
       RabbitMQ__Host: rabbitmq
       RabbitMQ__Port: "5672"

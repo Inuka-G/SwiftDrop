@@ -68,6 +68,9 @@
     <Project Path="src/SharedKernel/SwiftDrop.SharedKernel.Messaging/SwiftDrop.SharedKernel.Messaging.csproj" />
     <Project Path="src/SharedKernel/SwiftDrop.SharedKernel/SwiftDrop.SharedKernel.csproj" />
   </Folder>
+  <Folder Name="/src/Tools/">
+    <Project Path="src/Tools/SwiftDrop.DatabaseMigrator/SwiftDrop.DatabaseMigrator.csproj" />
+  </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/SwiftDrop.AIAssistant.UnitTests/SwiftDrop.AIAssistant.UnitTests.csproj" />
     <Project Path="tests/SwiftDrop.ArchitectureTests/SwiftDrop.ArchitectureTests.csproj" />

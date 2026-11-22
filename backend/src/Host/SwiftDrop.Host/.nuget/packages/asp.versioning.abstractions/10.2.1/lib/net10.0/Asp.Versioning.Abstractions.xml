@@ -1,0 +1,2757 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Asp.Versioning.Abstractions</name>
+    </assembly>
+    <members>
+        <member name="T:Asp.Versioning.AdvertiseApiVersionsAttribute">
+            <summary>
+            Represents the metadata that describes the advertised <see cref="T:Asp.Versioning.ApiVersion">API versions</see>.
+            </summary>
+            <remarks>Advertised API versions indicate the existence of other versioned API, but the implementation of those
+            APIs are implemented elsewhere.</remarks>
+        </member>
+        <member name="M:Asp.Versioning.AdvertiseApiVersionsAttribute.#ctor(Asp.Versioning.ApiVersion)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.AdvertiseApiVersionsAttribute"/> class.
+            </summary>
+            <param name="version">The <see cref="T:Asp.Versioning.ApiVersion">API version</see>.</param>
+        </member>
+        <member name="M:Asp.Versioning.AdvertiseApiVersionsAttribute.#ctor(Asp.Versioning.ApiVersion,Asp.Versioning.ApiVersion[])">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.AdvertiseApiVersionsAttribute"/> class.
+            </summary>
+            <param name="version">The <see cref="T:Asp.Versioning.ApiVersion">API version</see>.</param>
+            <param name="otherVersions">An array of other <see cref="T:Asp.Versioning.ApiVersion">API versions</see>.</param>
+        </member>
+        <member name="M:Asp.Versioning.AdvertiseApiVersionsAttribute.#ctor(Asp.Versioning.IApiVersionParser,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.AdvertiseApiVersionsAttribute"/> class.
+            </summary>
+            <param name="parser">The parser used to parse the specified versions.</param>
+            <param name="version">The API version string.</param>
+        </member>
+        <member name="M:Asp.Versioning.AdvertiseApiVersionsAttribute.#ctor(Asp.Versioning.IApiVersionParser,System.String,System.String[])">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.AdvertiseApiVersionsAttribute"/> class.
+            </summary>
+            <param name="parser">The parser used to parse the specified versions.</param>
+            <param name="version">The API version string.</param>
+            <param name="otherVersions">An array of other API version strings.</param>
+        </member>
+        <member name="M:Asp.Versioning.AdvertiseApiVersionsAttribute.#ctor(System.Double,System.Double[])">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.AdvertiseApiVersionsAttribute"/> class.
+            </summary>
+            <param name="version">The numeric API versions.</param>
+            <param name="otherVersions">An array of other numeric API versions.</param>
+        </member>
+        <member name="M:Asp.Versioning.AdvertiseApiVersionsAttribute.#ctor(System.Double,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.AdvertiseApiVersionsAttribute"/> class.
+            </summary>
+            <param name="version">A numeric API version.</param>
+            <param name="status">The status associated with the API version, if any.</param>
+        </member>
+        <member name="M:Asp.Versioning.AdvertiseApiVersionsAttribute.#ctor(System.Int32,System.Int32,System.Int32,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.AdvertiseApiVersionsAttribute"/> class.
+            </summary>
+            <param name="year">The version year.</param>
+            <param name="month">The version month.</param>
+            <param name="day">The version day.</param>
+            <param name="status">The status associated with the API version, if any.</param>
+        </member>
+        <member name="M:Asp.Versioning.AdvertiseApiVersionsAttribute.#ctor(System.String,System.String[])">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.AdvertiseApiVersionsAttribute"/> class.
+            </summary>
+            <param name="version">The API version string.</param>
+            <param name="otherVersions">An array of other API version strings.</param>
+        </member>
+        <member name="P:Asp.Versioning.AdvertiseApiVersionsAttribute.Deprecated">
+            <summary>
+            Gets or sets a value indicating whether the specified set of API versions are deprecated.
+            </summary>
+            <value>True if the specified set of API versions are deprecated; otherwise, false.
+            The default value is <c>false</c>.</value>
+        </member>
+        <member name="M:Asp.Versioning.AdvertiseApiVersionsAttribute.GetHashCode">
+            <inheritdoc/>
+        </member>
+        <member name="T:Asp.Versioning.AmbiguousApiVersionException">
+            <summary>
+            Represents the exception thrown when multiple, different API versions specified in a single request.
+            </summary>
+            <content>
+            Provides additional implementation specific to .NET Standard 2.0.
+            </content>
+        </member>
+        <member name="M:Asp.Versioning.AmbiguousApiVersionException.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.AmbiguousApiVersionException"/> class.
+            </summary>
+        </member>
+        <member name="M:Asp.Versioning.AmbiguousApiVersionException.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.AmbiguousApiVersionException"/> class.
+            </summary>
+            <param name="message">The associated error message.</param>
+        </member>
+        <member name="M:Asp.Versioning.AmbiguousApiVersionException.#ctor(System.String,System.Exception)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.AmbiguousApiVersionException"/> class.
+            </summary>
+            <param name="message">The associated error message.</param>
+            <param name="innerException">The inner <see cref="T:System.Exception">exception</see> that caused the current exception, if any.</param>
+        </member>
+        <member name="M:Asp.Versioning.AmbiguousApiVersionException.#ctor(System.String,System.Collections.Generic.IEnumerable{System.String})">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.AmbiguousApiVersionException"/> class.
+            </summary>
+            <param name="message">The associated error message.</param>
+            <param name="apiVersions">The <see cref="T:System.Collections.Generic.IEnumerable`1">sequence</see> of ambiguous API versions.</param>
+        </member>
+        <member name="M:Asp.Versioning.AmbiguousApiVersionException.#ctor(System.String,System.Collections.Generic.IEnumerable{System.String},System.Exception)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.AmbiguousApiVersionException"/> class.
+            </summary>
+            <param name="message">The associated error message.</param>
+            <param name="apiVersions">The <see cref="T:System.Collections.Generic.IEnumerable`1">sequence</see> of ambiguous API versions.</param>
+            <param name="innerException">The inner <see cref="T:System.Exception">exception</see> that caused the current exception, if any.</param>
+        </member>
+        <member name="P:Asp.Versioning.AmbiguousApiVersionException.ApiVersions">
+            <summary>
+            Gets a read-only list of the ambiguous API versions.
+            </summary>
+            <value>A <see cref="T:System.Collections.Generic.IReadOnlyList`1">read-only list</see> of unparsed, ambiguous API versions.</value>
+        </member>
+        <member name="M:Asp.Versioning.AmbiguousApiVersionException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.AmbiguousApiVersionException"/> class.
+            </summary>
+            <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo">serialization info</see> the exception is being deserialized with.</param>
+            <param name="context">The <see cref="T:System.Runtime.Serialization.StreamingContext">streaming context</see> the exception is being deserialized from.</param>
+        </member>
+        <member name="M:Asp.Versioning.AmbiguousApiVersionException.GetObjectData(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>
+            Gets information about the exception being serialized.
+            </summary>
+            <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo">serialization info</see> the exception is being serialized with.</param>
+            <param name="context">The <see cref="T:System.Runtime.Serialization.StreamingContext">streaming context</see> the exception is being serialized in.</param>
+        </member>
+        <member name="T:Asp.Versioning.ApiVersion">
+            <summary>
+            Represents an application programming interface (API) version.
+            </summary>
+            <content>
+            Contains additional implementation specific to .NET 6.0.
+            </content>
+            <content>
+            Contains additional implementation specific to .NET Standard 2.0.
+            </content>
+        </member>
+        <member name="M:Asp.Versioning.ApiVersion.#ctor(System.DateOnly,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.ApiVersion"/> class.
+            </summary>
+            <param name="groupVersion">The group version.</param>
+            <param name="status">The optional version status.</param>
+        </member>
+        <member name="M:Asp.Versioning.ApiVersion.#ctor(System.Int32,System.Nullable{System.Int32},System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.ApiVersion"/> class.
+            </summary>
+            <param name="majorVersion">The major version.</param>
+            <param name="minorVersion">The optional minor version.</param>
+            <param name="status">The optional version status.</param>
+        </member>
+        <member name="M:Asp.Versioning.ApiVersion.#ctor(System.DateOnly,System.Int32,System.Int32,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.ApiVersion"/> class.
+            </summary>
+            <param name="groupVersion">The group version.</param>
+            <param name="majorVersion">The major version.</param>
+            <param name="minorVersion">The minor version.</param>
+            <param name="status">The optional version status.</param>
+        </member>
+        <member name="M:Asp.Versioning.ApiVersion.#ctor(System.Double,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.ApiVersion"/> class.
+            </summary>
+            <param name="version">The version number.</param>
+            <param name="status">The optional version status.</param>
+        </member>
+        <member name="M:Asp.Versioning.ApiVersion.#ctor(System.Double,System.String,System.Func{System.String,System.Boolean})">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.ApiVersion"/> class.
+            </summary>
+            <param name="version">The version number.</param>
+            <param name="status">The optional version status.</param>
+            <param name="isValidStatus">The function used to valid status.</param>
+        </member>
+        <member name="M:Asp.Versioning.ApiVersion.#ctor(System.Nullable{System.DateOnly},System.Nullable{System.Int32},System.Nullable{System.Int32},System.String,System.Func{System.String,System.Boolean})">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.ApiVersion"/> class.
+            </summary>
+            <param name="groupVersion">The optional group version.</param>
+            <param name="majorVersion">The optional major version.</param>
+            <param name="minorVersion">The optional minor version.</param>
+            <param name="status">The optional version status.</param>
+            <param name="isValidStatus">The optional function used to valid status.
+            The default value is <see cref="M:Asp.Versioning.ApiVersion.IsValidStatus(System.String)"/>.</param>
+        </member>
+        <member name="M:Asp.Versioning.ApiVersion.#ctor(Asp.Versioning.ApiVersion)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.ApiVersion"/> class.
+            </summary>
+            <param name="other">The instance to derive from.</param>
+        </member>
+        <member name="P:Asp.Versioning.ApiVersion.Default">
+            <summary>
+            Gets the default API version.
+            </summary>
+            <value>The default <see cref="T:Asp.Versioning.ApiVersion">API version</see>, which is always "1.0".</value>
+        </member>
+        <member name="P:Asp.Versioning.ApiVersion.Neutral">
+            <summary>
+            Gets the neutral API version.
+            </summary>
+            <value>The neutral <see cref="T:Asp.Versioning.ApiVersion">API version</see>.</value>
+        </member>
+        <member name="P:Asp.Versioning.ApiVersion.GroupVersion">
+            <summary>
+            Gets the group version.
+            </summary>
+            <value>The group version or null.</value>
+            <remarks>If the group version is specified, only the date component is considered.</remarks>
+        </member>
+        <member name="P:Asp.Versioning.ApiVersion.MajorVersion">
+            <summary>
+            Gets the major version number.
+            </summary>
+            <value>The major version number or <c>null</c>.</value>
+        </member>
+        <member name="P:Asp.Versioning.ApiVersion.MinorVersion">
+            <summary>
+            Gets the minor version number.
+            </summary>
+            <value>The minor version number or <c>null</c>.</value>
+        </member>
+        <member name="P:Asp.Versioning.ApiVersion.Status">
+            <summary>
+            Gets the optional version status.
+            </summary>
+            <value>The version status.</value>
+            <remarks>The version status typically allows services to indicate pre-release or test
+            versions that are not release quality or guaranteed to be supported. Example values
+            might include "Alpha", "Beta", "RC", etc.</remarks>
+        </member>
+        <member name="M:Asp.Versioning.ApiVersion.ToString(System.String)">
+            <summary>
+            Returns the text representation of the version using the specified format and format provider.
+            <seealso cref="T:Asp.Versioning.ApiVersionFormatProvider"/></summary>
+            <param name="format">The format to return the text representation in. The value can be <c>null</c> or empty.</param>
+            <returns>The <see cref="T:System.String">string</see> representation of the version.</returns>
+            <exception cref="T:System.FormatException">The specified <paramref name="format"/> is not one of the supported format values.</exception>
+        </member>
+        <member name="M:Asp.Versioning.ApiVersion.ToString">
+            <inheritdoc />
+        </member>
+        <member name="M:Asp.Versioning.ApiVersion.Equals(System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:Asp.Versioning.ApiVersion.GetHashCode">
+            <inheritdoc />
+        </member>
+        <member name="M:Asp.Versioning.ApiVersion.op_Equality(Asp.Versioning.ApiVersion,Asp.Versioning.ApiVersion)">
+            <summary>
+            Overloads the equality operator.
+            </summary>
+            <param name="version1">The <see cref="T:Asp.Versioning.ApiVersion"/> to compare.</param>
+            <param name="version2">The <see cref="T:Asp.Versioning.ApiVersion"/> to compare against.</param>
+            <returns>True if the objects are equal; otherwise, false.</returns>
+        </member>
+        <member name="M:Asp.Versioning.ApiVersion.op_Inequality(Asp.Versioning.ApiVersion,Asp.Versioning.ApiVersion)">
+            <summary>
+            Overloads the inequality operator.
+            </summary>
+            <param name="version1">The <see cref="T:Asp.Versioning.ApiVersion"/> to compare.</param>
+            <param name="version2">The <see cref="T:Asp.Versioning.ApiVersion"/> to compare against.</param>
+            <returns>True if the objects are not equal; otherwise, false.</returns>
+        </member>
+        <member name="M:Asp.Versioning.ApiVersion.op_LessThan(Asp.Versioning.ApiVersion,Asp.Versioning.ApiVersion)">
+            <summary>
+            Overloads the less than operator.
+            </summary>
+            <param name="version1">The <see cref="T:Asp.Versioning.ApiVersion"/> to compare.</param>
+            <param name="version2">The <see cref="T:Asp.Versioning.ApiVersion"/> to compare against.</param>
+            <returns>True the first object is less than the second object; otherwise, false.</returns>
+        </member>
+        <member name="M:Asp.Versioning.ApiVersion.op_LessThanOrEqual(Asp.Versioning.ApiVersion,Asp.Versioning.ApiVersion)">
+            <summary>
+            Overloads the less than or equal to operator.
+            </summary>
+            <param name="version1">The <see cref="T:Asp.Versioning.ApiVersion"/> to compare.</param>
+            <param name="version2">The <see cref="T:Asp.Versioning.ApiVersion"/> to compare against.</param>
+            <returns>True the first object is less than or equal to the second object; otherwise, false.</returns>
+        </member>
+        <member name="M:Asp.Versioning.ApiVersion.op_GreaterThan(Asp.Versioning.ApiVersion,Asp.Versioning.ApiVersion)">
+            <summary>
+            Overloads the greater than operator.
+            </summary>
+            <param name="version1">The <see cref="T:Asp.Versioning.ApiVersion"/> to compare.</param>
+            <param name="version2">The <see cref="T:Asp.Versioning.ApiVersion"/> to compare against.</param>
+            <returns>True the first object is greater than the second object; otherwise, false.</returns>
+        </member>
+        <member name="M:Asp.Versioning.ApiVersion.op_GreaterThanOrEqual(Asp.Versioning.ApiVersion,Asp.Versioning.ApiVersion)">
+            <summary>
+            Overloads the greater than or equal to operator.
+            </summary>
+            <param name="version1">The <see cref="T:Asp.Versioning.ApiVersion"/> to compare.</param>
+            <param name="version2">The <see cref="T:Asp.Versioning.ApiVersion"/> to compare against.</param>
+            <returns>True the first object is greater than or equal to the second object; otherwise, false.</returns>
+        </member>
+        <member name="M:Asp.Versioning.ApiVersion.Equals(Asp.Versioning.ApiVersion)">
+            <inheritdoc />
+        </member>
+        <member name="M:Asp.Versioning.ApiVersion.CompareTo(Asp.Versioning.ApiVersion)">
+            <inheritdoc />
+        </member>
+        <member name="M:Asp.Versioning.ApiVersion.ToString(System.String,System.IFormatProvider)">
+            <inheritdoc />
+        </member>
+        <member name="M:Asp.Versioning.ApiVersion.TryFormat(System.Span{System.Char},System.Int32@,System.ReadOnlySpan{System.Char},System.IFormatProvider)">
+            <inheritdoc />
+        </member>
+        <member name="M:Asp.Versioning.ApiVersion.IsValidStatus(System.String)">
+            <summary>
+            Gets a value indicating whether the specified status is valid.
+            </summary>
+            <param name="status">The status to evaluate.</param>
+            <returns>True if the status is valid; otherwise, false.</returns>
+            <remarks>The status must be alphabetic or alphanumeric, start with a letter, and contain no spaces.</remarks>
+        </member>
+        <member name="M:Asp.Versioning.ApiVersion.IsValidStatus(System.ReadOnlySpan{System.Char})">
+            <summary>
+            Gets a value indicating whether the specified status is valid.
+            </summary>
+            <param name="status">The status to evaluate.</param>
+            <returns>True if the status is valid; otherwise, false.</returns>
+            <remarks>The status must be alphabetic or alphanumeric, start with a letter, and contain no spaces.</remarks>
+        </member>
+        <member name="T:Asp.Versioning.ApiVersionAttribute">
+            <summary>
+            Represents the metadata that describes the <see cref="T:Asp.Versioning.ApiVersion">versions</see> associated with an API.
+            </summary>
+        </member>
+        <member name="M:Asp.Versioning.ApiVersionAttribute.#ctor(Asp.Versioning.ApiVersion)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.ApiVersionAttribute"/> class.
+            </summary>
+            <param name="version">The <see cref="T:Asp.Versioning.ApiVersion">API version</see>.</param>
+        </member>
+        <member name="M:Asp.Versioning.ApiVersionAttribute.#ctor(Asp.Versioning.IApiVersionParser,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.ApiVersionAttribute"/> class.
+            </summary>
+            <param name="parser">The parser used to parse the specified versions.</param>
+            <param name="version">The API version string.</param>
+        </member>
+        <member name="M:Asp.Versioning.ApiVersionAttribute.#ctor(System.Double,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.ApiVersionAttribute"/> class.
+            </summary>
+            <param name="version">A numeric API version.</param>
+            <param name="status">The status associated with the API version, if any.</param>
+        </member>
+        <member name="M:Asp.Versioning.ApiVersionAttribute.#ctor(System.Int32,System.Int32,System.Int32,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.ApiVersionAttribute"/> class.
+            </summary>
+            <param name="year">The version year.</param>
+            <param name="month">The version month.</param>
+            <param name="day">The version day.</param>
+            <param name="status">The status associated with the API version, if any.</param>
+        </member>
+        <member name="M:Asp.Versioning.ApiVersionAttribute.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.ApiVersionAttribute"/> class.
+            </summary>
+            <param name="version">The API version string.</param>
+        </member>
+        <member name="P:Asp.Versioning.ApiVersionAttribute.Deprecated">
+            <summary>
+            Gets or sets a value indicating whether the specified set of API versions are deprecated.
+            </summary>
+            <value>True if the specified set of API versions are deprecated; otherwise, false.
+            The default value is <c>false</c>.</value>
+        </member>
+        <member name="M:Asp.Versioning.ApiVersionAttribute.GetHashCode">
+            <inheritdoc />
+        </member>
+        <member name="T:Asp.Versioning.ApiVersionFormatProvider">
+            <summary>
+            Represents a format provider for <see cref="T:Asp.Versioning.ApiVersion">API versions</see>.
+            </summary>
+            <remarks>
+            <para>This format provider supports the following custom format strings:</para>
+            <list type="table">
+                <listheader>
+                    <term>Format specifier</term>
+                    <description>Description</description>
+                    <description>Examples</description>
+                </listheader>
+                <item>
+                    <term>"F"</term>
+                    <description>The full, formatted API version where optional, absent components are omitted.</description>
+                    <description>
+                        <para>2017-01-01 -> 2017-01-01</para>
+                        <para>2017-01-01.1 -> 2017-01-01.1</para>
+                        <para>2017-01-01.1.5-RC -> 2017-01-01.1.5-RC</para>
+                        <para>2017-01-01-Beta -> 2017-01-01-Beta</para>
+                        <para>1 -> 1</para>
+                        <para>1.5 -> 1.5</para>
+                        <para>1-Beta -> 1-Beta</para>
+                        <para>0.9-Alpha -> 0.9-Alpha</para>
+                    </description>
+                </item>
+                <item>
+                    <term>"FF"</term>
+                    <description>The full, formatted API version where optional components have default values.</description>
+                    <description>
+                        <para>2017-01-01 -> 2017-01-01</para>
+                        <para>2017-01-01.1 -> 2017-01-01.1.0</para>
+                        <para>2017-01-01.1.5-RC -> 2017-01-01.1.5-RC</para>
+                        <para>2017-01-01-Beta -> 2017-01-01-Beta</para>
+                        <para>1 -> 1.0</para>
+                        <para>1.5 -> 1.5</para>
+                        <para>1-Beta -> 1.0-Beta</para>
+                        <para>0.9-Alpha -> 0.9-Alpha</para>
+                    </description>
+                </item>
+                <item>
+                    <term>"G"</term>
+                    <description>The group version of the API group version.</description>
+                    <description>
+                        <para>2017-01-01 -> 2017-01-01</para>
+                        <para>2017-01-01-RC -> 2017-01-01</para>
+                        <para>2017-01-01.1.0 -> 2017-01-01</para>
+                    </description>
+                </item>
+                <item>
+                    <term>"GG"</term>
+                    <description>The group version and status of the API group version.</description>
+                    <description>
+                        <para>2017-01-01-RC -> 2017-01-01-RC</para>
+                        <para>2017-01-01.1.0-RC -> 2017-01-01-RC</para>
+                    </description>
+                </item>
+                <item>
+                    <term>"yyyy"</term>
+                    <description>The year of the API group version.</description>
+                    <description>
+                        <para>2017-01-01 -> 2017</para>
+                        <para>2017-01-01-RC -> 2017</para>
+                    </description>
+                </item>
+                <item>
+                    <term>"MM"</term>
+                    <description>The month of the API group version.</description>
+                    <description>
+                        <para>2017-01-01 -> 01</para>
+                        <para>2017-01-01-RC -> 01</para>
+                    </description>
+                </item>
+                <item>
+                    <term>"dd"</term>
+                    <description>The day of the API group version.</description>
+                    <description>
+                        <para>2017-01-01 -> 01</para>
+                        <para>2017-01-01-RC -> 01</para>
+                    </description>
+                </item>
+                <item>
+                    <term>"v"</term>
+                    <description>The minor version of the API version.</description>
+                    <description>
+                        <para>1.5 -> 5</para>
+                        <para>1.5-Alpha -> 5</para>
+                    </description>
+                </item>
+                <item>
+                    <term>"V"</term>
+                    <description>The major version of the API version.</description>
+                    <description>
+                        <para>1.5 -> 1</para>
+                        <para>1.5-Alpha -> 1</para>
+                    </description>
+                </item>
+                <item>
+                    <term>"VV"</term>
+                    <description>The major and minor version of the API version.</description>
+                    <description>
+                        <para>1.5 -> 1.5</para>
+                        <para>1 -> 1.0</para>
+                        <para>1.5-Alpha -> 1.5</para>
+                        <para>1-Alpha -> 1.0</para>
+                    </description>
+                </item>
+                <item>
+                    <term>"VVV"</term>
+                    <description>The major version, optional minor version, and status of the API version.</description>
+                    <description>
+                        <para>1 -> 1</para>
+                        <para>1.5 -> 1.5</para>
+                        <para>1-Alpha -> 1-Alpha</para>
+                        <para>1.5-Alpha -> 1.5-Alpha</para>
+                    </description>
+                </item>
+                <item>
+                    <term>"VVVV"</term>
+                    <description>The major version, minor version, and status of the API version.</description>
+                    <description>
+                        <para>1 -> 1.0</para>
+                        <para>1.5 -> 1.5</para>
+                        <para>1-Alpha -> 1.0-Alpha</para>
+                        <para>1.5-Alpha -> 1.5-Alpha</para>
+                    </description>
+                </item>
+                <item>
+                    <term>"p"</term>
+                    <description>The minor version of the API version with padded zeros. The default padding is for two digits.</description>
+                    <description>
+                        <para>1.5 -> 05</para>
+                        <para>1.5-Alpha -> 05</para>
+                    </description>
+                </item>
+                <item>
+                    <term>"p(n)"</term>
+                    <description>The minor version of the API version with padded zeros where "n" is the total number of digits.</description>
+                    <description>
+                        <para>p3 -> 1.5 -> 005</para>
+                        <para>p3 -> 1.5-Alpha -> 005</para>
+                    </description>
+                </item>
+                <item>
+                    <term>"P"</term>
+                    <description>The major version of the API version with padded zeros. The default padding is for two digits.</description>
+                    <description>
+                        <para>1.5 -> 01</para>
+                        <para>1.5-Alpha -> 01</para>
+                    </description>
+                </item>
+                <item>
+                    <term>"P(n)"</term>
+                    <description>The major version of the API version with padded zeros where "n" is the total number of digits.</description>
+                    <description>
+                        <para>P3 -> 1.5 -> 001</para>
+                        <para>P3 -> 1.5-Alpha -> 001</para>
+                    </description>
+                </item>
+                <item>
+                    <term>"S"</term>
+                    <description>The API version status.</description>
+                    <description>
+                        <para>1.0-Beta -> Beta</para>
+                    </description>
+                </item>
+            </list>
+            </remarks>
+            <content>
+            Contains additional implementation specific to .NET Standard 2.0.
+            </content>
+        </member>
+        <member name="F:Asp.Versioning.ApiVersionFormatProvider.MaxPadding">
+            <summary>
+            The largest supported padding count in a custom format string.
+            </summary>
+            <remarks>This is the largest precision the "D" standard numeric format supports on every
+            target framework. .NET Framework silently reinterprets a larger precision as a custom format,
+            which yields text such as "D255" rather than a padded number.</remarks>
+        </member>
+        <member name="M:Asp.Versioning.ApiVersionFormatProvider.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.ApiVersionFormatProvider"/> class.
+            </summary>
+        </member>
+        <member name="M:Asp.Versioning.ApiVersionFormatProvider.#ctor(System.Globalization.DateTimeFormatInfo)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.ApiVersionFormatProvider"/> class.
+            </summary>
+            <param name="dateTimeFormat">The <see cref="T:System.Globalization.DateTimeFormatInfo"/> used by the format provider.</param>
+        </member>
+        <member name="M:Asp.Versioning.ApiVersionFormatProvider.#ctor(System.Globalization.Calendar)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.ApiVersionFormatProvider"/> class.
+            </summary>
+            <param name="calendar">The <see cref="P:Asp.Versioning.ApiVersionFormatProvider.Calendar"/> used by the format provider.</param>
+        </member>
+        <member name="M:Asp.Versioning.ApiVersionFormatProvider.#ctor(System.Globalization.DateTimeFormatInfo,System.Globalization.Calendar)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.ApiVersionFormatProvider"/> class.
+            </summary>
+            <param name="dateTimeFormat">The <see cref="T:System.Globalization.DateTimeFormatInfo"/> used by the format provider.</param>
+            <param name="calendar">The <see cref="P:Asp.Versioning.ApiVersionFormatProvider.Calendar"/> used by the format provider.</param>
+        </member>
+        <member name="P:Asp.Versioning.ApiVersionFormatProvider.DateTimeFormat">
+            <summary>
+            Gets the underlying date and time format information.
+            </summary>
+            <value>A <see cref="T:System.Globalization.DateTimeFormatInfo"/> object.</value>
+        </member>
+        <member name="P:Asp.Versioning.ApiVersionFormatProvider.Calendar">
+            <summary>
+            Gets the calendar associated with the format provider.
+            </summary>
+            <value>A <see cref="P:Asp.Versioning.ApiVersionFormatProvider.Calendar"/> object.</value>
+            <remarks>The <see cref="P:System.Globalization.DateTimeFormatInfo.Calendar"/> cannot be assigned to a custom calendar.</remarks>
+        </member>
+        <member name="P:Asp.Versioning.ApiVersionFormatProvider.CurrentCulture">
+            <summary>
+            Gets the API version format provider for the current culture.
+            </summary>
+            <value>The <see cref="T:Asp.Versioning.ApiVersionFormatProvider"/> for the current culture.</value>
+        </member>
+        <member name="P:Asp.Versioning.ApiVersionFormatProvider.InvariantCulture">
+            <summary>
+            Gets the API version format provider for the invariant culture.
+            </summary>
+            <value>The <see cref="T:Asp.Versioning.ApiVersionFormatProvider"/> for the invariant culture.</value>
+        </member>
+        <member name="M:Asp.Versioning.ApiVersionFormatProvider.GetInstance(System.IFormatProvider)">
+            <summary>
+            Gets an instance of an API version format provider from the given format provider.
+            </summary>
+            <param name="formatProvider">The <see cref="T:System.IFormatProvider">format provider</see> used to retrieve the instance.</param>
+            <returns>An <see cref="T:Asp.Versioning.ApiVersionFormatProvider"/> object.</returns>
+        </member>
+        <member name="M:Asp.Versioning.ApiVersionFormatProvider.FormatVersionPart(System.Text.StringBuilder,Asp.Versioning.ApiVersion,System.ReadOnlySpan{System.Char},System.IFormatProvider)">
+            <summary>
+            Formats the specified version using the provided format.
+            </summary>
+            <param name="text">The formatted text.</param>
+            <param name="apiVersion">The <see cref="T:Asp.Versioning.ApiVersion">API version</see> to format.</param>
+            <param name="format">The format string for the version.</param>
+            <param name="formatProvider">The <see cref="T:System.IFormatProvider"/> used to apply the format.</param>
+        </member>
+        <member name="M:Asp.Versioning.ApiVersionFormatProvider.FormatStatusPart(System.Text.StringBuilder,Asp.Versioning.ApiVersion,System.ReadOnlySpan{System.Char},System.IFormatProvider)">
+            <summary>
+            Formats the specified status part using the provided format.
+            </summary>
+            <param name="text">The formatted text.</param>
+            <param name="apiVersion">The <see cref="T:Asp.Versioning.ApiVersion">API version</see> to format.</param>
+            <param name="format">The format string for the status.</param>
+            <param name="formatProvider">The <see cref="T:System.IFormatProvider"/> used to apply the format.</param>
+        </member>
+        <member name="M:Asp.Versioning.ApiVersionFormatProvider.GetFormat(System.Type)">
+            <summary>
+            Returns the formatter for the requested type.
+            </summary>
+            <param name="formatType">The <see cref="T:System.Type">type</see> of requested formatter.</param>
+            <returns>A <see cref="T:System.Globalization.DateTimeFormatInfo"/>, <see cref="T:System.ICustomFormatter"/>, or <c>null</c> depending on the requested <paramref name="formatType">format type</paramref>.</returns>
+        </member>
+        <member name="M:Asp.Versioning.ApiVersionFormatProvider.Format(System.String,System.Object,System.IFormatProvider)">
+            <summary>
+            Formats the provided argument with the specified format and provider.
+            </summary>
+            <param name="format">The format string to apply to the argument.</param>
+            <param name="arg">The argument to format.</param>
+            <param name="formatProvider">The <see cref="T:System.IFormatProvider"/> used to format the argument.</param>
+            <returns>A <see cref="T:System.String">string</see> representing the formatted argument.</returns>
+        </member>
+        <member name="M:Asp.Versioning.ApiVersionFormatProvider.TryFormat(System.Span{System.Char},System.Int32@,System.ReadOnlySpan{System.Char},System.Object,System.IFormatProvider)">
+            <summary>
+            Attempts to format the provided argument with the specified format and provider.
+            </summary>
+            <param name="destination">The format destination.</param>
+            <param name="charsWritten">The number of characters written.</param>
+            <param name="format">The format string to apply to the argument.</param>
+            <param name="arg">The argument to format.</param>
+            <param name="provider">The <see cref="T:System.IFormatProvider"/> used to format the argument.</param>
+            <returns>True if formatting succeeded; otherwise, false.</returns>
+        </member>
+        <member name="M:Asp.Versioning.ApiVersionFormatProvider.TryFormatAllParts(System.Span{System.Char},System.Int32@,Asp.Versioning.ApiVersion,System.ReadOnlySpan{System.Char}@,System.IFormatProvider)">
+            <summary>
+            Attempts to format all parts using the default format.
+            </summary>
+            <param name="destination">The format destination.</param>
+            <param name="charsWritten">The number of characters written.</param>
+            <param name="apiVersion">The <see cref="T:Asp.Versioning.ApiVersion">API version</see> to format.</param>
+            <param name="format">The format string for the group version.</param>
+            <param name="provider">The <see cref="T:System.IFormatProvider"/> used to apply the format.</param>
+            <returns>True if formatting succeeds; otherwise, false.</returns>
+        </member>
+        <member name="M:Asp.Versioning.ApiVersionFormatProvider.TryFormatGroupVersionPart(System.Span{System.Char},System.Int32@,Asp.Versioning.ApiVersion,System.ReadOnlySpan{System.Char}@,System.IFormatProvider)">
+            <summary>
+            Attempts to format the specified group version using the provided format.
+            </summary>
+            <param name="destination">The format destination.</param>
+            <param name="charsWritten">The number of characters written.</param>
+            <param name="apiVersion">The <see cref="T:Asp.Versioning.ApiVersion">API version</see> to format.</param>
+            <param name="format">The format string for the group version.</param>
+            <param name="provider">The <see cref="T:System.IFormatProvider"/> used to apply the format.</param>
+            <returns>True if formatting succeeds; otherwise, false.</returns>
+        </member>
+        <member name="M:Asp.Versioning.ApiVersionFormatProvider.TryFormatVersionPart(System.Span{System.Char},System.Int32@,Asp.Versioning.ApiVersion,System.ReadOnlySpan{System.Char}@,System.IFormatProvider)">
+            <summary>
+            Attempts to format the specified version using the provided format.
+            </summary>
+            <param name="destination">The format destination.</param>
+            <param name="charsWritten">The number of characters written.</param>
+            <param name="apiVersion">The <see cref="T:Asp.Versioning.ApiVersion">API version</see> to format.</param>
+            <param name="format">The format string for the group version.</param>
+            <param name="provider">The <see cref="T:System.IFormatProvider"/> used to apply the format.</param>
+            <returns>True if formatting succeeds; otherwise, false.</returns>
+        </member>
+        <member name="M:Asp.Versioning.ApiVersionFormatProvider.TryFormatStatusPart(System.Span{System.Char},System.Int32@,Asp.Versioning.ApiVersion,System.ReadOnlySpan{System.Char}@,System.IFormatProvider)">
+            <summary>
+            Attempts to formats the specified status part using the provided format.
+            </summary>
+            <param name="destination">The format destination.</param>
+            <param name="charsWritten">The number of characters written.</param>
+            <param name="apiVersion">The <see cref="T:Asp.Versioning.ApiVersion">API version</see> to format.</param>
+            <param name="format">The format string for the group version.</param>
+            <param name="provider">The <see cref="T:System.IFormatProvider"/> used to apply the format.</param>
+            <returns>True if formatting succeeds; otherwise, false.</returns>
+        </member>
+        <member name="M:Asp.Versioning.ApiVersionFormatProvider.FormatGroupVersionPart(System.Text.StringBuilder,Asp.Versioning.ApiVersion,System.ReadOnlySpan{System.Char}@,System.IFormatProvider)">
+            <summary>
+            Formats the specified group version using the provided format.
+            </summary>
+            <param name="text">The formatted text.</param>
+            <param name="apiVersion">The <see cref="T:Asp.Versioning.ApiVersion">API version</see> to format.</param>
+            <param name="format">The format string for the group version.</param>
+            <param name="formatProvider">The <see cref="T:System.IFormatProvider"/> used to apply the format.</param>
+        </member>
+        <member name="M:Asp.Versioning.ApiVersionFormatProvider.FormatAllParts(System.Text.StringBuilder,Asp.Versioning.ApiVersion,System.ReadOnlySpan{System.Char}@,System.IFormatProvider)">
+            <summary>
+            Formats all parts using the default format.
+            </summary>
+            <param name="text">The formatted text.</param>
+            <param name="apiVersion">The <see cref="T:Asp.Versioning.ApiVersion">API version</see> to format.</param>
+            <param name="format">The format string for the API version. This parameter can be <c>null</c> or empty.</param>
+            <param name="formatProvider">The <see cref="T:System.IFormatProvider"/> used to apply the format.</param>
+        </member>
+        <member name="T:Asp.Versioning.ApiVersionMapping">
+            <summary>
+            Represents the possible types of API version mappings.
+            </summary>
+        </member>
+        <member name="F:Asp.Versioning.ApiVersionMapping.None">
+            <summary>
+            Indicates no mapping.
+            </summary>
+        </member>
+        <member name="F:Asp.Versioning.ApiVersionMapping.Explicit">
+            <summary>
+            Indicates an explicit mapping.
+            </summary>
+        </member>
+        <member name="F:Asp.Versioning.ApiVersionMapping.Implicit">
+            <summary>
+            Indicates an implicit mapping.
+            </summary>
+        </member>
+        <member name="T:Asp.Versioning.ApiVersionMetadata">
+            <summary>
+            Represents the API version metadata applied to an endpoint.
+            </summary>
+        </member>
+        <member name="M:Asp.Versioning.ApiVersionMetadata.#ctor(Asp.Versioning.ApiVersionModel,Asp.Versioning.ApiVersionModel,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.ApiVersionMetadata"/> class.
+            </summary>
+            <param name="apiModel">The model for an entire API.</param>
+            <param name="endpointModel">The model defined for a specific API endpoint.</param>
+            <param name="name">The logical name of the API.</param>
+        </member>
+        <member name="M:Asp.Versioning.ApiVersionMetadata.#ctor(Asp.Versioning.ApiVersionMetadata)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.ApiVersionMetadata"/> class.
+            </summary>
+            <param name="other">The other <see cref="T:Asp.Versioning.ApiVersionMetadata">instance</see> to initialize from.</param>
+        </member>
+        <member name="P:Asp.Versioning.ApiVersionMetadata.Empty">
+            <summary>
+            Gets an empty API version information.
+            </summary>
+            <value>New, empty <see cref="T:Asp.Versioning.ApiVersionMetadata"/>.</value>
+        </member>
+        <member name="P:Asp.Versioning.ApiVersionMetadata.Neutral">
+            <summary>
+            Gets version-neutral API version information.
+            </summary>
+            <value>New, version-neutral <see cref="T:Asp.Versioning.ApiVersionMetadata"/>.</value>
+        </member>
+        <member name="P:Asp.Versioning.ApiVersionMetadata.Name">
+            <summary>
+            Gets the API name.
+            </summary>
+            <value>The logical name of the API.</value>
+        </member>
+        <member name="P:Asp.Versioning.ApiVersionMetadata.IsApiVersionNeutral">
+            <summary>
+            Gets a value indicating whether the API is version-neutral.
+            </summary>
+            <value>True if the API is version-neutral; otherwise, false.</value>
+        </member>
+        <member name="M:Asp.Versioning.ApiVersionMetadata.Map(Asp.Versioning.ApiVersionMapping)">
+            <summary>
+            Returns an API version model for the requested mapping.
+            </summary>
+            <param name="mapping">One or more of the <see cref="T:Asp.Versioning.ApiVersionMapping"/> values.</param>
+            <returns>The mapped <see cref="T:Asp.Versioning.ApiVersionModel">API version model</see>.</returns>
+        </member>
+        <member name="M:Asp.Versioning.ApiVersionMetadata.MappingTo(Asp.Versioning.ApiVersion)">
+            <summary>
+            Returns a value indicating whether the defined metadata maps to the specified API version.
+            </summary>
+            <param name="apiVersion">The <see cref="T:Asp.Versioning.ApiVersion">API version</see> to test the mapping for.</param>
+            <returns>One of the <see cref="T:Asp.Versioning.ApiVersionMapping"/> values.</returns>
+        </member>
+        <member name="M:Asp.Versioning.ApiVersionMetadata.IsMappedTo(Asp.Versioning.ApiVersion)">
+            <summary>
+            Returns a value indicating whether the defined metadata maps to the specified API version.
+            </summary>
+            <param name="apiVersion">The <see cref="T:Asp.Versioning.ApiVersion">API version</see> to test the mapping for.</param>
+            <returns>True if the metadata explicitly or implicitly maps to the specified
+            <paramref name="apiVersion">API version</paramref>; otherwise, false.</returns>
+        </member>
+        <member name="M:Asp.Versioning.ApiVersionMetadata.Deconstruct(Asp.Versioning.ApiVersionModel@,Asp.Versioning.ApiVersionModel@)">
+            <summary>
+            Deconstructs the metadata into its constituent parts.
+            </summary>
+            <param name="apiModel">The model for an entire API.</param>
+            <param name="endpointModel">The model defined for a specific API endpoint.</param>
+        </member>
+        <member name="M:Asp.Versioning.ApiVersionMetadata.Deconstruct(Asp.Versioning.ApiVersionModel@,Asp.Versioning.ApiVersionModel@,System.String@)">
+            <summary>
+            Deconstructs the metadata into its constituent parts.
+            </summary>
+            <param name="apiModel">The model for an entire API.</param>
+            <param name="endpointModel">The model defined for a specific API endpoint.</param>
+            <param name="name">The logical name of the API.</param>
+        </member>
+        <member name="T:Asp.Versioning.ApiVersionModel">
+            <summary>
+            Represents the version information for an API.
+            </summary>
+        </member>
+        <member name="M:Asp.Versioning.ApiVersionModel.#ctor(Asp.Versioning.ApiVersion)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.ApiVersionModel"/> class.
+            </summary>
+            <param name="declaredVersion">A single, declared <see cref="T:Asp.Versioning.ApiVersion">API version</see>.</param>
+            <remarks>The declared version also represents the only implemented and supported API version.</remarks>
+        </member>
+        <member name="M:Asp.Versioning.ApiVersionModel.#ctor(System.Collections.Generic.IEnumerable{Asp.Versioning.ApiVersion},System.Collections.Generic.IEnumerable{Asp.Versioning.ApiVersion})">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.ApiVersionModel"/> class.
+            </summary>
+            <param name="supportedVersions">A <see cref="T:System.Collections.Generic.IEnumerable`1">sequence</see> of supported <see cref="T:Asp.Versioning.ApiVersion">API versions</see>.</param>
+            <param name="deprecatedVersions">A <see cref="T:System.Collections.Generic.IEnumerable`1">sequence</see> of deprecated <see cref="T:Asp.Versioning.ApiVersion">API versions</see>.</param>
+            <remarks>The constructed <see cref="T:Asp.Versioning.ApiVersionModel">API version information</see> is never version-neutral,
+            <see cref="P:Asp.Versioning.ApiVersionModel.ImplementedApiVersions">implemented API versions</see> are a union between the
+            <paramref name="supportedVersions">supported versions</paramref> and <paramref name="deprecatedVersions">deprecated versions</paramref>,
+            and the <see cref="P:Asp.Versioning.ApiVersionModel.DeclaredApiVersions">declared API versions</see> are always empty since no controller or action has been specified.</remarks>
+        </member>
+        <member name="M:Asp.Versioning.ApiVersionModel.#ctor(System.Collections.Generic.IEnumerable{Asp.Versioning.ApiVersion},System.Collections.Generic.IEnumerable{Asp.Versioning.ApiVersion},System.Collections.Generic.IEnumerable{Asp.Versioning.ApiVersion},System.Collections.Generic.IEnumerable{Asp.Versioning.ApiVersion})">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.ApiVersionModel"/> class.
+            </summary>
+            <param name="supportedVersions">The supported <see cref="T:System.Collections.Generic.IEnumerable`1">sequence</see> of <see cref="T:Asp.Versioning.ApiVersion">API versions</see>.</param>
+            <param name="deprecatedVersions">The deprecated <see cref="T:System.Collections.Generic.IEnumerable`1">sequence</see> of <see cref="T:Asp.Versioning.ApiVersion">API versions</see>.</param>
+            <param name="advertisedVersions">The advertised <see cref="T:System.Collections.Generic.IEnumerable`1">sequence</see> of <see cref="T:Asp.Versioning.ApiVersion">API versions</see>.</param>
+            <param name="deprecatedAdvertisedVersions">The deprecated, advertised <see cref="T:System.Collections.Generic.IEnumerable`1">sequence</see> of <see cref="T:Asp.Versioning.ApiVersion">API versions</see>.</param>
+        </member>
+        <member name="M:Asp.Versioning.ApiVersionModel.#ctor(System.Collections.Generic.IEnumerable{Asp.Versioning.ApiVersion},System.Collections.Generic.IEnumerable{Asp.Versioning.ApiVersion},System.Collections.Generic.IEnumerable{Asp.Versioning.ApiVersion},System.Collections.Generic.IEnumerable{Asp.Versioning.ApiVersion},System.Collections.Generic.IEnumerable{Asp.Versioning.ApiVersion})">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.ApiVersionModel"/> class.
+            </summary>
+            <param name="declaredVersions">The declared <see cref="T:System.Collections.Generic.IEnumerable`1">sequence</see> of <see cref="T:Asp.Versioning.ApiVersion">API versions</see> by an implementation.</param>
+            <param name="supportedVersions">The supported <see cref="T:System.Collections.Generic.IEnumerable`1">sequence</see> of <see cref="T:Asp.Versioning.ApiVersion">API versions</see>.</param>
+            <param name="deprecatedVersions">The deprecated <see cref="T:System.Collections.Generic.IEnumerable`1">sequence</see> of <see cref="T:Asp.Versioning.ApiVersion">API versions</see>.</param>
+            <param name="advertisedVersions">The advertised <see cref="T:System.Collections.Generic.IEnumerable`1">sequence</see> of <see cref="T:Asp.Versioning.ApiVersion">API versions</see>.</param>
+            <param name="deprecatedAdvertisedVersions">The deprecated, advertised <see cref="T:System.Collections.Generic.IEnumerable`1">sequence</see> of <see cref="T:Asp.Versioning.ApiVersion">API versions</see>.</param>
+        </member>
+        <member name="P:Asp.Versioning.ApiVersionModel.Default">
+            <summary>
+            Gets the default API version information.
+            </summary>
+            <value>The default <see cref="T:Asp.Versioning.ApiVersionModel">API version information</see>.</value>
+        </member>
+        <member name="P:Asp.Versioning.ApiVersionModel.Neutral">
+            <summary>
+            Gets the neutral API version information.
+            </summary>
+            <value>The neutral <see cref="T:Asp.Versioning.ApiVersionModel">API version information</see>.</value>
+        </member>
+        <member name="P:Asp.Versioning.ApiVersionModel.Empty">
+            <summary>
+            Gets empty API version information.
+            </summary>
+            <value>The empty <see cref="T:Asp.Versioning.ApiVersionModel">API version information</see>.</value>
+        </member>
+        <member name="P:Asp.Versioning.ApiVersionModel.IsApiVersionNeutral">
+            <summary>
+            Gets a value indicating whether the API is version-neutral.
+            </summary>
+            <value>True if the API is version-neutral; otherwise, false.</value>
+        </member>
+        <member name="P:Asp.Versioning.ApiVersionModel.DeclaredApiVersions">
+            <summary>
+            Gets the API versions declared by an implementation.
+            </summary>
+            <value>A <see cref="T:System.Collections.Generic.IReadOnlyList`1">read-only list</see> of <see cref="T:Asp.Versioning.ApiVersion">API versions</see> declared by an implementation.</value>
+            <remarks>The declared API versions are constrained to the versions declared explicitly by an implementation.</remarks>
+        </member>
+        <member name="P:Asp.Versioning.ApiVersionModel.ImplementedApiVersions">
+            <summary>
+            Gets the versions implemented by the API.
+            </summary>
+            <value>A <see cref="T:System.Collections.Generic.IReadOnlyList`1">read-only list</see> of implemented <see cref="T:Asp.Versioning.ApiVersion">API versions</see>.</value>
+            <remarks>The implemented API versions include the supported and deprecated API versions.</remarks>
+        </member>
+        <member name="P:Asp.Versioning.ApiVersionModel.SupportedApiVersions">
+            <summary>
+            Gets the versions supported by the API.
+            </summary>
+            <value>A <see cref="T:System.Collections.Generic.IReadOnlyList`1">read-only list</see> of support <see cref="T:Asp.Versioning.ApiVersion">API versions</see>.</value>
+        </member>
+        <member name="P:Asp.Versioning.ApiVersionModel.DeprecatedApiVersions">
+            <summary>
+            Gets the versions deprecated by the API.
+            </summary>
+            <value>A <see cref="T:System.Collections.Generic.IReadOnlyList`1">read-only list</see> of deprecated <see cref="T:Asp.Versioning.ApiVersion">API versions</see>.</value>
+            <remarks>A deprecated API version does not mean it is not supported. A deprecated API version is typically advertised six
+            months or more before it becomes unsupported; in which case, the API would no longer indicate that it is an
+            <see cref="P:Asp.Versioning.ApiVersionModel.ImplementedApiVersions">implemented version</see>.</remarks>
+        </member>
+        <member name="T:Asp.Versioning.ApiVersionModelExtensions">
+            <summary>
+            Provides extension methods for the <see cref="T:Asp.Versioning.ApiVersionModel"/> class.
+            </summary>
+        </member>
+        <member name="M:Asp.Versioning.ApiVersionModelExtensions.Aggregate(Asp.Versioning.ApiVersionModel,Asp.Versioning.ApiVersionModel)">
+            <inheritdoc cref="M:Asp.Versioning.ApiVersionModelExtensions.&lt;G&gt;$FA626B0E12F47C2E1411C8354327043F.Aggregate(Asp.Versioning.ApiVersionModel)"/>
+        </member>
+        <member name="M:Asp.Versioning.ApiVersionModelExtensions.Aggregate(Asp.Versioning.ApiVersionModel,System.Collections.Generic.IEnumerable{Asp.Versioning.ApiVersionModel})">
+            <inheritdoc cref="M:Asp.Versioning.ApiVersionModelExtensions.&lt;G&gt;$FA626B0E12F47C2E1411C8354327043F.Aggregate(System.Collections.Generic.IEnumerable{Asp.Versioning.ApiVersionModel})"/>
+        </member>
+        <member name="M:Asp.Versioning.ApiVersionModelExtensions.Aggregate(System.Collections.Generic.IEnumerable{Asp.Versioning.ApiVersionModel})">
+            <inheritdoc cref="M:Asp.Versioning.ApiVersionModelExtensions.&lt;G&gt;$06C628BCAB38F5C4A8E200C28489D440.Aggregate"/>
+        </member>
+        <member name="T:Asp.Versioning.ApiVersionModelExtensions.&lt;G&gt;$FA626B0E12F47C2E1411C8354327043F.&lt;M&gt;$B3E3F3083C9919883A31B8C1C22F500E">
+            <param name="version">The <see cref="T:Asp.Versioning.ApiVersionModel">API version information</see> that is the basis
+            of the aggregation.</param>
+        </member>
+        <member name="M:Asp.Versioning.ApiVersionModelExtensions.&lt;G&gt;$FA626B0E12F47C2E1411C8354327043F.Aggregate(Asp.Versioning.ApiVersionModel)">
+            <summary>
+            Aggregates the current version information with other version information.
+            </summary>
+            <param name="otherVersion">The other <see cref="T:Asp.Versioning.ApiVersionModel">API version information</see> to aggregate.</param>
+            <returns>A new <see cref="T:Asp.Versioning.ApiVersionModel"/> that is the aggregated result of the
+            <paramref name="otherVersion">other version information</paramref> and the current version information.</returns>
+        </member>
+        <member name="M:Asp.Versioning.ApiVersionModelExtensions.&lt;G&gt;$FA626B0E12F47C2E1411C8354327043F.Aggregate(System.Collections.Generic.IEnumerable{Asp.Versioning.ApiVersionModel})">
+            <summary>
+            Aggregates the current version information with other version information.
+            </summary>
+            <param name="otherVersions">A <see cref="T:System.Collections.Generic.IEnumerable`1">sequence</see> of other
+            <see cref="T:Asp.Versioning.ApiVersionModel">API version information</see> to aggregate.</param>
+            <returns>A new <see cref="T:Asp.Versioning.ApiVersionModel"/> that is the aggregated result of the
+            <paramref name="otherVersions">other version information</paramref> and the current version information.</returns>
+        </member>
+        <member name="T:Asp.Versioning.ApiVersionModelExtensions.&lt;G&gt;$06C628BCAB38F5C4A8E200C28489D440.&lt;M&gt;$DF1B91E94BBD5D7EA80D7131C4D56EB5">
+            <param name="versions">The <see cref="T:Asp.Versioning.ApiVersionModel">API version information</see> to aggregate.</param>
+        </member>
+        <member name="M:Asp.Versioning.ApiVersionModelExtensions.&lt;G&gt;$06C628BCAB38F5C4A8E200C28489D440.Aggregate">
+            <summary>
+            Aggregates a sequence of version information.
+            </summary>
+            <returns>A new <see cref="T:Asp.Versioning.ApiVersionModel"/> that is the aggregated result of the provided version information.</returns>
+        </member>
+        <member name="T:Asp.Versioning.ApiVersionNeutralAttribute">
+            <summary>
+            Represents the metadata to indicate an API is version-neutral.
+            </summary>
+        </member>
+        <member name="T:Asp.Versioning.ApiVersionParameterLocation">
+            <summary>
+            Represents the supported API version parameter description locations.
+            </summary>
+        </member>
+        <member name="F:Asp.Versioning.ApiVersionParameterLocation.Query">
+            <summary>
+            Indicates the API version is expressed as a HTTP query string parameter.
+            </summary>
+        </member>
+        <member name="F:Asp.Versioning.ApiVersionParameterLocation.Header">
+            <summary>
+            Indicates the API version is expressed as a HTTP header.
+            </summary>
+        </member>
+        <member name="F:Asp.Versioning.ApiVersionParameterLocation.Path">
+            <summary>
+            Indicates the API version is expressed in a URL path segment.
+            </summary>
+        </member>
+        <member name="F:Asp.Versioning.ApiVersionParameterLocation.MediaTypeParameter">
+            <summary>
+            Indicates the API version is expressed as a media type parameter.
+            </summary>
+        </member>
+        <member name="T:Asp.Versioning.ApiVersionParser">
+            <summary>
+            Represents the default API version parser.
+            </summary>
+        </member>
+        <member name="M:Asp.Versioning.ApiVersionParser.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.ApiVersionParser"/> class.
+            </summary>
+        </member>
+        <member name="M:Asp.Versioning.ApiVersionParser.#ctor(System.IFormatProvider)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.ApiVersionParser"/> class.
+            </summary>
+            <param name="formatProvider">The associated format provider.</param>
+        </member>
+        <member name="P:Asp.Versioning.ApiVersionParser.Default">
+            <summary>
+            Gets the default API version parser.
+            </summary>
+            <value>The default API version parser.</value>
+        </member>
+        <member name="P:Asp.Versioning.ApiVersionParser.FormatProvider">
+            <summary>
+            Gets the format provider associated with the parser.
+            </summary>
+            <value>The associated format provider.</value>
+        </member>
+        <member name="M:Asp.Versioning.ApiVersionParser.Parse(System.ReadOnlySpan{System.Char})">
+            <inheritdoc />
+        </member>
+        <member name="M:Asp.Versioning.ApiVersionParser.TryParse(System.ReadOnlySpan{System.Char},Asp.Versioning.ApiVersion@)">
+            <inheritdoc />
+        </member>
+        <member name="T:Asp.Versioning.ApiVersionProviderOptions">
+            <summary>
+            Represents the possible API version provider options.
+            </summary>
+        </member>
+        <member name="F:Asp.Versioning.ApiVersionProviderOptions.None">
+            <summary>
+            Indicates no options.
+            </summary>
+        </member>
+        <member name="F:Asp.Versioning.ApiVersionProviderOptions.Deprecated">
+            <summary>
+            Indicates the provided API versions are deprecated.
+            </summary>
+        </member>
+        <member name="F:Asp.Versioning.ApiVersionProviderOptions.Advertised">
+            <summary>
+            Indicates the provided API versions are only advertised.
+            </summary>
+            <remarks>Advertised service API versions indicate the existence of other versioned services,
+            but the implementation of those services are implemented elsewhere.</remarks>
+        </member>
+        <member name="F:Asp.Versioning.ApiVersionProviderOptions.Mapped">
+            <summary>
+            Indicates the provided API versions are only mapped.
+            </summary>
+            <remarks>Mapped API versions indicate that the defined API versions are used for only meant
+            to be used for mapping purposes. This option should not typically be combined with other options.</remarks>
+        </member>
+        <member name="T:Asp.Versioning.ApiVersionRange">
+            <summary>
+            Represents an API version range.
+            </summary>
+            <remarks>This class is used to match API version ranges. It is not intended to define an API version range. API
+            versions must be explicitly declared.</remarks>
+        </member>
+        <member name="P:Asp.Versioning.ApiVersionRange.Any">
+            <summary>
+            Gets a range that contains any API versions.
+            </summary>
+            <value>An empty <see cref="T:Asp.Versioning.ApiVersionRange">API version range</see>, which always matches.</value>
+        </member>
+        <member name="P:Asp.Versioning.ApiVersionRange.Empty">
+            <summary>
+            Gets a range that never contains any API versions.
+            </summary>
+            <value>An empty <see cref="T:Asp.Versioning.ApiVersionRange">API version range</see>, which never matches.</value>
+        </member>
+        <member name="M:Asp.Versioning.ApiVersionRange.Parse(System.String,System.String[])">
+            <summary>
+            Parses an API version range from a set of range rules.
+            </summary>
+            <param name="rule">The range to parse.</param>
+            <param name="otherRules">Additional ranges to parse, if any.</param>
+            <returns>A new <see cref="T:Asp.Versioning.ApiVersionRange">API version range</see>.</returns>
+            <remarks>
+            <para>
+            An API version range rule is expressed with the same syntax as a package version, but the version value is
+            instead a valid API version. The interval notation for specifying API version ranges is summarized as follows:
+            </para>
+            <list type="table">
+             <listheader><term>Notation</term><term>Applied Rule</term><term>Description</term></listheader>
+             <item><term>1.0</term><term>x ≥ 1.0</term><description>Minimum version, inclusive</description></item>
+             <item><term>[1.0,)</term><term>x ≥ 1.0</term><description>Minimum version, inclusive</description></item>
+             <item><term>(1.0,)</term><term>x > 1.0</term><description>Minimum version, exclusive</description></item>
+             <item><term>[1.0]</term><term>x == 1.0</term><description>Exact version match</description></item>
+             <item><term>(,1.0]</term><term>x ≤ 1.0</term><description>Maximum version, inclusive</description></item>
+             <item><term>(,1.0)</term><term>x &lt; 1.0</term><description>Maximum version, exclusive</description></item>
+             <item><term>[1.0,2.0]</term><term>1.0 ≤ x ≤ 2.0</term><description>Exact range, inclusive</description></item>
+             <item><term>(1.0,2.0)</term><term>1.0 &lt; x &lt; 2.0</term><description>Exact range, exclusive</description></item>
+             <item><term>[1.0,2.0)</term><term>1.0 ≤ x &lt; 2.0</term><description>Mixed inclusive minimum and exclusive maximum version</description></item>
+             <item><term>(1.0)</term><term>invalid</term><description>invalid</description></item>
+            </list>
+            <para>
+            When <paramref name="otherRules"/> are specified, each range is combined as a logical or.
+            </para>
+            </remarks>
+        </member>
+        <member name="M:Asp.Versioning.ApiVersionRange.Parse(Asp.Versioning.IApiVersionParser,System.String,System.String[])">
+            <summary>
+            Parses an API version range from a set of range rules.
+            </summary>
+            <param name="parser">The <see cref="T:Asp.Versioning.IApiVersionParser">parser</see> used in rule construction.</param>
+            <param name="rule">The range to parse.</param>
+            <param name="otherRules">Additional ranges to parse, if any.</param>
+            <returns>A new <see cref="T:Asp.Versioning.ApiVersionRange">API version range</see>.</returns>
+            <remarks>
+            <para>
+            An API version range rule is expressed with the same syntax as a package version, but the version value is
+            instead a valid API version. The interval notation for specifying API version ranges is summarized as follows:
+            </para>
+            <list type="table">
+             <listheader><term>Notation</term><term>Applied Rule</term><term>Description</term></listheader>
+             <item><term>1.0</term><term>x ≥ 1.0</term><description>Minimum version, inclusive</description></item>
+             <item><term>[1.0,)</term><term>x ≥ 1.0</term><description>Minimum version, inclusive</description></item>
+             <item><term>(1.0,)</term><term>x > 1.0</term><description>Minimum version, exclusive</description></item>
+             <item><term>[1.0]</term><term>x == 1.0</term><description>Exact version match</description></item>
+             <item><term>(,1.0]</term><term>x ≤ 1.0</term><description>Maximum version, inclusive</description></item>
+             <item><term>(,1.0)</term><term>x &lt; 1.0</term><description>Maximum version, exclusive</description></item>
+             <item><term>[1.0,2.0]</term><term>1.0 ≤ x ≤ 2.0</term><description>Exact range, inclusive</description></item>
+             <item><term>(1.0,2.0)</term><term>1.0 &lt; x &lt; 2.0</term><description>Exact range, exclusive</description></item>
+             <item><term>[1.0,2.0)</term><term>1.0 ≤ x &lt; 2.0</term><description>Mixed inclusive minimum and exclusive maximum version</description></item>
+             <item><term>(1.0)</term><term>invalid</term><description>invalid</description></item>
+            </list>
+            <para>
+            When <paramref name="otherRules"/> are specified, each range is combined as a logical or.
+            </para>
+            </remarks>
+        </member>
+        <member name="M:Asp.Versioning.ApiVersionRange.Parse(System.Collections.Generic.IEnumerable{System.String})">
+            <summary>
+            Parses an API version range from a set of range rules.
+            </summary>
+            <param name="rules">The ranges to parse.</param>
+            <returns>A new <see cref="T:Asp.Versioning.ApiVersionRange">API version range</see>.</returns>
+            <remarks>If <paramref name="rules"/> is empty, then <see cref="P:Asp.Versioning.ApiVersionRange.Empty"/> is returned.</remarks>
+        </member>
+        <member name="M:Asp.Versioning.ApiVersionRange.Parse(Asp.Versioning.IApiVersionParser,System.Collections.Generic.IEnumerable{System.String})">
+            <summary>
+            Parses an API version range from a set of range rules.
+            </summary>
+            <param name="parser">The <see cref="T:Asp.Versioning.IApiVersionParser">parser</see> used in rule construction.</param>
+            <param name="rules">The ranges to parse.</param>
+            <returns>A new <see cref="T:Asp.Versioning.ApiVersionRange">API version range</see>.</returns>
+            <remarks>If <paramref name="rules"/> is empty, then <see cref="P:Asp.Versioning.ApiVersionRange.Empty"/> is returned.</remarks>
+        </member>
+        <member name="M:Asp.Versioning.ApiVersionRange.Contains(Asp.Versioning.ApiVersion)">
+            <summary>
+            Determines whether the range contains the specified API version.
+            </summary>
+            <param name="apiVersion">The <see cref="T:Asp.Versioning.ApiVersion">API version</see> to evaluate.</param>
+            <returns><c>true</c> if the range contain the <paramref name="apiVersion"/>; otherwise <c>false</c>.</returns>
+        </member>
+        <member name="T:Asp.Versioning.ApiVersionsBaseAttribute">
+            <summary>
+            Represents the base implementation for the metadata that describes the <see cref="T:Asp.Versioning.ApiVersion">API versions</see> associated with a service.
+            </summary>
+        </member>
+        <member name="M:Asp.Versioning.ApiVersionsBaseAttribute.#ctor(Asp.Versioning.ApiVersion)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.ApiVersionsBaseAttribute"/> class.
+            </summary>
+            <param name="version">The <see cref="T:Asp.Versioning.ApiVersion">API version</see>.</param>
+        </member>
+        <member name="M:Asp.Versioning.ApiVersionsBaseAttribute.#ctor(Asp.Versioning.ApiVersion,Asp.Versioning.ApiVersion[])">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.ApiVersionsBaseAttribute"/> class.
+            </summary>
+            <param name="version">The <see cref="T:Asp.Versioning.ApiVersion">API version</see>.</param>
+            <param name="otherVersions">An array of other <see cref="T:Asp.Versioning.ApiVersion">API versions</see>.</param>
+        </member>
+        <member name="M:Asp.Versioning.ApiVersionsBaseAttribute.#ctor(System.Double)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.ApiVersionsBaseAttribute"/> class.
+            </summary>
+            <param name="version">A numeric API version.</param>
+        </member>
+        <member name="M:Asp.Versioning.ApiVersionsBaseAttribute.#ctor(System.Double,System.Double[])">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.ApiVersionsBaseAttribute"/> class.
+            </summary>
+            <param name="version">A numeric API version.</param>
+            <param name="otherVersions">An array of other numeric API versions.</param>
+        </member>
+        <member name="M:Asp.Versioning.ApiVersionsBaseAttribute.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.ApiVersionsBaseAttribute"/> class.
+            </summary>
+            <param name="version">The API version string.</param>
+        </member>
+        <member name="M:Asp.Versioning.ApiVersionsBaseAttribute.#ctor(System.String,System.String[])">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.ApiVersionsBaseAttribute"/> class.
+            </summary>
+            <param name="version">The API version string.</param>
+            <param name="otherVersions">An array of other API version strings.</param>
+        </member>
+        <member name="M:Asp.Versioning.ApiVersionsBaseAttribute.#ctor(Asp.Versioning.IApiVersionParser,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.ApiVersionsBaseAttribute"/> class.
+            </summary>
+            <param name="parser">The parser used to parse the specified versions.</param>
+            <param name="version">The API version string.</param>
+        </member>
+        <member name="M:Asp.Versioning.ApiVersionsBaseAttribute.#ctor(Asp.Versioning.IApiVersionParser,System.String,System.String[])">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.ApiVersionsBaseAttribute"/> class.
+            </summary>
+            <param name="parser">The parser used to parse the specified versions.</param>
+            <param name="version">The API version string.</param>
+            <param name="otherVersions">An array of API other version strings.</param>
+        </member>
+        <member name="P:Asp.Versioning.ApiVersionsBaseAttribute.Versions">
+            <summary>
+            Gets the API versions defined by the attribute.
+            </summary>
+            <value>A <see cref="T:System.Collections.Generic.IReadOnlyList`1">read-only list</see> of <see cref="T:Asp.Versioning.ApiVersion">API versions</see>.</value>
+        </member>
+        <member name="M:Asp.Versioning.ApiVersionsBaseAttribute.Equals(System.Object)">
+            <inheritdoc />
+        </member>
+        <member name="M:Asp.Versioning.ApiVersionsBaseAttribute.GetHashCode">
+            <inheritdoc />
+        </member>
+        <member name="T:Asp.Versioning.Conventions.ApiVersionConventionBuilderBase">
+            <summary>
+            Represents the base implementation of an API version convention builder.
+            </summary>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ApiVersionConventionBuilderBase.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.Conventions.ApiVersionConventionBuilderBase"/> class.
+            </summary>
+        </member>
+        <member name="P:Asp.Versioning.Conventions.ApiVersionConventionBuilderBase.VersionNeutral">
+            <summary>
+            Gets or sets a value indicating whether the current controller is API version-neutral.
+            </summary>
+            <value>True if the current controller is API version-neutral; otherwise, false. The default value is <c>false</c>.</value>
+        </member>
+        <member name="P:Asp.Versioning.Conventions.ApiVersionConventionBuilderBase.IsEmpty">
+            <summary>
+            Gets a value indicating whether the builder is empty.
+            </summary>
+            <value>True if the builder does not have any API versions defined; otherwise, false.</value>
+        </member>
+        <member name="P:Asp.Versioning.Conventions.ApiVersionConventionBuilderBase.SupportedVersions">
+            <summary>
+            Gets the collection of API versions supported by the current controller.
+            </summary>
+            <value>A <see cref="T:System.Collections.Generic.ICollection`1">collection</see> of supported <see cref="T:Asp.Versioning.ApiVersion">API versions</see>.</value>
+        </member>
+        <member name="P:Asp.Versioning.Conventions.ApiVersionConventionBuilderBase.DeprecatedVersions">
+            <summary>
+            Gets the collection of API versions deprecated by the current controller.
+            </summary>
+            <value>A <see cref="T:System.Collections.Generic.ICollection`1">collection</see> of deprecated <see cref="T:Asp.Versioning.ApiVersion">API versions</see>.</value>
+        </member>
+        <member name="P:Asp.Versioning.Conventions.ApiVersionConventionBuilderBase.AdvertisedVersions">
+            <summary>
+            Gets the collection of API versions advertised by the current controller.
+            </summary>
+            <value>A <see cref="T:System.Collections.Generic.ICollection`1">collection</see> of advertised <see cref="T:Asp.Versioning.ApiVersion">API versions</see>.</value>
+        </member>
+        <member name="P:Asp.Versioning.Conventions.ApiVersionConventionBuilderBase.DeprecatedAdvertisedVersions">
+            <summary>
+            Gets the collection of API versions advertised and deprecated by the current controller.
+            </summary>
+            <value>A <see cref="T:System.Collections.Generic.ICollection`1">collection</see> of advertised and deprecated <see cref="T:Asp.Versioning.ApiVersion">API versions</see>.</value>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ApiVersionConventionBuilderBase.MergeAttributesWithConventions(System.Collections.Generic.IEnumerable{System.Object})">
+            <summary>
+            Merges API version information from the specified attributes with the current conventions.
+            </summary>
+            <param name="attributes">The <see cref="T:System.Collections.Generic.IEnumerable`1">sequence</see> of attributes to merge.</param>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ApiVersionConventionBuilderBase.MergeAttributesWithConventions(System.Collections.Generic.IReadOnlyList{System.Object})">
+            <summary>
+            Merges API version information from the specified attributes with the current conventions.
+            </summary>
+            <param name="attributes">The <see cref="T:System.Collections.Generic.IReadOnlyList`1">read-only list</see> of attributes to merge.</param>
+        </member>
+        <member name="T:Asp.Versioning.Conventions.ApiVersionConventionBuilderExtensions">
+            <summary>
+            Provides extension methods for convention builder interfaces.
+            </summary>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ApiVersionConventionBuilderExtensions.HasApiVersion``1(``0,System.Int32,System.Nullable{System.Int32},System.String)">
+            <inheritdoc cref="M:Asp.Versioning.Conventions.ApiVersionConventionBuilderExtensions.&lt;G&gt;$324A112001E44E6F99302A2688331882`1.HasApiVersion(System.Int32,System.Nullable{System.Int32},System.String)"/>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ApiVersionConventionBuilderExtensions.HasApiVersion``1(``0,System.Double,System.String)">
+            <inheritdoc cref="M:Asp.Versioning.Conventions.ApiVersionConventionBuilderExtensions.&lt;G&gt;$324A112001E44E6F99302A2688331882`1.HasApiVersion(System.Double,System.String)"/>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ApiVersionConventionBuilderExtensions.HasApiVersion``1(``0,System.Int32,System.Int32,System.Int32,System.String)">
+            <inheritdoc cref="M:Asp.Versioning.Conventions.ApiVersionConventionBuilderExtensions.&lt;G&gt;$324A112001E44E6F99302A2688331882`1.HasApiVersion(System.Int32,System.Int32,System.Int32,System.String)"/>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ApiVersionConventionBuilderExtensions.HasApiVersion``1(``0,System.DateOnly,System.String)">
+            <inheritdoc cref="M:Asp.Versioning.Conventions.ApiVersionConventionBuilderExtensions.&lt;G&gt;$324A112001E44E6F99302A2688331882`1.HasApiVersion(System.DateOnly,System.String)"/>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ApiVersionConventionBuilderExtensions.HasApiVersions``1(``0,System.Collections.Generic.IEnumerable{Asp.Versioning.ApiVersion})">
+            <inheritdoc cref="M:Asp.Versioning.Conventions.ApiVersionConventionBuilderExtensions.&lt;G&gt;$324A112001E44E6F99302A2688331882`1.HasApiVersions(System.Collections.Generic.IEnumerable{Asp.Versioning.ApiVersion})"/>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ApiVersionConventionBuilderExtensions.HasDeprecatedApiVersion``1(``0,System.Int32,System.Nullable{System.Int32},System.String)">
+            <inheritdoc cref="M:Asp.Versioning.Conventions.ApiVersionConventionBuilderExtensions.&lt;G&gt;$324A112001E44E6F99302A2688331882`1.HasDeprecatedApiVersion(System.Int32,System.Nullable{System.Int32},System.String)"/>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ApiVersionConventionBuilderExtensions.HasDeprecatedApiVersion``1(``0,System.Double,System.String)">
+            <inheritdoc cref="M:Asp.Versioning.Conventions.ApiVersionConventionBuilderExtensions.&lt;G&gt;$324A112001E44E6F99302A2688331882`1.HasDeprecatedApiVersion(System.Double,System.String)"/>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ApiVersionConventionBuilderExtensions.HasDeprecatedApiVersion``1(``0,System.Int32,System.Int32,System.Int32,System.String)">
+            <inheritdoc cref="M:Asp.Versioning.Conventions.ApiVersionConventionBuilderExtensions.&lt;G&gt;$324A112001E44E6F99302A2688331882`1.HasDeprecatedApiVersion(System.Int32,System.Int32,System.Int32,System.String)"/>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ApiVersionConventionBuilderExtensions.HasDeprecatedApiVersion``1(``0,System.DateOnly,System.String)">
+            <inheritdoc cref="M:Asp.Versioning.Conventions.ApiVersionConventionBuilderExtensions.&lt;G&gt;$324A112001E44E6F99302A2688331882`1.HasDeprecatedApiVersion(System.DateOnly,System.String)"/>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ApiVersionConventionBuilderExtensions.HasDeprecatedApiVersions``1(``0,System.Collections.Generic.IEnumerable{Asp.Versioning.ApiVersion})">
+            <inheritdoc cref="M:Asp.Versioning.Conventions.ApiVersionConventionBuilderExtensions.&lt;G&gt;$324A112001E44E6F99302A2688331882`1.HasDeprecatedApiVersions(System.Collections.Generic.IEnumerable{Asp.Versioning.ApiVersion})"/>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ApiVersionConventionBuilderExtensions.AdvertisesApiVersion``1(``0,System.Int32,System.Nullable{System.Int32},System.String)">
+            <inheritdoc cref="M:Asp.Versioning.Conventions.ApiVersionConventionBuilderExtensions.&lt;G&gt;$324A112001E44E6F99302A2688331882`1.AdvertisesApiVersion(System.Int32,System.Nullable{System.Int32},System.String)"/>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ApiVersionConventionBuilderExtensions.AdvertisesApiVersion``1(``0,System.Double,System.String)">
+            <inheritdoc cref="M:Asp.Versioning.Conventions.ApiVersionConventionBuilderExtensions.&lt;G&gt;$324A112001E44E6F99302A2688331882`1.AdvertisesApiVersion(System.Double,System.String)"/>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ApiVersionConventionBuilderExtensions.AdvertisesApiVersion``1(``0,System.Int32,System.Int32,System.Int32,System.String)">
+            <inheritdoc cref="M:Asp.Versioning.Conventions.ApiVersionConventionBuilderExtensions.&lt;G&gt;$324A112001E44E6F99302A2688331882`1.AdvertisesApiVersion(System.Int32,System.Int32,System.Int32,System.String)"/>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ApiVersionConventionBuilderExtensions.AdvertisesApiVersion``1(``0,System.DateOnly,System.String)">
+            <inheritdoc cref="M:Asp.Versioning.Conventions.ApiVersionConventionBuilderExtensions.&lt;G&gt;$324A112001E44E6F99302A2688331882`1.AdvertisesApiVersion(System.DateOnly,System.String)"/>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ApiVersionConventionBuilderExtensions.AdvertisesApiVersions``1(``0,System.Collections.Generic.IEnumerable{Asp.Versioning.ApiVersion})">
+            <inheritdoc cref="M:Asp.Versioning.Conventions.ApiVersionConventionBuilderExtensions.&lt;G&gt;$324A112001E44E6F99302A2688331882`1.AdvertisesApiVersions(System.Collections.Generic.IEnumerable{Asp.Versioning.ApiVersion})"/>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ApiVersionConventionBuilderExtensions.AdvertisesDeprecatedApiVersion``1(``0,System.Int32,System.Nullable{System.Int32},System.String)">
+            <inheritdoc cref="M:Asp.Versioning.Conventions.ApiVersionConventionBuilderExtensions.&lt;G&gt;$324A112001E44E6F99302A2688331882`1.AdvertisesDeprecatedApiVersion(System.Int32,System.Nullable{System.Int32},System.String)"/>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ApiVersionConventionBuilderExtensions.AdvertisesDeprecatedApiVersion``1(``0,System.Double,System.String)">
+            <inheritdoc cref="M:Asp.Versioning.Conventions.ApiVersionConventionBuilderExtensions.&lt;G&gt;$324A112001E44E6F99302A2688331882`1.AdvertisesDeprecatedApiVersion(System.Double,System.String)"/>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ApiVersionConventionBuilderExtensions.AdvertisesDeprecatedApiVersion``1(``0,System.Int32,System.Int32,System.Int32,System.String)">
+            <inheritdoc cref="M:Asp.Versioning.Conventions.ApiVersionConventionBuilderExtensions.&lt;G&gt;$324A112001E44E6F99302A2688331882`1.AdvertisesDeprecatedApiVersion(System.Int32,System.Int32,System.Int32,System.String)"/>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ApiVersionConventionBuilderExtensions.AdvertisesDeprecatedApiVersion``1(``0,System.DateOnly,System.String)">
+            <inheritdoc cref="M:Asp.Versioning.Conventions.ApiVersionConventionBuilderExtensions.&lt;G&gt;$324A112001E44E6F99302A2688331882`1.AdvertisesDeprecatedApiVersion(System.DateOnly,System.String)"/>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ApiVersionConventionBuilderExtensions.AdvertisesDeprecatedApiVersions``1(``0,System.Collections.Generic.IEnumerable{Asp.Versioning.ApiVersion})">
+            <inheritdoc cref="M:Asp.Versioning.Conventions.ApiVersionConventionBuilderExtensions.&lt;G&gt;$324A112001E44E6F99302A2688331882`1.AdvertisesDeprecatedApiVersions(System.Collections.Generic.IEnumerable{Asp.Versioning.ApiVersion})"/>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ApiVersionConventionBuilderExtensions.MapToApiVersion``1(``0,System.Int32,System.Nullable{System.Int32},System.String)">
+            <inheritdoc cref="M:Asp.Versioning.Conventions.ApiVersionConventionBuilderExtensions.&lt;G&gt;$3E9113585B299B33DF485ED10DEB5B0C`1.MapToApiVersion(System.Int32,System.Nullable{System.Int32},System.String)"/>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ApiVersionConventionBuilderExtensions.MapToApiVersion``1(``0,System.Double,System.String)">
+            <inheritdoc cref="M:Asp.Versioning.Conventions.ApiVersionConventionBuilderExtensions.&lt;G&gt;$3E9113585B299B33DF485ED10DEB5B0C`1.MapToApiVersion(System.Double,System.String)"/>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ApiVersionConventionBuilderExtensions.MapToApiVersion``1(``0,System.Int32,System.Int32,System.Int32,System.String)">
+            <inheritdoc cref="M:Asp.Versioning.Conventions.ApiVersionConventionBuilderExtensions.&lt;G&gt;$3E9113585B299B33DF485ED10DEB5B0C`1.MapToApiVersion(System.Int32,System.Int32,System.Int32,System.String)"/>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ApiVersionConventionBuilderExtensions.MapToApiVersion``1(``0,System.DateOnly,System.String)">
+            <inheritdoc cref="M:Asp.Versioning.Conventions.ApiVersionConventionBuilderExtensions.&lt;G&gt;$3E9113585B299B33DF485ED10DEB5B0C`1.MapToApiVersion(System.DateOnly,System.String)"/>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ApiVersionConventionBuilderExtensions.MapToApiVersions``1(``0,System.Collections.Generic.IEnumerable{Asp.Versioning.ApiVersion})">
+            <inheritdoc cref="M:Asp.Versioning.Conventions.ApiVersionConventionBuilderExtensions.&lt;G&gt;$3E9113585B299B33DF485ED10DEB5B0C`1.MapToApiVersions(System.Collections.Generic.IEnumerable{Asp.Versioning.ApiVersion})"/>
+        </member>
+        <member name="T:Asp.Versioning.Conventions.ApiVersionConventionBuilderExtensions.&lt;G&gt;$324A112001E44E6F99302A2688331882`1.&lt;M&gt;$8F849E4ABDA4D760EE950A7FB5C7E0F2">
+            <typeparam name="T">The type of <see cref="T:Asp.Versioning.Conventions.IDeclareApiVersionConventionBuilder"/>.</typeparam>
+            <param name="builder">The extended <see cref="T:Asp.Versioning.Conventions.IDeclareApiVersionConventionBuilder">convention builder</see>.</param>
+            <returns>The original <paramref name="builder"/>.</returns>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ApiVersionConventionBuilderExtensions.&lt;G&gt;$324A112001E44E6F99302A2688331882`1.HasApiVersion(System.Int32,System.Nullable{System.Int32},System.String)">
+            <summary>
+            Indicates that the specified API version is supported by the configured controller.
+            </summary>
+            <param name="majorVersion">The major version number.</param>
+            <param name="minorVersion">The optional minor version number.</param>
+            <param name="status">The optional version status.</param>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ApiVersionConventionBuilderExtensions.&lt;G&gt;$324A112001E44E6F99302A2688331882`1.HasApiVersion(System.Double,System.String)">
+            <summary>
+            Indicates that the specified API version is supported by the configured controller.
+            </summary>
+            <param name="version">The version number.</param>
+            <param name="status">The optional version status.</param>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ApiVersionConventionBuilderExtensions.&lt;G&gt;$324A112001E44E6F99302A2688331882`1.HasApiVersion(System.Int32,System.Int32,System.Int32,System.String)">
+            <summary>
+            Indicates that the specified API version is supported by the configured controller.
+            </summary>
+            <param name="year">The version year.</param>
+            <param name="month">The version month.</param>
+            <param name="day">The version day.</param>
+            <param name="status">The optional version status.</param>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ApiVersionConventionBuilderExtensions.&lt;G&gt;$324A112001E44E6F99302A2688331882`1.HasApiVersion(System.DateOnly,System.String)">
+            <summary>
+            Indicates that the specified API version is supported by the configured controller.
+            </summary>
+            <param name="groupVersion">The group version.</param>
+            <param name="status">The optional version status.</param>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ApiVersionConventionBuilderExtensions.&lt;G&gt;$324A112001E44E6F99302A2688331882`1.HasApiVersions(System.Collections.Generic.IEnumerable{Asp.Versioning.ApiVersion})">
+            <summary>
+            Indicates that the specified API versions are supported by the configured controller.
+            </summary>
+            <param name="apiVersions">The <see cref="T:System.Collections.Generic.IEnumerable`1">sequence</see> of <see cref="T:Asp.Versioning.ApiVersion">API versions</see> supported by the controller.</param>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ApiVersionConventionBuilderExtensions.&lt;G&gt;$324A112001E44E6F99302A2688331882`1.HasDeprecatedApiVersion(System.Int32,System.Nullable{System.Int32},System.String)">
+            <summary>
+            Indicates that the specified API version is deprecated by the configured controller.
+            </summary>
+            <param name="majorVersion">The major version number.</param>
+            <param name="minorVersion">The optional minor version number.</param>
+            <param name="status">The optional version status.</param>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ApiVersionConventionBuilderExtensions.&lt;G&gt;$324A112001E44E6F99302A2688331882`1.HasDeprecatedApiVersion(System.Double,System.String)">
+            <summary>
+            Indicates that the specified API version is deprecated by the configured controller.
+            </summary>
+            <param name="version">The version number.</param>
+            <param name="status">The optional version status.</param>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ApiVersionConventionBuilderExtensions.&lt;G&gt;$324A112001E44E6F99302A2688331882`1.HasDeprecatedApiVersion(System.Int32,System.Int32,System.Int32,System.String)">
+            <summary>
+            Indicates that the specified API version is deprecated by the configured controller.
+            </summary>
+            <param name="year">The version year.</param>
+            <param name="month">The version month.</param>
+            <param name="day">The version day.</param>
+            <param name="status">The optional version status.</param>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ApiVersionConventionBuilderExtensions.&lt;G&gt;$324A112001E44E6F99302A2688331882`1.HasDeprecatedApiVersion(System.DateOnly,System.String)">
+            <summary>
+            Indicates that the specified API version is deprecated by the configured controller.
+            </summary>
+            <param name="groupVersion">The group version.</param>
+            <param name="status">The optional version status.</param>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ApiVersionConventionBuilderExtensions.&lt;G&gt;$324A112001E44E6F99302A2688331882`1.HasDeprecatedApiVersions(System.Collections.Generic.IEnumerable{Asp.Versioning.ApiVersion})">
+            <summary>
+            Indicates that the specified API versions are deprecated by the configured controller.
+            </summary>
+            <param name="apiVersions">The <see cref="T:System.Collections.Generic.IEnumerable`1">sequence</see> of <see cref="T:Asp.Versioning.ApiVersion">API versions</see> deprecated by the controller.</param>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ApiVersionConventionBuilderExtensions.&lt;G&gt;$324A112001E44E6F99302A2688331882`1.AdvertisesApiVersion(System.Int32,System.Nullable{System.Int32},System.String)">
+            <summary>
+            Indicates that the specified API version is advertised by the configured controller.
+            </summary>
+            <param name="majorVersion">The major version number.</param>
+            <param name="minorVersion">The optional minor version number.</param>
+            <param name="status">The optional version status.</param>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ApiVersionConventionBuilderExtensions.&lt;G&gt;$324A112001E44E6F99302A2688331882`1.AdvertisesApiVersion(System.Double,System.String)">
+            <summary>
+            Indicates that the specified API version is advertised by the configured controller.
+            </summary>
+            <param name="version">The version number.</param>
+            <param name="status">The optional version status.</param>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ApiVersionConventionBuilderExtensions.&lt;G&gt;$324A112001E44E6F99302A2688331882`1.AdvertisesApiVersion(System.Int32,System.Int32,System.Int32,System.String)">
+            <summary>
+            Indicates that the specified API version is advertised by the configured controller.
+            </summary>
+            <param name="year">The version year.</param>
+            <param name="month">The version month.</param>
+            <param name="day">The version day.</param>
+            <param name="status">The optional version status.</param>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ApiVersionConventionBuilderExtensions.&lt;G&gt;$324A112001E44E6F99302A2688331882`1.AdvertisesApiVersion(System.DateOnly,System.String)">
+            <summary>
+            Indicates that the specified API version is advertised by the configured controller.
+            </summary>
+            <param name="groupVersion">The group version.</param>
+            <param name="status">The optional version status.</param>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ApiVersionConventionBuilderExtensions.&lt;G&gt;$324A112001E44E6F99302A2688331882`1.AdvertisesApiVersions(System.Collections.Generic.IEnumerable{Asp.Versioning.ApiVersion})">
+            <summary>
+            Indicates that the specified API versions are advertised by the configured controller.
+            </summary>
+            <param name="apiVersions">The <see cref="T:System.Collections.Generic.IEnumerable`1">sequence</see> of <see cref="T:Asp.Versioning.ApiVersion">API versions</see> advertised by the controller.</param>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ApiVersionConventionBuilderExtensions.&lt;G&gt;$324A112001E44E6F99302A2688331882`1.AdvertisesDeprecatedApiVersion(System.Int32,System.Nullable{System.Int32},System.String)">
+            <summary>
+            Indicates that the specified API version is advertised and deprecated by the configured controller.
+            </summary>
+            <param name="majorVersion">The major version number.</param>
+            <param name="minorVersion">The optional minor version number.</param>
+            <param name="status">The optional version status.</param>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ApiVersionConventionBuilderExtensions.&lt;G&gt;$324A112001E44E6F99302A2688331882`1.AdvertisesDeprecatedApiVersion(System.Double,System.String)">
+            <summary>
+            Indicates that the specified API version is advertised and deprecated by the configured controller.
+            </summary>
+            <param name="version">The version number.</param>
+            <param name="status">The optional version status.</param>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ApiVersionConventionBuilderExtensions.&lt;G&gt;$324A112001E44E6F99302A2688331882`1.AdvertisesDeprecatedApiVersion(System.Int32,System.Int32,System.Int32,System.String)">
+            <summary>
+            Indicates that the specified API version is advertised and deprecated by the configured controller.
+            </summary>
+            <param name="year">The version year.</param>
+            <param name="month">The version month.</param>
+            <param name="day">The version day.</param>
+            <param name="status">The version status.</param>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ApiVersionConventionBuilderExtensions.&lt;G&gt;$324A112001E44E6F99302A2688331882`1.AdvertisesDeprecatedApiVersion(System.DateOnly,System.String)">
+            <summary>
+            Indicates that the specified API version is advertised and deprecated by the configured controller.
+            </summary>
+            <param name="groupVersion">The group version.</param>
+            <param name="status">The optional version status.</param>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ApiVersionConventionBuilderExtensions.&lt;G&gt;$324A112001E44E6F99302A2688331882`1.AdvertisesDeprecatedApiVersions(System.Collections.Generic.IEnumerable{Asp.Versioning.ApiVersion})">
+            <summary>
+            Indicates that the specified API versions are advertised and deprecated by the configured controller.
+            </summary>
+            <param name="apiVersions">The <see cref="T:System.Collections.Generic.IEnumerable`1">sequence</see> of deprecated <see cref="T:Asp.Versioning.ApiVersion">API versions</see> advertised by the controller.</param>
+        </member>
+        <member name="T:Asp.Versioning.Conventions.ApiVersionConventionBuilderExtensions.&lt;G&gt;$3E9113585B299B33DF485ED10DEB5B0C`1.&lt;M&gt;$8F590DDAB668483E8155D3A279FA50F5">
+            <typeparam name="T">The type of <see cref="T:Asp.Versioning.Conventions.IMapToApiVersionConventionBuilder"/>.</typeparam>
+            <param name="builder">The extended <see cref="T:Asp.Versioning.Conventions.IMapToApiVersionConventionBuilder"/>.</param>
+            <returns>The original <paramref name="builder"/>.</returns>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ApiVersionConventionBuilderExtensions.&lt;G&gt;$3E9113585B299B33DF485ED10DEB5B0C`1.MapToApiVersion(System.Int32,System.Nullable{System.Int32},System.String)">
+            <summary>
+            Indicates that the specified API version is mapped to the configured controller action.
+            </summary>
+            <param name="majorVersion">The major version number.</param>
+            <param name="minorVersion">The optional minor version number.</param>
+            <param name="status">The optional version status.</param>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ApiVersionConventionBuilderExtensions.&lt;G&gt;$3E9113585B299B33DF485ED10DEB5B0C`1.MapToApiVersion(System.Double,System.String)">
+            <summary>
+            Indicates that the specified API version is mapped to the configured controller action.
+            </summary>
+            <param name="version">The version number.</param>
+            <param name="status">The optional version status.</param>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ApiVersionConventionBuilderExtensions.&lt;G&gt;$3E9113585B299B33DF485ED10DEB5B0C`1.MapToApiVersion(System.Int32,System.Int32,System.Int32,System.String)">
+            <summary>
+            Indicates that the specified API version is mapped to the configured controller action.
+            </summary>
+            <param name="year">The version year.</param>
+            <param name="month">The version month.</param>
+            <param name="day">The version day.</param>
+            <param name="status">The optional version status.</param>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ApiVersionConventionBuilderExtensions.&lt;G&gt;$3E9113585B299B33DF485ED10DEB5B0C`1.MapToApiVersion(System.DateOnly,System.String)">
+            <summary>
+            Indicates that the specified API version is mapped to the configured controller action.
+            </summary>
+            <param name="groupVersion">The group version.</param>
+            <param name="status">The optional version status.</param>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.ApiVersionConventionBuilderExtensions.&lt;G&gt;$3E9113585B299B33DF485ED10DEB5B0C`1.MapToApiVersions(System.Collections.Generic.IEnumerable{Asp.Versioning.ApiVersion})">
+            <summary>
+            Indicates that the specified API versions are mapped to the configured controller action.
+            </summary>
+            <param name="apiVersions">The <see cref="T:System.Collections.Generic.IEnumerable`1">sequence</see> of <see cref="T:Asp.Versioning.ApiVersion">API versions</see> supported by the controller.</param>
+        </member>
+        <member name="T:Asp.Versioning.Conventions.IApiVersionConvention`1">
+            <summary>
+            Defines the behavior of an API version convention.
+            </summary>
+            <typeparam name="T">The <see cref="T:System.Type">type</see> of item to apply the convention to.</typeparam>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.IApiVersionConvention`1.ApplyTo(`0)">
+            <summary>
+            Applies the API version convention.
+            </summary>
+            <param name="item">The descriptor to apply the convention to.</param>
+        </member>
+        <member name="T:Asp.Versioning.Conventions.IDeclareApiVersionConventionBuilder">
+            <summary>
+            Defines the behavior of convention builder that builds declared API versions.
+            </summary>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.IDeclareApiVersionConventionBuilder.IsApiVersionNeutral">
+            <summary>
+            Indicates that the controller is API version-neutral.
+            </summary>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.IDeclareApiVersionConventionBuilder.HasApiVersion(Asp.Versioning.ApiVersion)">
+            <summary>
+            Indicates that the specified API version is supported by the configured controller.
+            </summary>
+            <param name="apiVersion">The supported <see cref="T:Asp.Versioning.ApiVersion">API version</see> implemented by the controller.</param>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.IDeclareApiVersionConventionBuilder.HasDeprecatedApiVersion(Asp.Versioning.ApiVersion)">
+            <summary>
+            Indicates that the specified API version is deprecated by the configured controller.
+            </summary>
+            <param name="apiVersion">The deprecated <see cref="T:Asp.Versioning.ApiVersion">API version</see> implemented by the controller.</param>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.IDeclareApiVersionConventionBuilder.AdvertisesApiVersion(Asp.Versioning.ApiVersion)">
+            <summary>
+            Indicates that the specified API version is advertised by the configured controller.
+            </summary>
+            <param name="apiVersion">The advertised <see cref="T:Asp.Versioning.ApiVersion">API version</see> not directly implemented by the controller.</param>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.IDeclareApiVersionConventionBuilder.AdvertisesDeprecatedApiVersion(Asp.Versioning.ApiVersion)">
+            <summary>
+            Indicates that the specified API version is advertised and deprecated by the configured controller.
+            </summary>
+            <param name="apiVersion">The advertised, but deprecated <see cref="T:Asp.Versioning.ApiVersion">API version</see> not directly implemented by the controller.</param>
+        </member>
+        <member name="T:Asp.Versioning.Conventions.IMapToApiVersionConventionBuilder">
+            <summary>
+            Defines the behavior of convention builder that builds mapped API versions.
+            </summary>
+        </member>
+        <member name="M:Asp.Versioning.Conventions.IMapToApiVersionConventionBuilder.MapToApiVersion(Asp.Versioning.ApiVersion)">
+            <summary>
+            Maps the specified API version to the configured controller action.
+            </summary>
+            <param name="apiVersion">The <see cref="T:Asp.Versioning.ApiVersion">API version</see> to map to the action.</param>
+        </member>
+        <member name="T:Asp.Versioning.DeprecationPolicy">
+            <summary>
+            Represents an API version deprecation policy.
+            </summary>
+        </member>
+        <member name="P:Asp.Versioning.DeprecationPolicy.Links">
+            <summary>
+            Gets a read-only list of links that provide information about the deprecation policy.
+            </summary>
+            <value>A read-only list of HTTP links.</value>
+            <remarks>If a link is provided, generally only one link is necessary; however, additional
+            links might be provided for different languages or different formats such as a HTML page
+            or a JSON file.</remarks>
+        </member>
+        <member name="P:Asp.Versioning.DeprecationPolicy.HasLinks">
+            <summary>
+            Gets a value indicating whether the deprecation policy has any associated links.
+            </summary>
+            <value>True if the deprecation policy has associated links; otherwise, false.</value>
+        </member>
+        <member name="P:Asp.Versioning.DeprecationPolicy.Date">
+            <summary>
+            Gets the date and time when the API version will be deprecated.
+            </summary>
+            <value>The date and time when the API version will be deprecated, if any.</value>
+        </member>
+        <member name="M:Asp.Versioning.DeprecationPolicy.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.DeprecationPolicy"/> class.
+            </summary>
+        </member>
+        <member name="M:Asp.Versioning.DeprecationPolicy.#ctor(System.DateTimeOffset,Asp.Versioning.LinkHeaderValue)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.DeprecationPolicy"/> class.
+            </summary>
+            <param name="date">The date and time when the API version will be deprecated.</param>
+            <param name="link">The optional link which provides information about the deprecation policy.</param>
+        </member>
+        <member name="M:Asp.Versioning.DeprecationPolicy.#ctor(Asp.Versioning.LinkHeaderValue)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.DeprecationPolicy"/> class.
+            </summary>
+            <param name="link">The link which provides information about the deprecation policy.</param>
+        </member>
+        <member name="M:Asp.Versioning.DeprecationPolicy.IsEffective(System.DateTimeOffset)">
+            <summary>
+            Returns a value indicating if this policy is effective for the specified date and time.
+            </summary>
+            <param name="dateTime">The <see cref="T:System.DateTimeOffset">date and time</see> to evaluate.</param>
+            <returns>True if the policy is effective; otherwise, false.</returns>
+        </member>
+        <member name="T:Asp.Versioning.IAnnotation`2">
+            <summary>
+            Defines the behavior of an annotation.
+            </summary>
+            <typeparam name="TSource">The type of annotated source.</typeparam>
+            <typeparam name="TAnnotation">The type of annotation.</typeparam>
+            <remarks>An annotation describes a source; it does not act on it. An action taken from an annotation, such as
+            deciding whether a data member is visible, is layered on top of the annotations reported here. A source can be
+            anything that is annotated, which includes, but is not limited to, a data member.</remarks>
+        </member>
+        <member name="M:Asp.Versioning.IAnnotation`2.TryGet(`0,`1@)">
+            <summary>
+            Attempts to retrieve the annotation for the specified source.
+            </summary>
+            <param name="source">The source to retrieve the annotation for.</param>
+            <param name="annotation">The retrieved <typeparamref name="TAnnotation">annotation</typeparamref>, if any.</param>
+            <returns>True if the <paramref name="source"/> is annotated; otherwise, false.</returns>
+        </member>
+        <member name="T:Asp.Versioning.IAnnotationExtensions">
+            <summary>
+            Provides extension methods for the <see cref="T:Asp.Versioning.IAnnotation`2"/> interface.
+            </summary>
+        </member>
+        <member name="M:Asp.Versioning.IAnnotationExtensions.IsVisible``1(Asp.Versioning.IAnnotation{``0,Asp.Versioning.ApiVersionRange},``0,Asp.Versioning.ApiVersion)">
+            <inheritdoc cref="M:Asp.Versioning.IAnnotationExtensions.&lt;G&gt;$AE706BB986B78261F7C186754CFC29FA`1.IsVisible(`0,Asp.Versioning.ApiVersion)"/>
+        </member>
+        <member name="T:Asp.Versioning.IAnnotationExtensions.&lt;G&gt;$AE706BB986B78261F7C186754CFC29FA`1.&lt;M&gt;$AC52114007AE59701E3A287427F6C222">
+            <typeparam name="TSource">The type of annotated source.</typeparam>
+            <param name="annotations">The extended <see cref="T:Asp.Versioning.IAnnotation`2">annotations</see>.</param>
+        </member>
+        <member name="M:Asp.Versioning.IAnnotationExtensions.&lt;G&gt;$AE706BB986B78261F7C186754CFC29FA`1.IsVisible(`0,Asp.Versioning.ApiVersion)">
+            <summary>
+            Determines whether the provided source is visible to the specified API version.
+            </summary>
+            <param name="source">The source to evaluate.</param>
+            <param name="apiVersion">The <see cref="T:Asp.Versioning.ApiVersion">API version</see> to compare against.</param>
+            <returns>True if the source is visible in the specified <paramref name="apiVersion">API version</paramref>;
+            otherwise, false.</returns>
+            <remarks>This is the filtering action applied from an annotation. A source that is not annotated is
+            visible to every API version. A source that is evaluated repeatedly should resolve its annotation once
+            and evaluate the range directly.</remarks>
+        </member>
+        <member name="T:Asp.Versioning.IApiVersioningPolicyBuilder">
+            <summary>
+            Defines the behavior of an API versioning policy builder.
+            </summary>
+        </member>
+        <member name="M:Asp.Versioning.IApiVersioningPolicyBuilder.OfType``1">
+            <summary>
+            Gets a read-only list of policies for the specified type.
+            </summary>
+            <typeparam name="T">The type of policy to get.</typeparam>
+            <returns>A <see cref="T:System.Collections.Generic.IReadOnlyList`1">read-only list</see> of policies.</returns>
+        </member>
+        <member name="M:Asp.Versioning.IApiVersioningPolicyBuilder.Sunset(System.String,Asp.Versioning.ApiVersion)">
+            <summary>
+            Creates and returns a new sunset policy builder.
+            </summary>
+            <param name="name">The optional name of the API the policy is for.</param>
+            <param name="apiVersion">The optional <see cref="T:Asp.Versioning.ApiVersion">API version</see> the policy is for.</param>
+            <returns>A new <see cref="T:Asp.Versioning.ISunsetPolicyBuilder">sunset policy builder</see>.</returns>
+            <exception cref="T:System.ArgumentException">The <paramref name="name"/> and <paramref name="apiVersion"/>
+            parameters are both <c>null</c>.</exception>
+        </member>
+        <member name="M:Asp.Versioning.IApiVersioningPolicyBuilder.Deprecate(System.String,Asp.Versioning.ApiVersion)">
+            <summary>
+            Creates and returns a new deprecation policy builder.
+            </summary>
+            <param name="name">The optional name of the API the policy is for.</param>
+            <param name="apiVersion">The optional <see cref="T:Asp.Versioning.ApiVersion">API version</see> the policy is for.</param>
+            <returns>A new <see cref="T:Asp.Versioning.IDeprecationPolicyBuilder">deprecation policy builder</see>.</returns>
+            <exception cref="T:System.ArgumentException">The <paramref name="name"/> and <paramref name="apiVersion"/>
+            parameters are both <c>null</c>.</exception>
+        </member>
+        <member name="T:Asp.Versioning.IApiVersioningPolicyBuilderExtensions">
+            <summary>
+            Provides extension methods for the <see cref="T:Asp.Versioning.IApiVersioningPolicyBuilder"/> interface.
+            </summary>
+        </member>
+        <member name="M:Asp.Versioning.IApiVersioningPolicyBuilderExtensions.Sunset(Asp.Versioning.IApiVersioningPolicyBuilder,System.String)">
+            <inheritdoc cref="M:Asp.Versioning.IApiVersioningPolicyBuilderExtensions.&lt;G&gt;$A8D39D2335F6807B0808EB9EE8D03A9A.Sunset(System.String)"/>
+        </member>
+        <member name="M:Asp.Versioning.IApiVersioningPolicyBuilderExtensions.Sunset(Asp.Versioning.IApiVersioningPolicyBuilder,System.String,System.Int32,System.Nullable{System.Int32},System.String)">
+            <inheritdoc cref="M:Asp.Versioning.IApiVersioningPolicyBuilderExtensions.&lt;G&gt;$A8D39D2335F6807B0808EB9EE8D03A9A.Sunset(System.String,System.Int32,System.Nullable{System.Int32},System.String)"/>
+        </member>
+        <member name="M:Asp.Versioning.IApiVersioningPolicyBuilderExtensions.Sunset(Asp.Versioning.IApiVersioningPolicyBuilder,System.String,System.Double,System.String)">
+            <inheritdoc cref="M:Asp.Versioning.IApiVersioningPolicyBuilderExtensions.&lt;G&gt;$A8D39D2335F6807B0808EB9EE8D03A9A.Sunset(System.String,System.Double,System.String)"/>
+        </member>
+        <member name="M:Asp.Versioning.IApiVersioningPolicyBuilderExtensions.Sunset(Asp.Versioning.IApiVersioningPolicyBuilder,System.String,System.Int32,System.Int32,System.Int32,System.String)">
+            <inheritdoc cref="M:Asp.Versioning.IApiVersioningPolicyBuilderExtensions.&lt;G&gt;$A8D39D2335F6807B0808EB9EE8D03A9A.Sunset(System.String,System.Int32,System.Int32,System.Int32,System.String)"/>
+        </member>
+        <member name="M:Asp.Versioning.IApiVersioningPolicyBuilderExtensions.Sunset(Asp.Versioning.IApiVersioningPolicyBuilder,System.String,System.DateOnly,System.String)">
+            <inheritdoc cref="M:Asp.Versioning.IApiVersioningPolicyBuilderExtensions.&lt;G&gt;$A8D39D2335F6807B0808EB9EE8D03A9A.Sunset(System.String,System.DateOnly,System.String)"/>
+        </member>
+        <member name="M:Asp.Versioning.IApiVersioningPolicyBuilderExtensions.Sunset(Asp.Versioning.IApiVersioningPolicyBuilder,Asp.Versioning.ApiVersion)">
+            <inheritdoc cref="M:Asp.Versioning.IApiVersioningPolicyBuilderExtensions.&lt;G&gt;$A8D39D2335F6807B0808EB9EE8D03A9A.Sunset(Asp.Versioning.ApiVersion)"/>
+        </member>
+        <member name="M:Asp.Versioning.IApiVersioningPolicyBuilderExtensions.Sunset(Asp.Versioning.IApiVersioningPolicyBuilder,System.Int32,System.Nullable{System.Int32},System.String)">
+            <inheritdoc cref="M:Asp.Versioning.IApiVersioningPolicyBuilderExtensions.&lt;G&gt;$A8D39D2335F6807B0808EB9EE8D03A9A.Sunset(System.Int32,System.Nullable{System.Int32},System.String)"/>
+        </member>
+        <member name="M:Asp.Versioning.IApiVersioningPolicyBuilderExtensions.Sunset(Asp.Versioning.IApiVersioningPolicyBuilder,System.Double,System.String)">
+            <inheritdoc cref="M:Asp.Versioning.IApiVersioningPolicyBuilderExtensions.&lt;G&gt;$A8D39D2335F6807B0808EB9EE8D03A9A.Sunset(System.Double,System.String)"/>
+        </member>
+        <member name="M:Asp.Versioning.IApiVersioningPolicyBuilderExtensions.Sunset(Asp.Versioning.IApiVersioningPolicyBuilder,System.Int32,System.Int32,System.Int32,System.String)">
+            <inheritdoc cref="M:Asp.Versioning.IApiVersioningPolicyBuilderExtensions.&lt;G&gt;$A8D39D2335F6807B0808EB9EE8D03A9A.Sunset(System.Int32,System.Int32,System.Int32,System.String)"/>
+        </member>
+        <member name="M:Asp.Versioning.IApiVersioningPolicyBuilderExtensions.Sunset(Asp.Versioning.IApiVersioningPolicyBuilder,System.DateOnly,System.String)">
+            <inheritdoc cref="M:Asp.Versioning.IApiVersioningPolicyBuilderExtensions.&lt;G&gt;$A8D39D2335F6807B0808EB9EE8D03A9A.Sunset(System.DateOnly,System.String)"/>
+        </member>
+        <member name="M:Asp.Versioning.IApiVersioningPolicyBuilderExtensions.Deprecate(Asp.Versioning.IApiVersioningPolicyBuilder,System.String)">
+            <summary>
+            Creates and returns a new deprecation policy builder.
+            </summary>
+            <param name="builder">The extended <see cref="T:Asp.Versioning.IApiVersioningPolicyBuilder">API versioning policy builder</see>.</param>
+            <param name="name">The name of the API the policy is for.</param>
+            <returns>A new <see cref="T:Asp.Versioning.IDeprecationPolicyBuilder">deprecation policy builder</see>.</returns>
+        </member>
+        <member name="M:Asp.Versioning.IApiVersioningPolicyBuilderExtensions.Deprecate(Asp.Versioning.IApiVersioningPolicyBuilder,System.String,System.Int32,System.Nullable{System.Int32},System.String)">
+            <summary>
+            Creates and returns a new deprecation policy builder.
+            </summary>
+            <param name="builder">The extended <see cref="T:Asp.Versioning.IApiVersioningPolicyBuilder">API versioning policy builder</see>.</param>
+            <param name="name">The name of the API the policy is for.</param>
+            <param name="majorVersion">The major version number.</param>
+            <param name="minorVersion">The optional minor version number.</param>
+            <param name="status">The optional version status.</param>
+            <returns>A new <see cref="T:Asp.Versioning.IDeprecationPolicyBuilder">deprecation policy builder</see>.</returns>
+        </member>
+        <member name="M:Asp.Versioning.IApiVersioningPolicyBuilderExtensions.Deprecate(Asp.Versioning.IApiVersioningPolicyBuilder,System.String,System.Double,System.String)">
+            <summary>
+            Creates and returns a new deprecation policy builder.
+            </summary>
+            <param name="builder">The extended <see cref="T:Asp.Versioning.IApiVersioningPolicyBuilder">API versioning policy builder</see>.</param>
+            <param name="name">The name of the API the policy is for.</param>
+            <param name="version">The version number.</param>
+            <param name="status">The optional version status.</param>
+            <returns>A new <see cref="T:Asp.Versioning.IDeprecationPolicyBuilder">deprecation policy builder</see>.</returns>
+        </member>
+        <member name="M:Asp.Versioning.IApiVersioningPolicyBuilderExtensions.Deprecate(Asp.Versioning.IApiVersioningPolicyBuilder,System.String,System.Int32,System.Int32,System.Int32,System.String)">
+            <summary>
+            Creates and returns a new deprecation policy builder.
+            </summary>
+            <param name="builder">The extended <see cref="T:Asp.Versioning.IApiVersioningPolicyBuilder">API versioning policy builder</see>.</param>
+            <param name="name">The name of the API the policy is for.</param>
+            <param name="year">The version year.</param>
+            <param name="month">The version month.</param>
+            <param name="day">The version day.</param>
+            <param name="status">The optional version status.</param>
+            <returns>A new <see cref="T:Asp.Versioning.IDeprecationPolicyBuilder">deprecation policy builder</see>.</returns>
+        </member>
+        <member name="M:Asp.Versioning.IApiVersioningPolicyBuilderExtensions.Deprecate(Asp.Versioning.IApiVersioningPolicyBuilder,System.String,System.DateOnly,System.String)">
+            <summary>
+            Creates and returns a new deprecation policy builder.
+            </summary>
+            <param name="builder">The extended <see cref="T:Asp.Versioning.IApiVersioningPolicyBuilder">API versioning policy builder</see>.</param>
+            <param name="name">The name of the API the policy is for.</param>
+            <param name="groupVersion">The group version.</param>
+            <param name="status">The optional version status.</param>
+            <returns>A new <see cref="T:Asp.Versioning.IDeprecationPolicyBuilder">deprecation policy builder</see>.</returns>
+        </member>
+        <member name="M:Asp.Versioning.IApiVersioningPolicyBuilderExtensions.Deprecate(Asp.Versioning.IApiVersioningPolicyBuilder,Asp.Versioning.ApiVersion)">
+            <summary>
+            Creates and returns a new deprecation policy builder.
+            </summary>
+            <param name="builder">The extended <see cref="T:Asp.Versioning.IApiVersioningPolicyBuilder">API versioning policy builder</see>.</param>
+            <param name="apiVersion">The <see cref="T:Asp.Versioning.ApiVersion">API version</see> the policy is for.</param>
+            <returns>A new <see cref="T:Asp.Versioning.IDeprecationPolicyBuilder">deprecation policy builder</see>.</returns>
+        </member>
+        <member name="M:Asp.Versioning.IApiVersioningPolicyBuilderExtensions.Deprecate(Asp.Versioning.IApiVersioningPolicyBuilder,System.Int32,System.Nullable{System.Int32},System.String)">
+            <summary>
+            Creates and returns a new deprecation policy builder.
+            </summary>
+            <param name="builder">The extended <see cref="T:Asp.Versioning.IApiVersioningPolicyBuilder">API versioning policy builder</see>.</param>
+            <param name="majorVersion">The major version number.</param>
+            <param name="minorVersion">The optional minor version number.</param>
+            <param name="status">The optional version status.</param>
+            <returns>A new <see cref="T:Asp.Versioning.IDeprecationPolicyBuilder">deprecation policy builder</see>.</returns>
+        </member>
+        <member name="M:Asp.Versioning.IApiVersioningPolicyBuilderExtensions.Deprecate(Asp.Versioning.IApiVersioningPolicyBuilder,System.Double,System.String)">
+            <summary>
+            Creates and returns a new deprecation policy builder.
+            </summary>
+            <param name="builder">The extended <see cref="T:Asp.Versioning.IApiVersioningPolicyBuilder">API versioning policy builder</see>.</param>
+            <param name="version">The version number.</param>
+            <param name="status">The optional version status.</param>
+            <returns>A new <see cref="T:Asp.Versioning.IDeprecationPolicyBuilder">deprecation policy builder</see>.</returns>
+        </member>
+        <member name="M:Asp.Versioning.IApiVersioningPolicyBuilderExtensions.Deprecate(Asp.Versioning.IApiVersioningPolicyBuilder,System.Int32,System.Int32,System.Int32,System.String)">
+            <summary>
+            Creates and returns a new deprecation policy builder.
+            </summary>
+            <param name="builder">The extended <see cref="T:Asp.Versioning.IApiVersioningPolicyBuilder">API versioning policy builder</see>.</param>
+            <param name="year">The version year.</param>
+            <param name="month">The version month.</param>
+            <param name="day">The version day.</param>
+            <param name="status">The optional version status.</param>
+            <returns>A new <see cref="T:Asp.Versioning.IDeprecationPolicyBuilder">deprecation policy builder</see>.</returns>
+        </member>
+        <member name="M:Asp.Versioning.IApiVersioningPolicyBuilderExtensions.Deprecate(Asp.Versioning.IApiVersioningPolicyBuilder,System.DateOnly,System.String)">
+            <summary>
+            Creates and returns a new deprecation policy builder.
+            </summary>
+            <param name="builder">The extended <see cref="T:Asp.Versioning.IApiVersioningPolicyBuilder">API versioning policy builder</see>.</param>
+            <param name="groupVersion">The group version.</param>
+            <param name="status">The optional version status.</param>
+            <returns>A new <see cref="T:Asp.Versioning.IDeprecationPolicyBuilder">deprecation policy builder</see>.</returns>
+        </member>
+        <member name="T:Asp.Versioning.IApiVersioningPolicyBuilderExtensions.&lt;G&gt;$A8D39D2335F6807B0808EB9EE8D03A9A.&lt;M&gt;$2A71FCA6D74F08BDE71AE78FAB4D915F">
+            <param name="builder">The extended <see cref="T:Asp.Versioning.IApiVersioningPolicyBuilder">API versioning policy builder</see>.</param>
+        </member>
+        <member name="M:Asp.Versioning.IApiVersioningPolicyBuilderExtensions.&lt;G&gt;$A8D39D2335F6807B0808EB9EE8D03A9A.Sunset(System.String)">
+            <summary>
+            Creates and returns a new sunset policy builder.
+            </summary>
+            <param name="name">The name of the API the policy is for.</param>
+            <returns>A new <see cref="T:Asp.Versioning.ISunsetPolicyBuilder">sunset policy builder</see>.</returns>
+        </member>
+        <member name="M:Asp.Versioning.IApiVersioningPolicyBuilderExtensions.&lt;G&gt;$A8D39D2335F6807B0808EB9EE8D03A9A.Sunset(System.String,System.Int32,System.Nullable{System.Int32},System.String)">
+            <summary>
+            Creates and returns a new sunset policy builder.
+            </summary>
+            <param name="name">The name of the API the policy is for.</param>
+            <param name="majorVersion">The major version number.</param>
+            <param name="minorVersion">The optional minor version number.</param>
+            <param name="status">The optional version status.</param>
+            <returns>A new <see cref="T:Asp.Versioning.ISunsetPolicyBuilder">sunset policy builder</see>.</returns>
+        </member>
+        <member name="M:Asp.Versioning.IApiVersioningPolicyBuilderExtensions.&lt;G&gt;$A8D39D2335F6807B0808EB9EE8D03A9A.Sunset(System.String,System.Double,System.String)">
+            <summary>
+            Creates and returns a new sunset policy builder.
+            </summary>
+            <param name="name">The name of the API the policy is for.</param>
+            <param name="version">The version number.</param>
+            <param name="status">The optional version status.</param>
+            <returns>A new <see cref="T:Asp.Versioning.ISunsetPolicyBuilder">sunset policy builder</see>.</returns>
+        </member>
+        <member name="M:Asp.Versioning.IApiVersioningPolicyBuilderExtensions.&lt;G&gt;$A8D39D2335F6807B0808EB9EE8D03A9A.Sunset(System.String,System.Int32,System.Int32,System.Int32,System.String)">
+            <summary>
+            Creates and returns a new sunset policy builder.
+            </summary>
+            <param name="name">The name of the API the policy is for.</param>
+            <param name="year">The version year.</param>
+            <param name="month">The version month.</param>
+            <param name="day">The version day.</param>
+            <param name="status">The optional version status.</param>
+            <returns>A new <see cref="T:Asp.Versioning.ISunsetPolicyBuilder">sunset policy builder</see>.</returns>
+        </member>
+        <member name="M:Asp.Versioning.IApiVersioningPolicyBuilderExtensions.&lt;G&gt;$A8D39D2335F6807B0808EB9EE8D03A9A.Sunset(System.String,System.DateOnly,System.String)">
+            <summary>
+            Creates and returns a new sunset policy builder.
+            </summary>
+            <param name="name">The name of the API the policy is for.</param>
+            <param name="groupVersion">The group version.</param>
+            <param name="status">The optional version status.</param>
+            <returns>A new <see cref="T:Asp.Versioning.ISunsetPolicyBuilder">sunset policy builder</see>.</returns>
+        </member>
+        <member name="M:Asp.Versioning.IApiVersioningPolicyBuilderExtensions.&lt;G&gt;$A8D39D2335F6807B0808EB9EE8D03A9A.Sunset(Asp.Versioning.ApiVersion)">
+            <summary>
+            Creates and returns a new sunset policy builder.
+            </summary>
+            <param name="apiVersion">The <see cref="T:Asp.Versioning.ApiVersion">API version</see> the policy is for.</param>
+            <returns>A new <see cref="T:Asp.Versioning.ISunsetPolicyBuilder">sunset policy builder</see>.</returns>
+        </member>
+        <member name="M:Asp.Versioning.IApiVersioningPolicyBuilderExtensions.&lt;G&gt;$A8D39D2335F6807B0808EB9EE8D03A9A.Sunset(System.Int32,System.Nullable{System.Int32},System.String)">
+            <summary>
+            Creates and returns a new sunset policy builder.
+            </summary>
+            <param name="majorVersion">The major version number.</param>
+            <param name="minorVersion">The optional minor version number.</param>
+            <param name="status">The optional version status.</param>
+            <returns>A new <see cref="T:Asp.Versioning.ISunsetPolicyBuilder">sunset policy builder</see>.</returns>
+        </member>
+        <member name="M:Asp.Versioning.IApiVersioningPolicyBuilderExtensions.&lt;G&gt;$A8D39D2335F6807B0808EB9EE8D03A9A.Sunset(System.Double,System.String)">
+            <summary>
+            Creates and returns a new sunset policy builder.
+            </summary>
+            <param name="version">The version number.</param>
+            <param name="status">The optional version status.</param>
+            <returns>A new <see cref="T:Asp.Versioning.ISunsetPolicyBuilder">sunset policy builder</see>.</returns>
+        </member>
+        <member name="M:Asp.Versioning.IApiVersioningPolicyBuilderExtensions.&lt;G&gt;$A8D39D2335F6807B0808EB9EE8D03A9A.Sunset(System.Int32,System.Int32,System.Int32,System.String)">
+            <summary>
+            Creates and returns a new sunset policy builder.
+            </summary>
+            <param name="year">The version year.</param>
+            <param name="month">The version month.</param>
+            <param name="day">The version day.</param>
+            <param name="status">The optional version status.</param>
+            <returns>A new <see cref="T:Asp.Versioning.ISunsetPolicyBuilder">sunset policy builder</see>.</returns>
+        </member>
+        <member name="M:Asp.Versioning.IApiVersioningPolicyBuilderExtensions.&lt;G&gt;$A8D39D2335F6807B0808EB9EE8D03A9A.Sunset(System.DateOnly,System.String)">
+            <summary>
+            Creates and returns a new sunset policy builder.
+            </summary>
+            <param name="groupVersion">The group version.</param>
+            <param name="status">The optional version status.</param>
+            <returns>A new <see cref="T:Asp.Versioning.ISunsetPolicyBuilder">sunset policy builder</see>.</returns>
+        </member>
+        <member name="T:Asp.Versioning.IApiVersionNeutral">
+            <summary>
+            Defines the behavior of an API that is version-neutral.
+            </summary>
+        </member>
+        <member name="T:Asp.Versioning.IApiVersionParameterDescriptionContext">
+            <summary>
+            Defines the behavior of an object that contains API version parameter descriptions.
+            </summary>
+        </member>
+        <member name="M:Asp.Versioning.IApiVersionParameterDescriptionContext.AddParameter(System.String,Asp.Versioning.ApiVersionParameterLocation)">
+            <summary>
+            Adds an API version parameter with the specified name, from the specified location.
+            </summary>
+            <param name="name">The name of the parameter.</param>
+            <param name="location">One of the <see cref="T:Asp.Versioning.ApiVersionParameterLocation"/> values.</param>
+        </member>
+        <member name="T:Asp.Versioning.IApiVersionParameterSource">
+            <summary>
+            Defines the behavior of an object that is the source of API version parameters.
+            </summary>
+        </member>
+        <member name="M:Asp.Versioning.IApiVersionParameterSource.AddParameters(Asp.Versioning.IApiVersionParameterDescriptionContext)">
+            <summary>
+            Provides API version parameter descriptions supported by the current source using the supplied context.
+            </summary>
+            <param name="context">The <see cref="T:Asp.Versioning.IApiVersionParameterDescriptionContext">context</see> used to add API version parameter descriptions.</param>
+        </member>
+        <member name="T:Asp.Versioning.IApiVersionParameterSourceExtensions">
+            <summary>
+            Provides extension methods for the <see cref="T:Asp.Versioning.IApiVersionParameterSource"/> interface.
+            </summary>
+        </member>
+        <member name="M:Asp.Versioning.IApiVersionParameterSourceExtensions.VersionsByQueryString(Asp.Versioning.IApiVersionParameterSource,System.Boolean)">
+            <inheritdoc cref="M:Asp.Versioning.IApiVersionParameterSourceExtensions.&lt;G&gt;$26069312B243125F8ED4221F6E44D196.VersionsByQueryString(System.Boolean)"/>
+        </member>
+        <member name="M:Asp.Versioning.IApiVersionParameterSourceExtensions.VersionsByHeader(Asp.Versioning.IApiVersionParameterSource,System.Boolean)">
+            <inheritdoc cref="M:Asp.Versioning.IApiVersionParameterSourceExtensions.&lt;G&gt;$26069312B243125F8ED4221F6E44D196.VersionsByHeader(System.Boolean)"/>
+        </member>
+        <member name="M:Asp.Versioning.IApiVersionParameterSourceExtensions.VersionsByUrl(Asp.Versioning.IApiVersionParameterSource,System.Boolean)">
+            <inheritdoc cref="M:Asp.Versioning.IApiVersionParameterSourceExtensions.&lt;G&gt;$26069312B243125F8ED4221F6E44D196.VersionsByUrl(System.Boolean)"/>
+        </member>
+        <member name="M:Asp.Versioning.IApiVersionParameterSourceExtensions.VersionsByMediaType(Asp.Versioning.IApiVersionParameterSource,System.Boolean)">
+            <inheritdoc cref="M:Asp.Versioning.IApiVersionParameterSourceExtensions.&lt;G&gt;$26069312B243125F8ED4221F6E44D196.VersionsByMediaType(System.Boolean)"/>
+        </member>
+        <member name="M:Asp.Versioning.IApiVersionParameterSourceExtensions.GetParameterName(Asp.Versioning.IApiVersionParameterSource,Asp.Versioning.ApiVersionParameterLocation)">
+            <inheritdoc cref="M:Asp.Versioning.IApiVersionParameterSourceExtensions.&lt;G&gt;$26069312B243125F8ED4221F6E44D196.GetParameterName(Asp.Versioning.ApiVersionParameterLocation)"/>
+        </member>
+        <member name="M:Asp.Versioning.IApiVersionParameterSourceExtensions.GetParameterNames(Asp.Versioning.IApiVersionParameterSource,Asp.Versioning.ApiVersionParameterLocation)">
+            <inheritdoc cref="M:Asp.Versioning.IApiVersionParameterSourceExtensions.&lt;G&gt;$26069312B243125F8ED4221F6E44D196.GetParameterNames(Asp.Versioning.ApiVersionParameterLocation)"/>
+        </member>
+        <member name="T:Asp.Versioning.IApiVersionParameterSourceExtensions.&lt;G&gt;$26069312B243125F8ED4221F6E44D196.&lt;M&gt;$563422D38243F853376D3F5CD8B48369">
+            <param name="source">The extended parameter source.</param>
+        </member>
+        <member name="M:Asp.Versioning.IApiVersionParameterSourceExtensions.&lt;G&gt;$26069312B243125F8ED4221F6E44D196.VersionsByQueryString(System.Boolean)">
+            <summary>
+            Determines whether the specified parameter source versions by query string.
+            </summary>
+            <param name="allowMultipleLocations">True if multiple API version locations are allowed.
+            False if the API version can only appear in a query string parameter. The default value is true.</param>
+            <returns>True if the parameter source versions by query string; otherwise, false.</returns>
+        </member>
+        <member name="M:Asp.Versioning.IApiVersionParameterSourceExtensions.&lt;G&gt;$26069312B243125F8ED4221F6E44D196.VersionsByHeader(System.Boolean)">
+            <summary>
+            Determines whether the specified parameter source versions by HTTP header.
+            </summary>
+            <param name="allowMultipleLocations">True if multiple API version locations are allowed.
+            False if the API version can only appear in a HTTP header. The default value is true.</param>
+            <returns>True if the parameter source versions by HTTP header; otherwise, false.</returns>
+        </member>
+        <member name="M:Asp.Versioning.IApiVersionParameterSourceExtensions.&lt;G&gt;$26069312B243125F8ED4221F6E44D196.VersionsByUrl(System.Boolean)">
+            <summary>
+            Determines whether the specified parameter source versions by URL path segment.
+            </summary>
+            <param name="allowMultipleLocations">True if multiple API version locations are allowed.
+            False if the API version can only appear in a URL path segment. The default value is true.</param>
+            <returns>True if the parameter source versions by URL path segment; otherwise, false.</returns>
+        </member>
+        <member name="M:Asp.Versioning.IApiVersionParameterSourceExtensions.&lt;G&gt;$26069312B243125F8ED4221F6E44D196.VersionsByMediaType(System.Boolean)">
+            <summary>
+            Determines whether the specified parameter source versions by media type.
+            </summary>
+            <param name="allowMultipleLocations">True if multiple API version locations are allowed.
+            False if the API version can only appear as a media type. The default value is true.</param>
+            <returns>True if the parameter source versions by media type; otherwise, false.</returns>
+        </member>
+        <member name="M:Asp.Versioning.IApiVersionParameterSourceExtensions.&lt;G&gt;$26069312B243125F8ED4221F6E44D196.GetParameterName(Asp.Versioning.ApiVersionParameterLocation)">
+            <summary>
+            Gets the name of the parameter associated with the parameter source, if any.
+            </summary>
+            <param name="location">The location to get the parameter name for.</param>
+            <returns>The name of the first parameter defined by the parameter source for the specified
+            <paramref name="location"/> or <c>null</c>.</returns>
+        </member>
+        <member name="M:Asp.Versioning.IApiVersionParameterSourceExtensions.&lt;G&gt;$26069312B243125F8ED4221F6E44D196.GetParameterNames(Asp.Versioning.ApiVersionParameterLocation)">
+            <summary>
+            Gets the name of the parameters associated with the parameter source.
+            </summary>
+            <param name="location">The location to get the parameter names for.</param>
+            <returns>The names of the parameters defined by the parameter source for the specified <paramref name="location"/>.</returns>
+        </member>
+        <member name="T:Asp.Versioning.IApiVersionProvider">
+            <summary>
+            Defines the behavior of an <see cref="T:Asp.Versioning.ApiVersion">API version</see> provider.
+            </summary>
+        </member>
+        <member name="P:Asp.Versioning.IApiVersionProvider.Options">
+            <summary>
+            Gets the options associated with the provided API versions.
+            </summary>
+        </member>
+        <member name="P:Asp.Versioning.IApiVersionProvider.Versions">
+            <summary>
+            Gets the defined API versions defined.
+            </summary>
+            <value>A <see cref="T:System.Collections.Generic.IReadOnlyList`1">read-only list</see> of <see cref="T:Asp.Versioning.ApiVersion">API versions</see>.</value>
+        </member>
+        <member name="T:Asp.Versioning.IDeprecationPolicyBuilder">
+            <summary>
+            Defines the behavior of a deprecation policy builder.
+            </summary>
+        </member>
+        <member name="T:Asp.Versioning.ILinkBuilder">
+            <summary>
+            Defines the behavior of a link builder.
+            </summary>
+        </member>
+        <member name="M:Asp.Versioning.ILinkBuilder.Link(System.Uri)">
+            <summary>
+            Creates and returns a new link builder.
+            </summary>
+            <param name="linkTarget">The link target URL.</param>
+            <returns>A new <see cref="T:Asp.Versioning.ILinkBuilder">link builder</see>.</returns>
+        </member>
+        <member name="M:Asp.Versioning.ILinkBuilder.Type(System.String)">
+            <summary>
+            Applies a type to the link.
+            </summary>
+            <param name="value">A hint indicating what the media type of the result of dereferencing the link should be.</param>
+            <returns>The current <see cref="T:Asp.Versioning.ILinkBuilder">link builder</see>.</returns>
+        </member>
+        <member name="M:Asp.Versioning.ILinkBuilder.Title(System.String)">
+            <summary>
+            Applies a title to the link.
+            </summary>
+            <param name="value">The value used to label the destination of the link such that it can be used as a human-readable
+            identifier (e.g. "menu entry") in the language indicated by the Content-Language header field, if present.</param>
+            <returns>The current <see cref="T:Asp.Versioning.ILinkBuilder">link builder</see>.</returns>
+        </member>
+        <member name="M:Asp.Versioning.ILinkBuilder.Language(System.String)">
+            <summary>
+            Applies a language to the link.
+            </summary>
+            <param name="value">A hint indicating what the language of the result of dereferencing the link should be.</param>
+            <returns>The current <see cref="T:Asp.Versioning.ILinkBuilder">link builder</see>.</returns>
+        </member>
+        <member name="M:Asp.Versioning.ILinkBuilder.Build">
+            <summary>
+            Creates and returns a new link.
+            </summary>
+            <returns>A new <see cref="T:Asp.Versioning.LinkHeaderValue">link header value</see>.</returns>
+        </member>
+        <member name="T:Asp.Versioning.ILinkBuilderExtensions">
+            <summary>
+            Provides extension methods for the <see cref="T:Asp.Versioning.ILinkBuilder"/> interface.
+            </summary>
+        </member>
+        <member name="M:Asp.Versioning.ILinkBuilderExtensions.Link(Asp.Versioning.ILinkBuilder,System.String)">
+            <inheritdoc cref="M:Asp.Versioning.ILinkBuilderExtensions.&lt;G&gt;$EB9BF1DFA2C799F19C4FD499FE0BAEF9.Link(System.String)"/>
+        </member>
+        <member name="T:Asp.Versioning.ILinkBuilderExtensions.&lt;G&gt;$EB9BF1DFA2C799F19C4FD499FE0BAEF9.&lt;M&gt;$6721E8436D01BE8897BDC496D3CF2458">
+            <param name="builder">The extended <see cref="T:Asp.Versioning.ILinkBuilder">link builder</see>.</param>
+        </member>
+        <member name="M:Asp.Versioning.ILinkBuilderExtensions.&lt;G&gt;$EB9BF1DFA2C799F19C4FD499FE0BAEF9.Link(System.String)">
+            <summary>
+            Creates and returns a new link builder.
+            </summary>
+            <param name="linkTarget">The link target URL.</param>
+            <returns>A new <see cref="T:Asp.Versioning.ILinkBuilder">link builder</see>.</returns>
+        </member>
+        <member name="T:Asp.Versioning.IPolicyBuilder`1">
+            <summary>
+            Defines the behavior of a policy builder which applies to a single API version.
+            </summary>
+            <typeparam name="TPolicy">The type of policy which is built by this builder.</typeparam>
+        </member>
+        <member name="P:Asp.Versioning.IPolicyBuilder`1.Name">
+            <summary>
+            Gets the policy name.
+            </summary>
+            <value>The policy name, if any.</value>
+            <remarks>The name is typically of an API.</remarks>
+        </member>
+        <member name="P:Asp.Versioning.IPolicyBuilder`1.ApiVersion">
+            <summary>
+            Gets the API version the policy is for.
+            </summary>
+            <value>The specific policy <see cref="P:Asp.Versioning.IPolicyBuilder`1.ApiVersion">API version</see>, if any.</value>
+        </member>
+        <member name="M:Asp.Versioning.IPolicyBuilder`1.Per(`0)">
+            <summary>
+            Configures the builder per the specified <paramref name="policy"/>.
+            </summary>
+            <param name="policy">The applied <typeparamref name="TPolicy">policy</typeparamref>.</param>
+        </member>
+        <member name="M:Asp.Versioning.IPolicyBuilder`1.Build">
+            <summary>
+            Builds and returns a policy.
+            </summary>
+            <returns>A new <typeparamref name="TPolicy">policy</typeparamref>.</returns>
+        </member>
+        <member name="T:Asp.Versioning.IPolicyBuilderExtensions">
+            <summary>
+            Provides extension methods for the <see cref="T:Asp.Versioning.IPolicyBuilder`1"/> interface.
+            </summary>
+        </member>
+        <member name="M:Asp.Versioning.IPolicyBuilderExtensions.Link(Asp.Versioning.IPolicyWithLink,System.String)">
+            <inheritdoc cref="M:Asp.Versioning.IPolicyBuilderExtensions.&lt;G&gt;$30CA2C68001272AD76BEA3BA7331F76B.Link(System.String)"/>
+        </member>
+        <member name="M:Asp.Versioning.IPolicyBuilderExtensions.Effective``1(``0,System.DateTimeOffset)">
+            <inheritdoc cref="M:Asp.Versioning.IPolicyBuilderExtensions.&lt;G&gt;$3BC4648BEFCE988A87596F2596FF1F3F`1.Effective(System.DateTimeOffset)"/>
+        </member>
+        <member name="M:Asp.Versioning.IPolicyBuilderExtensions.Effective``1(``0,System.Int32,System.Int32,System.Int32)">
+            <inheritdoc cref="M:Asp.Versioning.IPolicyBuilderExtensions.&lt;G&gt;$3BC4648BEFCE988A87596F2596FF1F3F`1.Effective(System.Int32,System.Int32,System.Int32)"/>
+        </member>
+        <member name="T:Asp.Versioning.IPolicyBuilderExtensions.&lt;G&gt;$30CA2C68001272AD76BEA3BA7331F76B.&lt;M&gt;$185DCF6FB22BF243F53E91F051825E81">
+            <param name="builder">The extended <see cref="T:Asp.Versioning.IPolicyBuilder`1">policy builder</see>.</param>
+        </member>
+        <member name="M:Asp.Versioning.IPolicyBuilderExtensions.&lt;G&gt;$30CA2C68001272AD76BEA3BA7331F76B.Link(System.String)">
+            <summary>
+            Creates and returns a new link builder.
+            </summary>
+            <param name="linkTarget">The link target URL.</param>
+            <returns>A new <see cref="T:Asp.Versioning.ILinkBuilder">link builder</see>.</returns>
+        </member>
+        <member name="T:Asp.Versioning.IPolicyBuilderExtensions.&lt;G&gt;$3BC4648BEFCE988A87596F2596FF1F3F`1.&lt;M&gt;$6AE3052F5A85E43C08DF94312D2E8796">
+            <typeparam name="TBuilder">The type of <see cref="T:Asp.Versioning.IPolicyBuilder`1">policy builder</see>.</typeparam>
+            <param name="builder">The extended <see cref="T:Asp.Versioning.IPolicyBuilder`1">policy builder</see>.</param>
+        </member>
+        <member name="M:Asp.Versioning.IPolicyBuilderExtensions.&lt;G&gt;$3BC4648BEFCE988A87596F2596FF1F3F`1.Effective(System.DateTimeOffset)">
+            <summary>
+            Indicates when a policy is applied.
+            </summary>
+            <param name="effectiveDate">The time when the policy is applied.</param>
+            <returns>The current policy builder.</returns>
+        </member>
+        <member name="M:Asp.Versioning.IPolicyBuilderExtensions.&lt;G&gt;$3BC4648BEFCE988A87596F2596FF1F3F`1.Effective(System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Indicates when a policy is applied.
+            </summary>
+            <param name="year">The year when the policy is applied.</param>
+            <param name="month">The month when the policy is applied.</param>
+            <param name="day">The day when the policy is applied.</param>
+            <returns>The current policy builder.</returns>
+        </member>
+        <member name="T:Asp.Versioning.IPolicyManager`1">
+            <summary>
+            Defines the behavior of an API version policy manager.
+            </summary>
+            <typeparam name="TPolicy">The type of the policy.</typeparam>
+        </member>
+        <member name="M:Asp.Versioning.IPolicyManager`1.TryGetPolicy(System.String,Asp.Versioning.ApiVersion,`0@)">
+            <summary>
+            Returns the policy for the specified API and version.
+            </summary>
+            <param name="name">The name of the API.</param>
+            <param name="apiVersion">The API version to get the policy for.</param>
+            <param name="policy">The applicable <typeparamref name="TPolicy">policy</typeparamref>, if any.</param>
+            <returns>True if the <paramref name="policy">policy</paramref> was retrieved; otherwise, false.</returns>
+            <remarks>If <paramref name="name"/> is <c>null</c>, it is assumed the caller intends to match any
+            policy for the specified <paramref name="apiVersion">API version</paramref>. If
+            <paramref name="apiVersion">API version</paramref> is <c>null</c>, it is assumed the caller intends to match
+            any policy for the specified <paramref name="name"/>.</remarks>
+        </member>
+        <member name="T:Asp.Versioning.IPolicyManagerExtensions">
+            <summary>
+            Provides extension methods for the <see cref="T:Asp.Versioning.IPolicyManager`1"/> interface.
+            </summary>
+        </member>
+        <member name="M:Asp.Versioning.IPolicyManagerExtensions.TryGetPolicy``1(Asp.Versioning.IPolicyManager{``0},Asp.Versioning.ApiVersion,``0@)">
+            <inheritdoc cref="M:Asp.Versioning.IPolicyManagerExtensions.&lt;G&gt;$BA5F23BF1AA71CA40AEB1021FA0AE4FF`1.TryGetPolicy(Asp.Versioning.ApiVersion,`0@)"/>
+        </member>
+        <member name="M:Asp.Versioning.IPolicyManagerExtensions.TryGetPolicy``1(Asp.Versioning.IPolicyManager{``0},System.String,``0@)">
+            <inheritdoc cref="M:Asp.Versioning.IPolicyManagerExtensions.&lt;G&gt;$BA5F23BF1AA71CA40AEB1021FA0AE4FF`1.TryGetPolicy(System.String,`0@)"/>
+        </member>
+        <member name="M:Asp.Versioning.IPolicyManagerExtensions.ResolvePolicyOrDefault``1(Asp.Versioning.IPolicyManager{``0},System.String,Asp.Versioning.ApiVersion)">
+            <inheritdoc cref="M:Asp.Versioning.IPolicyManagerExtensions.&lt;G&gt;$BA5F23BF1AA71CA40AEB1021FA0AE4FF`1.ResolvePolicyOrDefault(System.String,Asp.Versioning.ApiVersion)"/>
+        </member>
+        <member name="M:Asp.Versioning.IPolicyManagerExtensions.TryResolvePolicy``1(Asp.Versioning.IPolicyManager{``0},System.String,Asp.Versioning.ApiVersion,``0@)">
+            <inheritdoc cref="M:Asp.Versioning.IPolicyManagerExtensions.&lt;G&gt;$BA5F23BF1AA71CA40AEB1021FA0AE4FF`1.TryResolvePolicy(System.String,Asp.Versioning.ApiVersion,`0@)"/>
+        </member>
+        <member name="T:Asp.Versioning.IPolicyManagerExtensions.&lt;G&gt;$BA5F23BF1AA71CA40AEB1021FA0AE4FF`1.&lt;M&gt;$B1A2CD7ACA9B117C11F2CD2FE2F74ED5">
+            <typeparam name="T">The type of policy.</typeparam>
+            <param name="policyManager">The extended <see cref="T:Asp.Versioning.IPolicyManager`1">policy manager</see>.</param>
+        </member>
+        <member name="M:Asp.Versioning.IPolicyManagerExtensions.&lt;G&gt;$BA5F23BF1AA71CA40AEB1021FA0AE4FF`1.TryGetPolicy(Asp.Versioning.ApiVersion,`0@)">
+            <summary>
+            Returns the policy for the specified API and version.
+            </summary>
+            <param name="apiVersion">The API version to get the policy for.</param>
+            <param name="policy">The applicable <typeparamref name="T">policy</typeparamref>, if any.</param>
+            <returns>True if the <paramref name="policy">policy</paramref> was retrieved; otherwise, false.</returns>
+        </member>
+        <member name="M:Asp.Versioning.IPolicyManagerExtensions.&lt;G&gt;$BA5F23BF1AA71CA40AEB1021FA0AE4FF`1.TryGetPolicy(System.String,`0@)">
+            <summary>
+            Returns the policy for the specified API and version.
+            </summary>
+            <param name="name">The name of the API.</param>
+            <param name="policy">The applicable <typeparamref name="T">policy</typeparamref>, if any.</param>
+            <returns>True if the <paramref name="policy">policy</paramref> was retrieved; otherwise, false.</returns>
+        </member>
+        <member name="M:Asp.Versioning.IPolicyManagerExtensions.&lt;G&gt;$BA5F23BF1AA71CA40AEB1021FA0AE4FF`1.ResolvePolicyOrDefault(System.String,Asp.Versioning.ApiVersion)">
+            <summary>
+            Attempts to resolve a policy for the specified name and API version combination.
+            </summary>
+            <param name="name">The name of the API.</param>
+            <param name="apiVersion">The API version to get the policy for.</param>
+            <returns>The applicable <typeparamref name="T">policy</typeparamref>, if any.</returns>
+            <remarks>The resolution order is as follows:
+            <list type="bullet">
+             <item><paramref name="name"/> and <paramref name="apiVersion"/></item>
+             <item><paramref name="name"/> only</item>
+             <item><paramref name="apiVersion"/> only</item>
+            </list>
+            </remarks>
+        </member>
+        <member name="M:Asp.Versioning.IPolicyManagerExtensions.&lt;G&gt;$BA5F23BF1AA71CA40AEB1021FA0AE4FF`1.TryResolvePolicy(System.String,Asp.Versioning.ApiVersion,`0@)">
+            <summary>
+            Attempts to resolve a policy for the specified name and API version combination.
+            </summary>
+            <param name="name">The name of the API.</param>
+            <param name="apiVersion">The API version to get the policy for.</param>
+            <param name="policy">The applicable <typeparamref name="T">policy</typeparamref>, if any.</param>
+            <returns>True if the <paramref name="policy">policy</paramref> was retrieved; otherwise, false.</returns>
+            <remarks>The resolution order is as follows:
+            <list type="bullet">
+             <item><paramref name="name"/> and <paramref name="apiVersion"/></item>
+             <item><paramref name="name"/> only</item>
+             <item><paramref name="apiVersion"/> only</item>
+            </list>
+            </remarks>
+        </member>
+        <member name="T:Asp.Versioning.IPolicyWithEffectiveDate">
+            <summary>
+            Defines the behavior of a policy which can be configured to only be effective after a particular date.
+            </summary>
+        </member>
+        <member name="M:Asp.Versioning.IPolicyWithEffectiveDate.SetEffectiveDate(System.DateTimeOffset)">
+            <summary>
+            Sets the effective date when a policy is applied.
+            </summary>
+            <param name="effectiveDate">The <see cref="T:System.DateTimeOffset">date and time</see> when a policy is applied.</param>
+        </member>
+        <member name="T:Asp.Versioning.IPolicyWithLink">
+            <summary>
+            Defines a policy which can (optionally) expose a link to more information.
+            </summary>
+        </member>
+        <member name="M:Asp.Versioning.IPolicyWithLink.Link(System.Uri)">
+            <summary>
+            Creates and returns a new link builder.
+            </summary>
+            <param name="linkTarget">The link target URL.</param>
+            <returns>A new <see cref="T:Asp.Versioning.ILinkBuilder">link builder</see>.</returns>
+        </member>
+        <member name="T:Asp.Versioning.ISunsetPolicyBuilder">
+            <summary>
+            Defines the behavior of a sunset policy builder.
+            </summary>
+        </member>
+        <member name="T:Asp.Versioning.LinkHeaderValue">
+            <summary>
+            Represents a HTTP Link header value.
+            </summary>
+            <remarks>For more information see <a href="https://datatracker.ietf.org/doc/html/rfc8288">RFC 8288</a>.</remarks>
+        </member>
+        <member name="M:Asp.Versioning.LinkHeaderValue.#ctor(System.Uri,Microsoft.Extensions.Primitives.StringSegment)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.LinkHeaderValue"/> class.
+            </summary>
+            <param name="linkTarget">The link target URL.</param>
+            <param name="relationType">The link relation type that identifies the semantics of the link.</param>
+        </member>
+        <member name="P:Asp.Versioning.LinkHeaderValue.LinkTarget">
+            <summary>
+            Gets the link target Uniform Resource Locator (URL).
+            </summary>
+            <value>The link target URL.</value>
+        </member>
+        <member name="P:Asp.Versioning.LinkHeaderValue.RelationType">
+            <summary>
+            Gets the link relation type.
+            </summary>
+            <value>The link relation type that identifies the semantics of the link.</value>
+        </member>
+        <member name="P:Asp.Versioning.LinkHeaderValue.Language">
+            <summary>
+            Gets or sets the language associated with the link.
+            </summary>
+            <value>A hint indicating what the language of the result of dereferencing the link should be.</value>
+            <remarks>
+            <para>
+            This is only a hint; for example, it does not override the Content-Language header field of
+            a HTTP response obtained by actually following the link. A single link may indicate that multiple
+            languages are available from the indicated resource.
+            </para>
+            <para>
+            If the link has more than one associated language, this property always gets or sets the first
+            language defined.
+            </para>
+            </remarks>
+        </member>
+        <member name="P:Asp.Versioning.LinkHeaderValue.Languages">
+            <summary>
+            Gets languages associated with the link.
+            </summary>
+            <value>A hint indicating what the language of the result of dereferencing the link should be.</value>
+            <remarks>This is only a hint; for example, it does not override the Content-Language header field of
+            a HTTP response obtained by actually following the link. A single link may indicate that multiple
+            languages are available from the indicated resource.</remarks>
+        </member>
+        <member name="P:Asp.Versioning.LinkHeaderValue.Media">
+            <summary>
+            Gets or sets the link media.
+            </summary>
+            <value>Used to indicate intended destination medium or media for style information.</value>
+            <remarks>For more information see, <a href="https://html.spec.whatwg.org/multipage/semantics.html#attr-link-media">The link element</a>.</remarks>
+        </member>
+        <member name="P:Asp.Versioning.LinkHeaderValue.Title">
+            <summary>
+            Gets or sets the link title.
+            </summary>
+            <value>Used to label the destination of the link such that it can be used as a human-readable identifier
+            (e.g. "menu entry") in the language indicated by the Content-Language header field, if present.</value>
+        </member>
+        <member name="P:Asp.Versioning.LinkHeaderValue.Type">
+            <summary>
+            Gets or sets the link type.
+            </summary>
+            <value>A hint indicating what the media type of the result of dereferencing the link should be.</value>
+        </member>
+        <member name="P:Asp.Versioning.LinkHeaderValue.Extensions">
+            <summary>
+            Gets the target attribute extensions, if any.
+            </summary>
+            <value>A collection of key/value pairs representing the target attribute extensions.</value>
+        </member>
+        <member name="M:Asp.Versioning.LinkHeaderValue.Parse(Microsoft.Extensions.Primitives.StringSegment,System.Func{System.Uri,System.Uri})">
+            <summary>
+            Parses the specified header value.
+            </summary>
+            <param name="input">The input value to parse.</param>
+            <param name="resolveRelativeUrl">The optional function used to resolve relative URLs.</param>
+            <returns>A new <see cref="T:Asp.Versioning.LinkHeaderValue">LINK header value</see>.</returns>
+            <remarks>For more information see <a href="https://datatracker.ietf.org/doc/html/rfc8288#appendix-B">RFC 8288 - Appendix B</a>.</remarks>
+        </member>
+        <member name="M:Asp.Versioning.LinkHeaderValue.TryParse(Microsoft.Extensions.Primitives.StringSegment,System.Func{System.Uri,System.Uri},Asp.Versioning.LinkHeaderValue@)">
+            <summary>
+            Attempts to parse the specified header value.
+            </summary>
+            <param name="input">The input value to parse.</param>
+            <param name="resolveRelativeUrl">The optional function used to resolve relative URLs.</param>
+            <param name="parsedValue">A new <see cref="T:Asp.Versioning.LinkHeaderValue">LINK header value</see> or <c>null</c>.</param>
+            <returns>True if the header is successfully parsed; otherwise, false.</returns>
+            <remarks>For more information see <a href="https://datatracker.ietf.org/doc/html/rfc8288#appendix-B">RFC 8288 - Appendix B</a>.</remarks>
+        </member>
+        <member name="M:Asp.Versioning.LinkHeaderValue.ParseList(System.Collections.Generic.IList{System.String},System.Func{System.Uri,System.Uri})">
+            <summary>
+            Parses a sequence of inputs as a sequence of <see cref="T:Asp.Versioning.LinkHeaderValue"/> values.
+            </summary>
+            <param name="input">The values to parse.</param>
+            <param name="resolveRelativeUrl">The optional function used to resolve relative URLs.</param>
+            <returns>The parsed values.</returns>
+        </member>
+        <member name="M:Asp.Versioning.LinkHeaderValue.TryParseList(System.Collections.Generic.IList{System.String},System.Func{System.Uri,System.Uri},System.Collections.Generic.IList{Asp.Versioning.LinkHeaderValue}@)">
+            <summary>
+            Attempts to parse the sequence of values as a sequence of <see cref="T:Asp.Versioning.LinkHeaderValue"/>.
+            </summary>
+            <param name="input">The values to parse.</param>
+            <param name="resolveRelativeUrl">The optional function used to resolve relative URLs.</param>
+            <param name="parsedValues">The parsed values.</param>
+            <returns><see langword="true"/> if all inputs are valid <see cref="T:Asp.Versioning.LinkHeaderValue"/>, otherwise <see langword="false"/>.</returns>
+        </member>
+        <member name="M:Asp.Versioning.LinkHeaderValue.ToString">
+            <inheritdoc />
+        </member>
+        <member name="T:Asp.Versioning.MapToApiVersionAttribute">
+            <summary>
+            Represents the metadata that describes the <see cref="T:Asp.Versioning.ApiVersion">version</see>-specific implementation of an API.
+            </summary>
+        </member>
+        <member name="M:Asp.Versioning.MapToApiVersionAttribute.#ctor(Asp.Versioning.ApiVersion)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.MapToApiVersionAttribute"/> class.
+            </summary>
+            <param name="version">The <see cref="T:Asp.Versioning.ApiVersion">API version</see>.</param>
+        </member>
+        <member name="M:Asp.Versioning.MapToApiVersionAttribute.#ctor(Asp.Versioning.IApiVersionParser,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.MapToApiVersionAttribute"/> class.
+            </summary>
+            <param name="parser">The parser used to parse the specified versions.</param>
+            <param name="version">The API version string.</param>
+        </member>
+        <member name="M:Asp.Versioning.MapToApiVersionAttribute.#ctor(System.Double,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.MapToApiVersionAttribute"/> class.
+            </summary>
+            <param name="version">A numeric API version.</param>
+            <param name="status">The status associated with the API version, if any.</param>
+        </member>
+        <member name="M:Asp.Versioning.MapToApiVersionAttribute.#ctor(System.Int32,System.Int32,System.Int32,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.MapToApiVersionAttribute"/> class.
+            </summary>
+            <param name="year">The version year.</param>
+            <param name="month">The version month.</param>
+            <param name="day">The version day.</param>
+            <param name="status">The status associated with the API version, if any.</param>
+        </member>
+        <member name="M:Asp.Versioning.MapToApiVersionAttribute.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.MapToApiVersionAttribute"/> class.
+            </summary>
+            <param name="version">The API version string.</param>
+        </member>
+        <member name="T:Asp.Versioning.NamespaceParser">
+            <summary>
+            Represents API version parser from a type namespace.
+            </summary>
+            <remarks>
+            The namespace identifier can use <c>'v'</c>, <c>'V'</c>, or <c>'_'</c> as a prefix. The <c>'_'</c> prefix is useful
+            when the source folder starts with a number and the editor automatically prefixes it with an underscore. As an
+            example, <c>Api._2018_04_01.Controllers</c> is equivalent to <c>Api.v2018_04_01.Controllers</c>.
+            </remarks>
+        </member>
+        <member name="M:Asp.Versioning.NamespaceParser.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.NamespaceParser"/> class.
+            </summary>
+        </member>
+        <member name="M:Asp.Versioning.NamespaceParser.#ctor(System.IFormatProvider)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.NamespaceParser"/> class.
+            </summary>
+            <param name="formatProvider">The associated format provider.</param>
+        </member>
+        <member name="P:Asp.Versioning.NamespaceParser.Default">
+            <summary>
+            Gets the default namespace parser.
+            </summary>
+            <value>The default namespace parser.</value>
+        </member>
+        <member name="P:Asp.Versioning.NamespaceParser.FormatProvider">
+            <summary>
+            Gets the format provider associated with the parser.
+            </summary>
+            <value>The associated format provider.</value>
+        </member>
+        <member name="M:Asp.Versioning.NamespaceParser.Parse(System.Type)">
+            <summary>
+            Parses a list of API version versions from the specified namespace.
+            </summary>
+            <param name="type">The <see cref="T:System.Type"/> whose namespace to parse.</param>
+            <returns>A <see cref="T:System.Collections.Generic.IReadOnlyList`1">read-only list</see> of <see cref="T:Asp.Versioning.ApiVersion">API verisons</see>.</returns>
+        </member>
+        <member name="M:Asp.Versioning.NamespaceParser.TryParse(System.ReadOnlySpan{System.Char},Asp.Versioning.ApiVersion@)">
+            <summary>
+            Attempts to parse an API version from the specified namespace identifier.
+            </summary>
+            <param name="identifier">The namespace identifier to parse. The identifier must start with
+            'v', 'V', or '_' followed by the version components.</param>
+            <param name="apiVersion">The parsed <see cref="T:Asp.Versioning.ApiVersion">API version</see> or <c>null</c>.</param>
+            <returns>True if parsing is successful; otherwise, false.</returns>
+        </member>
+        <member name="T:Asp.Versioning.IApiVersionParser">
+            <summary>
+            Defines the behavior of an API version parser.
+            </summary>
+        </member>
+        <member name="M:Asp.Versioning.IApiVersionParser.Parse(System.ReadOnlySpan{System.Char})">
+            <summary>
+            Parses the specified text.
+            </summary>
+            <param name="text">The text to parse as an API version.</param>
+            <returns>The parsed API version.</returns>
+        </member>
+        <member name="M:Asp.Versioning.IApiVersionParser.TryParse(System.ReadOnlySpan{System.Char},Asp.Versioning.ApiVersion@)">
+            <summary>
+            Attempts to parse the specified text.
+            </summary>
+            <param name="text">The text to parse as an API version.</param>
+            <param name="apiVersion">The parsed API version or null.</param>
+            <returns>True if the parsing was successful; otherwise false.</returns>
+        </member>
+        <member name="T:Asp.Versioning.IApiVersionParserExtensions">
+            <summary>
+            Provides extension methods for the <see cref="T:Asp.Versioning.IApiVersionParser"/> interface.
+            </summary>
+        </member>
+        <member name="M:Asp.Versioning.IApiVersionParserExtensions.Parse(Asp.Versioning.IApiVersionParser,System.String)">
+            <inheritdoc cref="M:Asp.Versioning.IApiVersionParserExtensions.&lt;G&gt;$3C04659D1A608E82AC3E3D59C2B6DF37.Parse(System.String)"/>
+        </member>
+        <member name="M:Asp.Versioning.IApiVersionParserExtensions.TryParse(Asp.Versioning.IApiVersionParser,System.String,Asp.Versioning.ApiVersion@)">
+            <inheritdoc cref="M:Asp.Versioning.IApiVersionParserExtensions.&lt;G&gt;$3C04659D1A608E82AC3E3D59C2B6DF37.TryParse(System.String,Asp.Versioning.ApiVersion@)"/>
+        </member>
+        <member name="T:Asp.Versioning.IApiVersionParserExtensions.&lt;G&gt;$3C04659D1A608E82AC3E3D59C2B6DF37.&lt;M&gt;$6AF11DFD07EB23BD5A8951109CE46901">
+            <param name="parser">The extended parser.</param>
+        </member>
+        <member name="M:Asp.Versioning.IApiVersionParserExtensions.&lt;G&gt;$3C04659D1A608E82AC3E3D59C2B6DF37.Parse(System.String)">
+            <summary>
+            Parses the specified text.
+            </summary>
+            <param name="text">The text to parse as an API version.</param>
+            <returns>The parsed API version.</returns>
+        </member>
+        <member name="M:Asp.Versioning.IApiVersionParserExtensions.&lt;G&gt;$3C04659D1A608E82AC3E3D59C2B6DF37.TryParse(System.String,Asp.Versioning.ApiVersion@)">
+            <summary>
+            Attempts to parse the specified text.
+            </summary>
+            <param name="text">The text to parse as an API version.</param>
+            <param name="apiVersion">The parsed API version or null.</param>
+            <returns>True if the parsing was successful; otherwise false.</returns>
+        </member>
+        <member name="T:Asp.Versioning.SR">
+            <summary>
+              A strongly-typed resource class, for looking up localized strings, etc.
+            </summary>
+        </member>
+        <member name="P:Asp.Versioning.SR.ResourceManager">
+            <summary>
+              Returns the cached ResourceManager instance used by this class.
+            </summary>
+        </member>
+        <member name="P:Asp.Versioning.SR.Culture">
+            <summary>
+              Overrides the current thread's CurrentUICulture property for all
+              resource lookups using this strongly typed resource class.
+            </summary>
+        </member>
+        <member name="P:Asp.Versioning.SR.ApiVersionBadGroupVersion">
+            <summary>
+              Looks up a localized string similar to The specified API group version &apos;{0}&apos; is invalid..
+            </summary>
+        </member>
+        <member name="P:Asp.Versioning.SR.ApiVersionBadStatus">
+            <summary>
+              Looks up a localized string similar to The specified API version status &apos;{0}&apos; is invalid..
+            </summary>
+        </member>
+        <member name="P:Asp.Versioning.SR.ApiVersionInvalidFormat">
+            <summary>
+              Looks up a localized string similar to The specified API version is invalid..
+            </summary>
+        </member>
+        <member name="P:Asp.Versioning.SR.Argument_EmptyString">
+            <summary>
+              Looks up a localized string similar to The value cannot be an empty string..
+            </summary>
+        </member>
+        <member name="P:Asp.Versioning.SR.EmptyKey">
+            <summary>
+              Looks up a localized string similar to The key cannot be empty..
+            </summary>
+        </member>
+        <member name="P:Asp.Versioning.SR.FirstCharMustBeLetter">
+            <summary>
+              Looks up a localized string similar to The first character must be a letter..
+            </summary>
+        </member>
+        <member name="P:Asp.Versioning.SR.InvalidApiVersionRange">
+            <summary>
+              Looks up a localized string similar to The API version range &quot;{0}&quot; is invalid..
+            </summary>
+        </member>
+        <member name="P:Asp.Versioning.SR.InvalidFormatString">
+            <summary>
+              Looks up a localized string similar to Input string was not in a correct format..
+            </summary>
+        </member>
+        <member name="P:Asp.Versioning.SR.InvalidLinkKey">
+            <summary>
+              Looks up a localized string similar to Only letters, numbers, &apos;-&apos;, and &apos;_&apos; are allowed..
+            </summary>
+        </member>
+        <member name="P:Asp.Versioning.SR.InvalidOrMalformedHeader">
+            <summary>
+              Looks up a localized string similar to The header contains invalid or missing values..
+            </summary>
+        </member>
+        <member name="P:Asp.Versioning.SR.InvalidRelationType">
+            <summary>
+              Looks up a localized string similar to The relation type for a {0} policy link must be &quot;{0}&quot;..
+            </summary>
+        </member>
+        <member name="T:Asp.Versioning.SunsetPolicy">
+            <summary>
+            Represents an API version sunset policy.
+            </summary>
+        </member>
+        <member name="P:Asp.Versioning.SunsetPolicy.Links">
+            <summary>
+            Gets a read-only list of links that provide information about the sunset policy.
+            </summary>
+            <value>A read-only list of HTTP links.</value>
+            <remarks>If a link is provided, generally only one link is necessary; however, additional
+            links might be provided for different languages or different formats such as a HTML page
+            or a JSON file.</remarks>
+        </member>
+        <member name="P:Asp.Versioning.SunsetPolicy.HasLinks">
+            <summary>
+            Gets a value indicating whether the sunset policy has any associated links.
+            </summary>
+            <value>True if the sunset policy has associated links; otherwise, false.</value>
+        </member>
+        <member name="P:Asp.Versioning.SunsetPolicy.Date">
+            <summary>
+            Gets the date and time when the API version will be sunset.
+            </summary>
+            <value>The date and time when the API version will be sunset, if any.</value>
+        </member>
+        <member name="M:Asp.Versioning.SunsetPolicy.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.SunsetPolicy"/> class.
+            </summary>
+        </member>
+        <member name="M:Asp.Versioning.SunsetPolicy.#ctor(System.DateTimeOffset,Asp.Versioning.LinkHeaderValue)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.SunsetPolicy"/> class.
+            </summary>
+            <param name="date">The date and time when the API version will be sunset.</param>
+            <param name="link">The optional link which provides information about the sunset policy.</param>
+        </member>
+        <member name="M:Asp.Versioning.SunsetPolicy.#ctor(Asp.Versioning.LinkHeaderValue)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.SunsetPolicy"/> class.
+            </summary>
+            <param name="link">The link which provides information about the sunset policy.</param>
+        </member>
+        <member name="T:Asp.Versioning.VisibleInApiVersionAttribute">
+            <summary>
+            Represents the metadata to indicate whether a data member should be visible in a particular API version.
+            </summary>
+        </member>
+        <member name="M:Asp.Versioning.VisibleInApiVersionAttribute.#ctor(Asp.Versioning.IApiVersionParser,System.String,System.String[])">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.VisibleInApiVersionAttribute"/> class.
+            </summary>
+            <param name="parser">The <see cref="T:Asp.Versioning.IApiVersionParser">parser</see> used in rule construction.</param>
+            <param name="rule">The range to parse.</param>
+            <param name="otherRules">Additional ranges to parse, if any.</param>
+            <remarks>See <seealso cref="T:Asp.Versioning.ApiVersionRange"/> for more information on rule notation.</remarks>
+        </member>
+        <member name="M:Asp.Versioning.VisibleInApiVersionAttribute.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.VisibleInApiVersionAttribute"/> class.
+            </summary>
+            <param name="rule">The range to parse.</param>
+            <remarks>See <seealso cref="T:Asp.Versioning.ApiVersionRange"/> for more information on rule notation.</remarks>
+        </member>
+        <member name="M:Asp.Versioning.VisibleInApiVersionAttribute.#ctor(System.String,System.String[])">
+            <summary>
+            Initializes a new instance of the <see cref="T:Asp.Versioning.VisibleInApiVersionAttribute"/> class.
+            </summary>
+            <param name="rule">The range to parse.</param>
+            <param name="otherRules">Additional ranges to parse, if any.</param>
+            <remarks>See <seealso cref="T:Asp.Versioning.ApiVersionRange"/> for more information on rule notation.</remarks>
+        </member>
+        <member name="P:Asp.Versioning.VisibleInApiVersionAttribute.Range">
+            <summary>
+            Gets the range of API versions the member is explored in.
+            </summary>
+            <value>The associated <see cref="T:Asp.Versioning.ApiVersionRange">API version range</see>.</value>
+        </member>
+    </members>
+</doc>

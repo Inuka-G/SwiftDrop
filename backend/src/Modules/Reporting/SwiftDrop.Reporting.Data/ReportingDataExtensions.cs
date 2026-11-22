@@ -21,7 +21,10 @@ public static class ReportingDataExtensions
     {
         using var scope = services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<ReportingDbContext>();
-        await db.Database.EnsureCreatedAsync(ct);
+        if (db.Database.IsNpgsql())
+            await db.Database.MigrateAsync(ct);
+        else
+            await db.Database.EnsureCreatedAsync(ct);
         if (seedSampleData) await ReportingDbSeeder.SeedSampleDataAsync(db, ct);
     }
 }

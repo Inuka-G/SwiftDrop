@@ -44,17 +44,25 @@ public class ZonesController(IZoneService zones, IPricingService pricing) : Cont
 
     [HttpGet("{id:guid}/estimate")]
     [ProducesResponseType<FeeEstimateDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Estimate(Guid id, [FromQuery] decimal weightKg, [FromQuery] ServiceType serviceType, CancellationToken ct)
     {
         if (weightKg <= 0)
-            return BadRequest ("Parcel weight must be greater than zero.");
+            return BadRequest("Parcel weight must be greater than zero.");
 
         if (!Enum.IsDefined(serviceType))
             return BadRequest("Invalid service type. Use Standard or Express.");
 
+        var zone = await zones.GetAsync(id, ct);
+        if (zone is null || !zone.IsActive)
+            return NotFound(new { message = $"Zone with ID '{id}' was not found or is inactive." });
+
         var fee = await pricing.EstimateAsync(id, weightKg, serviceType, ct);
-        return fee is null ? NotFound() : Ok(fee);
+        if (fee is null)
+            return NotFound(new { message = $"No active pricing rule found for zone '{id}' and service type '{serviceType}'." });
+
+        return Ok(fee);
     }
 
     [HttpPut("{id:guid}")]

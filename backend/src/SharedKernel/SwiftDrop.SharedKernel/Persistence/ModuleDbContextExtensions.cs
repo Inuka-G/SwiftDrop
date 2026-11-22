@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -16,9 +17,13 @@ public static class ModuleDbContextExtensions
 
         services.AddDbContext<TContext>(options =>
         {
+            options.ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning));
+
             if (provider.Equals("Postgres", StringComparison.OrdinalIgnoreCase))
             {
-                options.UseNpgsql(config.GetConnectionString("Postgres"),
+                var connectionString = config.GetConnectionString("Postgres")
+                    ?? "Host=localhost;Port=5433;Database=swiftdrop;Username=postgres;Password=postgres;Include Error Detail=true;";
+                options.UseNpgsql(connectionString,
                     npgsql => npgsql.MigrationsHistoryTable("__EFMigrationsHistory", module.ToLowerInvariant()));
             }
             else

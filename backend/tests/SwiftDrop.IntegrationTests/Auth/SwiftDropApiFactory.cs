@@ -49,6 +49,11 @@ public sealed class SwiftDropApiFactory : WebApplicationFactory<Program>
             services.AddScoped<IZoneLookup, TestZoneLookup>();
             services.RemoveAll<IIntegrationEventPublisher>();
             services.AddSingleton<IIntegrationEventPublisher>(Events);
+            services.Configure<Microsoft.AspNetCore.RateLimiting.RateLimiterOptions>(options =>
+            {
+                options.GlobalLimiter = System.Threading.RateLimiting.PartitionedRateLimiter.Create<Microsoft.AspNetCore.Http.HttpContext, string>(_ =>
+                    System.Threading.RateLimiting.RateLimitPartition.GetNoLimiter("tests"));
+            });
         });
     }
 }

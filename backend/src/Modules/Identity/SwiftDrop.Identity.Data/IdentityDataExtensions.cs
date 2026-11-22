@@ -20,6 +20,9 @@ public static class IdentityDataExtensions
     {
         using var scope = sp.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<IdentityDbContext>();
-        await db.Database.EnsureCreatedAsync();   // dev only: replace with migrations when moving to Postgres
+        if (db.Database.IsNpgsql())
+            await db.Database.MigrateAsync();
+        else
+            await db.Database.EnsureCreatedAsync();
     }
 }
