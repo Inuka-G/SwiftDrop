@@ -183,11 +183,11 @@
   --dashboard-measure-13: 13rem;
   --dashboard-measure-37-25: 37.25rem;
 
-  /* Reports page visual values that are specific to its chart and controls. */
-  --reports-failed: #bf2026;
-  --reports-failed-soft: #ffdad6;
-  --reports-icon-green: #4edea3;
-  --reports-tooltip-background: #283044;
+  /* Admin page values map to the shared dashboard palette. */
+  --reports-failed: var(--dashboard-red);
+  --reports-failed-soft: var(--dashboard-error-soft);
+  --reports-icon-green: var(--color-tertiary-fixed);
+  --reports-tooltip-background: var(--color-inverse-surface);
   --reports-panel-padding: 1.25rem;
   --reports-stat-min-height: 8.25rem;
   --reports-chart-height: 17rem;
@@ -197,37 +197,37 @@
   --reports-page-width: 1540px;
 
   /* User management and merchant review values not covered by the shared design tokens. */
-  --users-blue: #1557d6;
+  --users-blue: var(--dashboard-primary);
   --users-border: var(--dashboard-card-border);
-  --users-blue-soft: #eaf1ff;
-  --users-blue-border: #cfe0ff;
-  --users-merchant: #bb5700;
-  --users-merchant-soft: #fff5df;
-  --users-courier: #007c91;
-  --users-courier-soft: #e4fbff;
-  --users-customer: #56647a;
-  --users-customer-soft: #f0f3f8;
-  --users-amber: #a94b00;
-  --users-amber-soft: #fff0d9;
-  --users-amber-border: #ffd580;
-  --users-approve: #008b5a;
-  --users-danger: #d02b46;
-  --users-danger-text: #83152a;
-  --users-danger-soft: #fff0f1;
-  --users-danger-border: #ffc7cd;
+  --users-blue-soft: var(--dashboard-primary-soft);
+  --users-blue-border: var(--dashboard-action-border);
+  --users-merchant: var(--color-secondary);
+  --users-merchant-soft: var(--color-secondary-fixed);
+  --users-courier: var(--color-tertiary);
+  --users-courier-soft: var(--color-tertiary-fixed);
+  --users-customer: var(--color-on-surface-variant);
+  --users-customer-soft: var(--color-surface-container);
+  --users-amber: var(--color-on-secondary-fixed-variant);
+  --users-amber-soft: var(--color-secondary-fixed);
+  --users-amber-border: var(--color-secondary-fixed-dim);
+  --users-approve: var(--dashboard-green);
+  --users-danger: var(--color-error);
+  --users-danger-text: var(--color-on-error-container);
+  --users-danger-soft: var(--color-error-container);
+  --users-danger-border: var(--dashboard-error-border);
   --users-overlay: rgb(19 27 46 / 48%);
-  --users-dialog-shadow: 0 1.5rem 3.5rem rgb(19 27 46 / 22%);
+  --users-dialog-shadow: var(--dashboard-card-shadow);
   --users-dialog-width: 32rem;
   --users-dialog-max-height: 48rem;
   --users-table-min-width: 65rem;
   --users-nav-height: 2.25rem;
   --users-row-height: 3.2rem;
-  --users-avatar-a: #eaf1ff;
-  --users-avatar-b: #eff0ff;
-  --users-avatar-c: #e2f9ef;
-  --users-avatar-d: #fff3cf;
-  --users-avatar-e: #ffe8ee;
-  --users-avatar-f: #e3f8fb;
+  --users-avatar-a: var(--dashboard-primary-soft);
+  --users-avatar-b: var(--color-primary-fixed);
+  --users-avatar-c: var(--dashboard-green-soft);
+  --users-avatar-d: var(--color-secondary-fixed);
+  --users-avatar-e: var(--color-error-container);
+  --users-avatar-f: var(--color-tertiary-fixed);
 
   /* Pricing & Zones page and dialog values not covered by the shared system. */
   --zones-page-width: 1540px;
@@ -267,7 +267,7 @@
   --zones-empty-height: 14rem;
   --zones-overlay-padding: 1.5rem;
   --zones-backdrop-blur: 0.2rem;
-  --zones-overlay: rgb(19 27 46 / 48%);
+  --zones-overlay: var(--users-overlay);
   --zones-dialog-width: 38rem;
   --zones-dialog-padding: 1.25rem 1.5rem;
   --zones-dialog-icon: 2.5rem;
@@ -275,9 +275,9 @@
   --zones-input-height: 2.75rem;
   --zones-input-padding: 0.7rem 0.85rem;
   --zones-active-icon: 2rem;
-  --zones-active-tint: #d1fae5;
-  --zones-dialog-shadow: 0 1.5rem 3.5rem rgb(19 27 46 / 22%);
-  --zones-toast-shadow: 0 0.75rem 2rem rgb(19 27 46 / 14%);
+  --zones-active-tint: var(--dashboard-green-soft);
+  --zones-dialog-shadow: var(--dashboard-card-shadow);
+  --zones-toast-shadow: var(--dashboard-card-shadow);
   --zones-toast-close: 1.3rem;
   --zones-focus-ring: 2px;
 
@@ -1141,7 +1141,7 @@ h1 {
   --dispatch-warning-dot: var(--color-secondary);
   --dispatch-title-accent: var(--color-primary);
   --dispatch-dialog-gradient: linear-gradient(90deg, var(--color-primary), var(--color-secondary-container));
-  --dispatch-dialog-backdrop: rgb(19 27 46 / 48%);
+  --dispatch-dialog-backdrop: var(--users-overlay);
   --dispatch-load-orange: var(--color-secondary-container);
   --dispatch-load-brown: var(--color-secondary);
   --dispatch-table-min-width: 58rem;
@@ -2245,8 +2245,8 @@ h1 {
   --courier-table-min-width: 68rem;
   --courier-dialog-width: 35rem;
   --courier-dialog-max-height: 90vh;
-  --courier-dialog-backdrop: rgb(15 23 42 / 32%);
-  --courier-danger-soft: #fff1f2;
+  --courier-dialog-backdrop: var(--users-overlay);
+  --courier-danger-soft: var(--dashboard-error-soft);
 }
 
 .courier-workload-page {
