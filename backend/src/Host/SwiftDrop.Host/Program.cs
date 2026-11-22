@@ -10,6 +10,7 @@ using SwiftDrop.Parcels.Api;
 using SwiftDrop.Merchants.Api;
 using SwiftDrop.Realtime.Api;
 using SwiftDrop.Notifications.Api;
+using SwiftDrop.Webhooks.Api;
 using SwiftDrop.SharedKernel.Messaging;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -52,6 +53,7 @@ builder.Services.PostConfigure<RabbitMqOptions>(options =>
     options.RequiredOutboxRoutes = [.. options.RequiredOutboxRoutes,
         SwiftDrop.Parcels.Contracts.Events.ParcelEventRoutingKeys.StatusChanged]);
 builder.Services.AddNotificationsModule(builder.Configuration);
+builder.Services.AddWebhooksModule(builder.Configuration);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
