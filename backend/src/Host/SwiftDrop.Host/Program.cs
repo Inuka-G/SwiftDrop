@@ -65,6 +65,7 @@ await app.InitializeParcelsModuleAsync();
 await app.InitializeDispatchModuleAsync();
 await app.InitializeReportingModuleAsync();
 await app.InitializeMerchantsModuleAsync();
+await app.InitializeNotificationsModuleAsync();
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseStatusCodePages();
