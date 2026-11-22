@@ -419,10 +419,53 @@ export function CreateBookingPage() {
               </div>
             </section>
 
-            {/* Parcel specifications */}
+            {/* Delivery zone */}
             <section style={styles.section}>
               <div style={styles.sectionHeading}>
                 <span style={styles.stepNumber}>03</span>
+                <div>
+                  <h2 style={styles.sectionTitle}>Delivery Zone</h2>
+                  <p style={styles.sectionDescription}>
+                    Select the delivery zone for your parcel.
+                  </p>
+                </div>
+              </div>
+
+              <label style={styles.label} htmlFor="zoneId">
+                Delivery Zone
+              </label>
+              <select
+                id="zoneId"
+                style={styles.input}
+                value={form.zoneId}
+                onChange={(e) => updateField('zoneId', e.target.value)}
+                disabled={zonesLoading || zones.length === 0}
+                required
+              >
+                {zonesLoading && (
+                  <option value="">Loading zones...</option>
+                )}
+                {!zonesLoading && zones.length === 0 && (
+                  <option value="">No active zones available</option>
+                )}
+                {zones.map((zone) => (
+                  <option key={zone.id} value={zone.id}>
+                    {zone.zoneName}
+                  </option>
+                ))}
+              </select>
+
+              {selectedZone?.description && (
+                <span style={styles.helperText}>
+                  {selectedZone.description}
+                </span>
+              )}
+            </section>
+
+            {/* Parcel specifications */}
+            <section style={styles.section}>
+              <div style={styles.sectionHeading}>
+                <span style={styles.stepNumber}>04</span>
                 <div>
                   <h2 style={styles.sectionTitle}>Parcel Specifications</h2>
                   <p style={styles.sectionDescription}>
@@ -578,48 +621,6 @@ export function CreateBookingPage() {
               </div>
             </section>
 
-            {/* Delivery zone */}
-            <section style={styles.section}>
-              <div style={styles.sectionHeading}>
-                <span style={styles.stepNumber}>04</span>
-                <div>
-                  <h2 style={styles.sectionTitle}>Delivery Zone</h2>
-                  <p style={styles.sectionDescription}>
-                    Select the delivery zone for your parcel.
-                  </p>
-                </div>
-              </div>
-
-              <label style={styles.label} htmlFor="zoneId">
-                Delivery Zone
-              </label>
-              <select
-                id="zoneId"
-                style={styles.input}
-                value={form.zoneId}
-                onChange={(e) => updateField('zoneId', e.target.value)}
-                disabled={zonesLoading || zones.length === 0}
-                required
-              >
-                {zonesLoading && (
-                  <option value="">Loading zones...</option>
-                )}
-                {!zonesLoading && zones.length === 0 && (
-                  <option value="">No active zones available</option>
-                )}
-                {zones.map((zone) => (
-                  <option key={zone.id} value={zone.id}>
-                    {zone.zoneName}
-                  </option>
-                ))}
-              </select>
-
-              {selectedZone?.description && (
-                <span style={styles.helperText}>
-                  {selectedZone.description}
-                </span>
-              )}
-            </section>
           </div>
 
           {/* RIGHT: Order summary */}

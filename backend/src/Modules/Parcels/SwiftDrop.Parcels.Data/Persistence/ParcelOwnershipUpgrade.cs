@@ -60,6 +60,7 @@ internal static class ParcelOwnershipUpgrade
                     await RebuildSqliteTableAsync(db);
 
                 await UpgradeSqliteStatusHistoryAsync(db);
+                await EnsureSqliteOutboxTableAsync(db);
 
                 var violations = await db.Database.SqlQuery<int>(
                     $"""SELECT COUNT(*) AS "Value" FROM pragma_foreign_key_check""").SingleAsync();
@@ -169,6 +170,50 @@ internal static class ParcelOwnershipUpgrade
             await db.Database.ExecuteSqlRawAsync("""
                 ALTER TABLE "status_history" ADD COLUMN "ChangedByActorType" TEXT NOT NULL DEFAULT 'User';
                 """);
+    }
+
+    private static async Task EnsureSqliteOutboxTableAsync(ParcelsDbContext db)
+    {
+        var tableExists = await db.Database.SqlQuery<int>($"""
+            SELECT COUNT(*) AS "Value" FROM sqlite_master
+            WHERE type = 'table' AND name = 'outbox_messages'
+            """).SingleAsync() > 0;
+
+        var statements = db.Database.GenerateCreateScript()
+            .Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        if (!tableExists)
+        {
+            const string createPrefix = """CREATE TABLE "outbox_messages" """;
+            var create = statements.SingleOrDefault(sql => sql.StartsWith(createPrefix, StringComparison.Ordinal));
+            if (create is null)
+                throw new InvalidOperationException("The EF model does not define the outbox_messages table.");
+
+            await db.Database.ExecuteSqlRawAsync(create);
+        }
+
+        var outboxType = db.Model.FindEntityType(typeof(OutboxMessage))
+            ?? throw new InvalidOperationException("The EF model does not define the OutboxMessage entity.");
+        foreach (var index in outboxType.GetIndexes())
+        {
+            var indexName = index.GetDatabaseName()
+                ?? throw new InvalidOperationException("The EF model contains an unnamed outbox_messages index.");
+            var indexExists = await db.Database.SqlQuery<int>($"""
+                SELECT COUNT(*) AS "Value" FROM sqlite_master
+                WHERE type = 'index' AND tbl_name = 'outbox_messages' AND name = {indexName}
+                """).SingleAsync() > 0;
+            if (indexExists)
+                continue;
+
+            var quotedIndexName = QuoteSqliteIdentifier(indexName);
+            var createIndex = statements.SingleOrDefault(sql => sql.StartsWith("CREATE ", StringComparison.Ordinal)
+                && sql.Contains("INDEX", StringComparison.Ordinal)
+                && sql.Contains(quotedIndexName, StringComparison.Ordinal)
+                && sql.Contains(""" ON "outbox_messages" """, StringComparison.Ordinal));
+            if (createIndex is null)
+                throw new InvalidOperationException($"The EF model does not define SQL for outbox_messages index '{indexName}'.");
+
+            await db.Database.ExecuteSqlRawAsync(createIndex);
+        }
     }
 
     private static Task<HashSet<string>> ReadSqliteParcelColumnsAsync(ParcelsDbContext db) =>

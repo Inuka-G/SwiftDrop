@@ -98,12 +98,9 @@ public sealed class ParcelServiceTests
 
         _eventPublisher.Verify(
             p => p.PublishAsync(
-                It.Is<ParcelStatusChanged>(e =>
-                    e.ParcelId == savedParcel!.Id &&
-                    e.TrackingNumber == result.TrackingNumber &&
-                    e.NewStatus == "Created"),
+                It.IsAny<ParcelStatusChanged>(),
                 It.IsAny<CancellationToken>()),
-            Times.Once);
+            Times.Never);
     }
 
     [Fact]

@@ -54,6 +54,97 @@ public sealed class ParcelsDataInitializationTests : IDisposable
     }
 
     [Fact]
+    public async Task Creates_missing_outbox_table_for_existing_parcels_and_preserves_parcels()
+    {
+        using var scope = services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<ParcelsDbContext>();
+        var schemaStatements = db.Database.GenerateCreateScript()
+            .Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Where(statement => !statement.StartsWith("""CREATE TABLE "outbox_messages" """, StringComparison.Ordinal)
+                && !(statement.StartsWith("CREATE ", StringComparison.Ordinal)
+                    && statement.Contains("INDEX", StringComparison.Ordinal)
+                    && statement.Contains(""" ON "outbox_messages" """, StringComparison.Ordinal)));
+        Execute(string.Join(";", schemaStatements));
+
+        var originalOwner = Guid.NewGuid();
+        db.Parcels.Add(new Parcel(originalOwner, "SD-NO-OUTBOX", Guid.NewGuid(),
+            "Pickup", "Sender", "+94771234567", "Dropoff", "Recipient", "+94779876543",
+            1m, "Small", 500m, "Card"));
+        await db.SaveChangesAsync();
+        TableNames().Should().NotContain("outbox_messages");
+
+        await services.InitializeParcelsDataAsync();
+        await services.InitializeParcelsDataAsync();
+
+        var parcel = await db.Parcels.AsNoTracking().SingleAsync();
+        parcel.TrackingNumber.Should().Be("SD-NO-OUTBOX");
+        parcel.CustomerId.Should().Be(originalOwner);
+        TableNames().Should().Contain("outbox_messages");
+        OutboxColumnNames().Should().Contain(
+            ["Id", "RoutingKey", "Payload", "ProcessedAtUtc", "Attempts", "LastError", "CreatedAtUtc"]);
+        (await db.Database.SqlQuery<int>($"""
+            SELECT COUNT(*) AS "Value" FROM sqlite_master
+            WHERE type = 'index' AND tbl_name = 'outbox_messages' AND name LIKE 'IX_%'
+            """).SingleAsync()).Should().Be(1);
+    }
+
+    [Fact]
+    public async Task Repeated_initialization_preserves_existing_outbox_table_and_messages()
+    {
+        await services.InitializeParcelsDataAsync();
+        var messageId = Guid.NewGuid();
+        using (var scope = services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<ParcelsDbContext>();
+            db.OutboxMessages.Add(new OutboxMessage(messageId, "parcels.status-changed", "{}", DateTime.UtcNow));
+            await db.SaveChangesAsync();
+        }
+
+        await services.InitializeParcelsDataAsync();
+        await services.InitializeParcelsDataAsync();
+
+        using var check = services.CreateScope();
+        var checkDb = check.ServiceProvider.GetRequiredService<ParcelsDbContext>();
+        var message = await checkDb.OutboxMessages.AsNoTracking().SingleAsync();
+        message.Id.Should().Be(messageId);
+        message.RoutingKey.Should().Be("parcels.status-changed");
+        message.Payload.Should().Be("{}");
+        TableNames().Should().Contain("outbox_messages");
+    }
+
+    [Fact]
+    public async Task Creates_missing_outbox_index_without_changing_existing_table_data()
+    {
+        using var scope = services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<ParcelsDbContext>();
+        var schemaStatements = db.Database.GenerateCreateScript()
+            .Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Where(statement => !(statement.StartsWith("CREATE ", StringComparison.Ordinal)
+                && statement.Contains("INDEX", StringComparison.Ordinal)
+                && statement.Contains(""" ON "outbox_messages" """, StringComparison.Ordinal)));
+        Execute(string.Join(";", schemaStatements));
+
+        var messageId = Guid.NewGuid();
+        db.OutboxMessages.Add(new OutboxMessage(messageId, "parcels.status-changed", "{}", DateTime.UtcNow));
+        await db.SaveChangesAsync();
+        (await db.Database.SqlQuery<int>($"""
+            SELECT COUNT(*) AS "Value" FROM sqlite_master
+            WHERE type = 'index' AND tbl_name = 'outbox_messages' AND name LIKE 'IX_%'
+            """).SingleAsync()).Should().Be(0);
+
+        await services.InitializeParcelsDataAsync();
+        await services.InitializeParcelsDataAsync();
+
+        var existingMessage = await db.OutboxMessages.AsNoTracking().SingleAsync();
+        existingMessage.Id.Should().Be(messageId);
+        existingMessage.Payload.Should().Be("{}");
+        (await db.Database.SqlQuery<int>($"""
+            SELECT COUNT(*) AS "Value" FROM sqlite_master
+            WHERE type = 'index' AND tbl_name = 'outbox_messages' AND name LIKE 'IX_%'
+            """).SingleAsync()).Should().Be(1);
+    }
+
+    [Fact]
     public async Task Upgrades_existing_customer_parcels_and_preserves_history()
     {
         Execute("PRAGMA foreign_keys = ON");
@@ -182,6 +273,17 @@ public sealed class ParcelsDataInitializationTests : IDisposable
     {
         using var command = connection.CreateCommand();
         command.CommandText = "PRAGMA table_info('parcels')";
+        using var reader = command.ExecuteReader();
+        var nameOrdinal = reader.GetOrdinal("name");
+        var names = new List<string>();
+        while (reader.Read()) names.Add(reader.GetString(nameOrdinal));
+        return names;
+    }
+
+    private List<string> OutboxColumnNames()
+    {
+        using var command = connection.CreateCommand();
+        command.CommandText = "PRAGMA table_info('outbox_messages')";
         using var reader = command.ExecuteReader();
         var nameOrdinal = reader.GetOrdinal("name");
         var names = new List<string>();

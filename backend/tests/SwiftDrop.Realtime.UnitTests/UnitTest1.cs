@@ -83,4 +83,40 @@ public class ParcelStatusChangedHandlerTests
         await act.Should()
             .ThrowAsync<ArgumentNullException>();
     }
+
+    [Fact]
+    public async Task HandleAsync_ShouldForwardCancellationTokenWithMappedEvent()
+    {
+        var occurredAt = DateTime.UtcNow;
+        var integrationEvent = new ParcelStatusChanged(
+            Guid.NewGuid(),
+            " swd-20050 ",
+            "InTransit",
+            "OutForDelivery",
+            "Courier is on the way.",
+            Guid.NewGuid(),
+            null,
+            null)
+        {
+            OccurredOnUtc = occurredAt
+        };
+        using var cancellationSource = new CancellationTokenSource();
+        var cancellationToken = cancellationSource.Token;
+
+        _trackingNotifierMock
+            .Setup(x => x.NotifyStatusChangedAsync(
+                It.IsAny<DeliveryStatusUpdate>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        await _handler.HandleAsync(integrationEvent, cancellationToken);
+
+        _trackingNotifierMock.Verify(x => x.NotifyStatusChangedAsync(
+            It.Is<DeliveryStatusUpdate>(update =>
+                update.ParcelId == integrationEvent.ParcelId &&
+                update.TrackingNumber == integrationEvent.TrackingNumber &&
+                update.Status == integrationEvent.NewStatus &&
+                update.StatusChangedAtUtc == occurredAt),
+            cancellationToken), Times.Once);
+    }
 }

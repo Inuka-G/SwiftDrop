@@ -125,17 +125,17 @@ export function CustomerDashboardPage() {
                 <section style={styles.statsGrid}>
                     <StatCard
                         label="Total Deliveries"
-                        value={parcels.length}
+                        value={isLoading || error ? '—' : parcels.length}
                         icon="📦"
                     />
                     <StatCard
                         label="Active Deliveries"
-                        value={activeParcels.length}
+                        value={isLoading || error ? '—' : activeParcels.length}
                         icon="🚚"
                     />
                     <StatCard
                         label="Delivered"
-                        value={deliveredCount}
+                        value={isLoading || error ? '—' : deliveredCount}
                         icon="✓"
                     />
                 </section>
@@ -249,6 +249,8 @@ export function CustomerDashboardPage() {
 
                     {isLoading ? (
                         <div style={styles.message}>Loading recent deliveries...</div>
+                    ) : error ? (
+                        <div style={styles.message}>Recent deliveries are unavailable until your delivery history loads.</div>
                     ) : !error && recentParcels.length === 0 ? (
                         <div style={styles.message}>
                             No delivery records to display yet.
@@ -318,7 +320,7 @@ function StatCard({
     icon,
 }: {
     label: string
-    value: number
+    value: number | string
     icon: string
 }) {
     return (
