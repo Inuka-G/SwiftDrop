@@ -1,14 +1,14 @@
 .zones-page {
   display: grid;
-  width: min(calc(100% - var(--dashboard-page-gutter) * 2), var(--reports-page-width));
+  width: min(calc(100% - var(--dashboard-page-gutter) * 2), var(--dashboard-content-width));
   gap: var(--dashboard-card-gap);
   margin-inline: auto;
-  padding-block: var(--space-lg) var(--dashboard-measure-3);
+  padding-block: var(--dashboard-section-space) var(--dashboard-measure-3);
   color: var(--color-on-surface);
   font-family: var(--font-body);
 }
 .zones-page-head { display: flex; min-height: var(--dashboard-measure-5); align-items: center; justify-content: space-between; gap: var(--space-md); padding: var(--space-md) var(--reports-panel-padding); border: 1px solid var(--dashboard-card-border); border-radius: var(--dashboard-card-radius); background: var(--color-surface-container-lowest); box-shadow: var(--dashboard-card-shadow); }
-.zones-page-head h1 { margin: 0; color: var(--color-on-surface); font-family: var(--font-headline); font-size: var(--dashboard-measure-1-55); font-weight: 700; letter-spacing: -0.03em; }
+.zones-page-head h1 { margin: 0; color: var(--color-on-surface); font-family: var(--font-headline); font-size: var(--dashboard-measure-2-4); font-weight: 700; letter-spacing: -0.04em; }
 .zones-page-head p { margin: var(--space-xs) 0 0; color: var(--color-outline); font-size: var(--dashboard-measure-0-72); }
 .zones-eyebrow { color: var(--dashboard-primary); font-family: var(--font-label); font-size: var(--dashboard-measure-0-65); font-weight: 600; letter-spacing: 0.04em; }
 .zones-button { display: inline-flex; min-height: var(--reports-control-height); align-items: center; justify-content: center; gap: var(--space-sm); padding: var(--space-sm) var(--space-md); border: 1px solid transparent; border-radius: var(--radius-default); font-size: var(--dashboard-measure-0-78); font-weight: 600; white-space: nowrap; cursor: pointer; transition: background-color 140ms ease, border-color 140ms ease; }
@@ -95,5 +95,5 @@
 .zones-toast button { border: 0; color: inherit; background: transparent; font-size: var(--zones-toast-close); cursor: pointer; }
 .zones-page button:focus-visible,.zones-page input:focus-visible,.zones-page select:focus-visible,.zones-dialog button:focus-visible,.zones-dialog input:focus-visible,.zones-dialog textarea:focus-visible { outline: var(--zones-focus-ring) solid var(--dashboard-primary); outline-offset: var(--space-xs); }
 @media (max-width: 1023px) { .zones-stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .zones-table { min-width: var(--zones-table-min-width); } }
-@media (max-width: 639px) { .zones-page { width: calc(100% - var(--dashboard-shell-mobile-gutter)); padding-top: var(--space-md); } .zones-page-head { align-items: stretch; flex-direction: column; } .zones-page-head h1 { font-size: var(--dashboard-measure-1-3); } .zones-page-head > .zones-button { align-self: flex-start; } .zones-stat-grid { gap: var(--space-sm); } .zones-stat { padding: var(--space-sm); } .zones-stat-top { font-size: var(--dashboard-measure-0-55); } .zones-stat > strong { font-size: var(--dashboard-measure-1-3); } .zones-stat > small { font-size: var(--dashboard-measure-0-55); } .zones-toolbar { flex-direction: column; } .zones-dialog { margin-block: auto; } .zones-dialog-foot { position: sticky; bottom: 0; } .zones-overlay { place-items: end center; padding: 0; } .zones-dialog { width: 100%; max-height: 94dvh; overflow-y: auto; border-radius: var(--radius-xl) var(--radius-xl) 0 0; } }
+@media (max-width: 639px) { .zones-page { width: calc(100% - var(--dashboard-shell-mobile-gutter)); padding-top: var(--space-md); } .zones-page-head { align-items: stretch; flex-direction: column; } .zones-page-head h1 { font-size: var(--dashboard-measure-1-6); } .zones-page-head > .zones-button { align-self: flex-start; } .zones-stat-grid { gap: var(--space-sm); } .zones-stat { padding: var(--space-sm); } .zones-stat-top { font-size: var(--dashboard-measure-0-55); } .zones-stat > strong { font-size: var(--dashboard-measure-1-3); } .zones-stat > small { font-size: var(--dashboard-measure-0-55); } .zones-toolbar { flex-direction: column; } .zones-dialog { margin-block: auto; } .zones-dialog-foot { position: sticky; bottom: 0; } .zones-overlay { place-items: end center; padding: 0; } .zones-dialog { width: 100%; max-height: 94dvh; overflow-y: auto; border-radius: var(--radius-xl) var(--radius-xl) 0 0; } }
 @media (prefers-reduced-motion: reduce) { .zones-page *, .zones-dialog * { scroll-behavior: auto !important; animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
