@@ -45,7 +45,7 @@ public sealed class ParcelAssignmentAndCreationTests : IDisposable
         pricing.Setup(p => p.EstimateAsync(It.IsAny<Guid>(), It.IsAny<decimal>(), It.IsAny<ServiceType>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(new FeeEstimateDto(Guid.NewGuid(), "Kandy", 500m, 100m, 600m));
-        var service = new ParcelService(db.Repository, pricing.Object);
+        var service = new ParcelService(db.Repository, pricing.Object, Mock.Of<SwiftDrop.SharedKernel.Messaging.IEventPublisher>());
         var customerId = Guid.NewGuid();
 
         var created = await service.CreateParcelAsync(customerId, new CreateParcelRequest(Guid.NewGuid(),
