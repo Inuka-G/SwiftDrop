@@ -52,6 +52,7 @@ export const ROLES = {
 export const ROLE_HOME: Record<string, string> = {
   [ROLES.customer]: '/customer',
   [ROLES.courier]: '/courier',
+  [ROLES.admin]: '/admin',
 }
 
 export function homePathForRole(role: string): string {
