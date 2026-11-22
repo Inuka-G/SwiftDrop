@@ -76,22 +76,41 @@ internal static class ParcelOwnershipUpgrade
         var statements = db.Database.GenerateCreateScript()
             .Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
         var create = statements.Single(sql => sql.StartsWith(createPrefix, StringComparison.Ordinal));
-        var columns = db.Model.FindEntityType(typeof(Parcel))!.GetProperties()
+        await using var command = db.Database.GetDbConnection().CreateCommand();
+        command.CommandText = "SELECT name FROM pragma_table_info('parcels')";
+        var existingColumns = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        await using (var reader = await command.ExecuteReaderAsync())
+        {
+            while (await reader.ReadAsync())
+                existingColumns.Add(reader.GetString(0));
+        }
+
+        var copyColumns = db.Model.FindEntityType(typeof(Parcel))!.GetProperties()
             .Where(property => property.Name != nameof(Parcel.MerchantId))
-            .Select(property => $"\"{property.GetColumnName()}\"");
-        var columnList = string.Join(", ", columns);
+            .Select(property => $"\"{property.GetColumnName()}\"")
+            .ToList();
+        var copyExpressions = db.Model.FindEntityType(typeof(Parcel))!.GetProperties()
+            .Where(property => property.Name != nameof(Parcel.MerchantId))
+            .Select(property =>
+            {
+                var columnName = property.GetColumnName();
+                return existingColumns.Contains(columnName)
+                    ? $"\"{columnName}\""
+                    : "NULL";
+            });
+        var columnList = string.Join(", ", copyColumns);
+        var expressionList = string.Join(", ", copyExpressions);
 
         var createReplacement = """CREATE TABLE "parcels_upgrade" """ + create[createPrefix.Length..];
         await db.Database.ExecuteSqlRawAsync(createReplacement);
         // The identifiers come exclusively from the application's EF model.
-        var copy = $"""INSERT INTO "parcels_upgrade" ({columnList}) SELECT {columnList} FROM "parcels" """;
+        var copy = $"""INSERT INTO "parcels_upgrade" ({columnList}) SELECT {expressionList} FROM "parcels" """;
         await db.Database.ExecuteSqlRawAsync(copy);
         await db.Database.ExecuteSqlRawAsync("""
             DROP TABLE "parcels";
             ALTER TABLE "parcels_upgrade" RENAME TO "parcels";
-            ALTER TABLE "status_history" RENAME COLUMN "ChangedByUserId" TO "ChangedByActorId";
-            ALTER TABLE "status_history" ADD COLUMN "ChangedByActorType" TEXT NOT NULL DEFAULT 'User';
             """);
+        await UpgradeSqliteStatusHistoryAsync(db);
         foreach (var statement in statements.Where(sql => sql.StartsWith("CREATE ", StringComparison.Ordinal)
                      && sql.Contains("""INDEX """, StringComparison.Ordinal)
                      && sql.Contains(""" ON "parcels" """, StringComparison.Ordinal)))
@@ -101,5 +120,28 @@ internal static class ParcelOwnershipUpgrade
             $"""SELECT COUNT(*) AS "Value" FROM pragma_foreign_key_check""").SingleAsync();
         if (violations != 0)
             throw new InvalidOperationException("Parcel ownership upgrade encountered foreign key violations.");
+    }
+
+    private static async Task UpgradeSqliteStatusHistoryAsync(ParcelsDbContext db)
+    {
+        await using var command = db.Database.GetDbConnection().CreateCommand();
+        command.CommandText = "SELECT name FROM pragma_table_info('status_history')";
+        var columns = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        await using (var reader = await command.ExecuteReaderAsync())
+        {
+            while (await reader.ReadAsync())
+                columns.Add(reader.GetString(0));
+        }
+
+        if (columns.Contains("ChangedByUserId") && !columns.Contains("ChangedByActorId"))
+            await db.Database.ExecuteSqlRawAsync(
+                """ALTER TABLE "status_history" RENAME COLUMN "ChangedByUserId" TO "ChangedByActorId" """);
+        else if (!columns.Contains("ChangedByActorId"))
+            await db.Database.ExecuteSqlRawAsync(
+                """ALTER TABLE "status_history" ADD COLUMN "ChangedByActorId" TEXT NOT NULL DEFAULT '' """);
+
+        if (!columns.Contains("ChangedByActorType"))
+            await db.Database.ExecuteSqlRawAsync(
+                """ALTER TABLE "status_history" ADD COLUMN "ChangedByActorType" TEXT NOT NULL DEFAULT 'User' """);
     }
 }
