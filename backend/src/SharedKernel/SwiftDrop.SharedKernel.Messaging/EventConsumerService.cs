@@ -11,6 +11,7 @@ internal sealed class EventConsumerService<TEvent>(
     string queueName,
     string routingKey,
     string? previousRoutingKey,
+    Type? handlerType,
     RabbitMqConnection connection,
     IServiceScopeFactory scopes,
     ILogger<EventConsumerService<TEvent>> logger) : BackgroundService
@@ -111,9 +112,7 @@ internal sealed class EventConsumerService<TEvent>(
                     ?? throw new InvalidOperationException("Empty event payload.");
 
                 using var scope = scopes.CreateScope();
-                var handlers = scope.ServiceProvider.GetServices<IIntegrationEventHandler<TEvent>>();
-                foreach (var handler in handlers)
-                    await handler.HandleAsync(@event, ct);
+                await DispatchHandlersAsync(scope.ServiceProvider, @event, handlerType, ct);
 
                 await channel.BasicAckAsync(ea.DeliveryTag, multiple: false, ct);
                 return;
@@ -131,5 +130,26 @@ internal sealed class EventConsumerService<TEvent>(
         // all attempts failed: reject without requeue, so the broker routes it to the DLQ
         await channel.BasicNackAsync(ea.DeliveryTag, multiple: false, requeue: false, ct);
         logger.LogError("{Event} sent to dead letter queue {Queue}.dlq", typeof(TEvent).Name, queueName);
+    }
+
+    internal static async Task DispatchHandlersAsync(
+        IServiceProvider services,
+        TEvent @event,
+        Type? handlerType,
+        CancellationToken ct)
+    {
+        var registeredHandlers = services.GetServices<IIntegrationEventHandler<TEvent>>();
+        var handlers = handlerType is null
+            ? registeredHandlers.ToArray()
+            : registeredHandlers.Where(handlerType.IsInstanceOfType).ToArray();
+
+        if (handlerType is not null && handlers.Length != 1)
+        {
+            throw new InvalidOperationException(
+                $"Expected exactly one {handlerType.Name} handler for {typeof(TEvent).Name}, found {handlers.Length}.");
+        }
+
+        foreach (var handler in handlers)
+            await handler.HandleAsync(@event, ct);
     }
 }

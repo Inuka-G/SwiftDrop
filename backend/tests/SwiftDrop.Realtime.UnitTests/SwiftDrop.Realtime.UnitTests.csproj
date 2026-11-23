@@ -27,6 +27,7 @@
     <ProjectReference Include="..\..\src\Modules\Realtime\SwiftDrop.Realtime.Api\SwiftDrop.Realtime.Api.csproj" />
     <ProjectReference Include="..\..\src\Modules\Realtime\SwiftDrop.Realtime.Business\SwiftDrop.Realtime.Business.csproj" />
     <ProjectReference Include="..\..\src\Modules\Realtime\SwiftDrop.Realtime.Data\SwiftDrop.Realtime.Data.csproj" />
+    <ProjectReference Include="..\..\src\SharedKernel\SwiftDrop.SharedKernel.Messaging\SwiftDrop.SharedKernel.Messaging.csproj" />
   </ItemGroup>
 
 </Project>

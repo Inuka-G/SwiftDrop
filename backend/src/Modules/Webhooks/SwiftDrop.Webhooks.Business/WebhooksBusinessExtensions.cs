@@ -10,7 +10,7 @@ public static class WebhooksBusinessExtensions
     public static IServiceCollection AddWebhooksBusiness(this IServiceCollection services)
     {
         services.AddScoped<IIntegrationEventHandler<ParcelStatusChanged>, ParcelStatusWebhookHandler>();
-        services.AddEventConsumer<ParcelStatusChanged>("q.webhooks");
+        services.AddEventConsumer<ParcelStatusChanged, ParcelStatusWebhookHandler>("q.webhooks");
         return services;
     }
 }
