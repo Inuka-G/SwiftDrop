@@ -2,6 +2,10 @@ namespace SwiftDrop.Dispatch.Contracts;
 
 public sealed record UnassignedParcelDto(Guid ParcelId, string TrackingNumber, Guid ZoneId, DateTimeOffset CreatedAt);
 public sealed record UnassignedParcelPage(IReadOnlyList<UnassignedParcelDto> Items, int Page, int PageSize, int TotalCount);
+public sealed record DispatchParcelDto(Guid ParcelId, string TrackingNumber, string Status, Guid ZoneId,
+    Guid? CourierId, string? CourierName, string AssignmentState, DateTimeOffset CreatedAt,
+    DateTimeOffset? AssignedAt);
+public sealed record DispatchParcelPage(IReadOnlyList<DispatchParcelDto> Items, int Page, int PageSize, int TotalCount);
 public sealed record AssignCourierCommand(Guid CourierId, Guid AssignedBy);
 public sealed record AssignmentDto(Guid ParcelId, Guid CourierId, Guid AssignedBy, DateTimeOffset AssignedAt);
 
@@ -36,6 +40,8 @@ public interface IDispatchService
 {
     Task<UnassignedParcelPage> ListUnassignedAsync(Guid? zoneId, DateTimeOffset? from, DateTimeOffset? to,
         int page, int pageSize, CancellationToken ct);
+    Task<DispatchParcelPage> ListParcelsAsync(string? status, string? trackingNumber, int page, int pageSize,
+        CancellationToken ct);
     Task<DispatchResult<AssignmentDto>> AssignAsync(Guid parcelId, Guid courierId, Guid assignedBy, CancellationToken ct);
     Task<CourierProfileResult> RegisterCourierAsync(Guid courierId, Guid? zoneId, string? vehicleType,
         string? licensePlate, CancellationToken ct);

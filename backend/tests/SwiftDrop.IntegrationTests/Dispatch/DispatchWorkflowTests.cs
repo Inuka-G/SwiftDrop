@@ -16,6 +16,33 @@ public sealed class DispatchWorkflowTests(SwiftDropApiFactory factory)
     private readonly HttpClient client = factory.CreateClient();
 
     [Fact]
+    public async Task Admin_can_list_created_parcels_and_unassigned_board_rows()
+    {
+        var parcelId = Guid.NewGuid();
+        var createdAt = DateTimeOffset.UtcNow;
+        await using (var scope = factory.Services.CreateAsyncScope())
+        {
+            var consumer = scope.ServiceProvider.GetRequiredService<ParcelCreatedConsumer>();
+            await consumer.HandleAsync(new ParcelCreatedMessage(Guid.NewGuid(), parcelId,
+                "SD-ADMIN-LIST-1", Guid.NewGuid(), createdAt), default);
+        }
+
+        var token = await client.LoginAsync("admin");
+        using var allResponse = await client.GetWithTokenAsync("/api/v1/dispatch/parcels?trackingNumber=SD-ADMIN-LIST-1", token);
+        allResponse.EnsureSuccessStatusCode();
+        var allParcels = await allResponse.Content.ReadFromJsonAsync<DispatchParcelPage>();
+        var parcel = Assert.Single(allParcels!.Items);
+        Assert.Equal(parcelId, parcel.ParcelId);
+        Assert.Equal("Created", parcel.Status);
+        Assert.Equal("UNASSIGNED", parcel.AssignmentState);
+
+        using var unassignedResponse = await client.GetWithTokenAsync("/api/v1/dispatch/parcels/unassigned", token);
+        unassignedResponse.EnsureSuccessStatusCode();
+        var unassigned = await unassignedResponse.Content.ReadFromJsonAsync<UnassignedParcelPage>();
+        Assert.Contains(unassigned!.Items, x => x.ParcelId == parcelId);
+    }
+
+    [Fact]
     public async Task Assignment_increases_workload_and_terminal_status_decreases_it()
     {
         var courierId = Guid.NewGuid();

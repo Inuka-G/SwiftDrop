@@ -5,5 +5,7 @@ namespace SwiftDrop.Parcels.Contracts;
 /// can be assigned; returns false otherwise.
 public interface IParcelAssignment
 {
-    Task<bool> AssignCourierAsync(Guid parcelId, Guid courierId, CancellationToken ct);
+    Task<CourierAssignmentResult?> AssignCourierAsync(Guid parcelId, Guid courierId, CancellationToken ct);
 }
+
+public sealed record CourierAssignmentResult(Guid EventId, DateTimeOffset AssignedAtUtc);

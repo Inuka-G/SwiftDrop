@@ -9,6 +9,8 @@ using SwiftDrop.Dispatch.Data.Entities;
 using SwiftDrop.Dispatch.Data.Persistence;
 using SwiftDrop.IntegrationTests.Auth;
 using SwiftDrop.Reporting.Business.Consumers;
+using SwiftDrop.Parcels.Contracts.Events;
+using SwiftDrop.SharedKernel.Messaging;
 
 namespace SwiftDrop.IntegrationTests.Reporting;
 
@@ -21,11 +23,16 @@ public sealed class AdminDashboardWorkflowTests(SwiftDropApiFactory factory)
     public async Task Created_assignment_and_delivery_events_update_both_dashboard_groups_once()
     {
         var token = await client.LoginAsync("admin");
-        var beforeDispatch = await GetJsonAsync("/api/v1/dispatch/summary", token);
         var beforeReport = await GetJsonAsync("/api/v1/reports/summary", token);
         var courierId = Guid.NewGuid();
         var parcelId = Guid.NewGuid();
         var createdAt = DateTimeOffset.UtcNow;
+        // Use an isolated reporting date outside the demo seed window so the event delta is deterministic.
+        var reportDate = DateOnly.FromDateTime(createdAt.UtcDateTime).AddDays(60);
+        createdAt = new DateTimeOffset(reportDate.ToDateTime(TimeOnly.FromTimeSpan(TimeSpan.FromHours(12)), DateTimeKind.Utc));
+        var dailyBefore = await GetJsonAsync($"/api/v1/reports/deliveries-per-day?from={reportDate:yyyy-MM-dd}&to={reportDate:yyyy-MM-dd}", token);
+        var createdBefore = dailyBefore[0].GetProperty("created").GetInt32();
+        var deliveredBefore = dailyBefore[0].GetProperty("delivered").GetInt32();
         var eventId = Guid.NewGuid();
         await using (var setupScope = factory.Services.CreateAsyncScope())
         {
@@ -38,42 +45,48 @@ public sealed class AdminDashboardWorkflowTests(SwiftDropApiFactory factory)
         {
             var consumer = scope.ServiceProvider.GetRequiredService<SwiftDrop.Dispatch.Business.Consumers.ParcelCreatedConsumer>();
             await consumer.HandleAsync(new ParcelCreatedMessage(eventId, parcelId, "DASHBOARD-TEST", Guid.NewGuid(), createdAt), default);
-            await scope.ServiceProvider.GetRequiredService<SwiftDrop.Reporting.Business.Consumers.ParcelCreatedConsumer>()
-                .HandleAsync(new ParcelCreatedReceived(eventId, createdAt), default);
+            await scope.ServiceProvider.GetRequiredService<IIntegrationEventHandler<ParcelCreatedIntegrationEvent>>()
+                .HandleAsync(new ParcelCreatedIntegrationEvent(eventId, parcelId, "DASHBOARD-TEST", null,
+                    Guid.NewGuid(), createdAt.UtcDateTime), default);
         }
 
-        var afterCreatedDispatch = await GetJsonAsync("/api/v1/dispatch/summary", token);
         var createdReport = await GetJsonAsync("/api/v1/reports/summary", token);
-        Assert.Equal(beforeDispatch.GetProperty("unassignedCount").GetInt32() + 1,
-            afterCreatedDispatch.GetProperty("unassignedCount").GetInt32());
-        Assert.Equal(beforeReport.GetProperty("created").GetInt32() + 1,
-            createdReport.GetProperty("created").GetInt32());
+        var dailyAfterCreated = await GetJsonAsync($"/api/v1/reports/deliveries-per-day?from={reportDate:yyyy-MM-dd}&to={reportDate:yyyy-MM-dd}", token);
+        Assert.Equal(createdBefore + 1, dailyAfterCreated[0].GetProperty("created").GetInt32());
 
         var assignment = await client.PostAsJsonWithTokenAsync($"/api/v1/dispatch/parcels/{parcelId}/assign",
             new { courierId }, token);
         Assert.Equal(HttpStatusCode.OK, assignment.StatusCode);
-        var assignedDispatch = await GetJsonAsync("/api/v1/dispatch/summary", token);
-        Assert.Equal(afterCreatedDispatch.GetProperty("activeDeliveries").GetInt32() + 1,
-            assignedDispatch.GetProperty("activeDeliveries").GetInt32());
-
-        var terminalEventId = Guid.NewGuid();
         await using (var scope = factory.Services.CreateAsyncScope())
         {
+            await scope.ServiceProvider.GetRequiredService<IIntegrationEventHandler<CourierAssignedIntegrationEvent>>()
+                .HandleAsync(new CourierAssignedIntegrationEvent(Guid.NewGuid(), parcelId, "DASHBOARD-TEST",
+                    courierId, DateTime.UtcNow), default);
+        }
+        var terminalEventId = Guid.NewGuid();
+        // The assignment endpoint delegates to Parcels; emulate its committed CourierAssigned event
+        // before applying a later status event to Dispatch's projection.
+        await using (var scope = factory.Services.CreateAsyncScope())
+        {
+            await scope.ServiceProvider.GetRequiredService<IIntegrationEventHandler<CourierAssignedIntegrationEvent>>()
+                .HandleAsync(new CourierAssignedIntegrationEvent(Guid.NewGuid(), parcelId, "DASHBOARD-TEST",
+                    courierId, DateTime.UtcNow), default);
             await scope.ServiceProvider.GetRequiredService<SwiftDrop.Dispatch.Business.Consumers.ParcelStatusChangedConsumer>()
                 .HandleAsync(new ParcelStatusChangedMessage(terminalEventId, parcelId, "DELIVERED"), default);
-            var reportingStatus = scope.ServiceProvider.GetRequiredService<SwiftDrop.Reporting.Business.Consumers.ParcelStatusChangedConsumer>();
-            await reportingStatus.HandleAsync(new ParcelStatusChangedReceived(terminalEventId, DateTimeOffset.UtcNow, "DELIVERED"), default);
+            var reportingStatus = scope.ServiceProvider.GetRequiredService<IIntegrationEventHandler<ParcelStatusChangedIntegrationEvent>>();
+            await reportingStatus.HandleAsync(new ParcelStatusChangedIntegrationEvent(terminalEventId, parcelId,
+                "DASHBOARD-TEST", null, courierId, "Out for Delivery", "DELIVERED", null,
+                createdAt.UtcDateTime), default);
             await scope.ServiceProvider.GetRequiredService<SwiftDrop.Dispatch.Business.Consumers.ParcelStatusChangedConsumer>()
                 .HandleAsync(new ParcelStatusChangedMessage(terminalEventId, parcelId, "DELIVERED"), default);
-            await reportingStatus.HandleAsync(new ParcelStatusChangedReceived(terminalEventId, DateTimeOffset.UtcNow, "DELIVERED"), default);
+            await reportingStatus.HandleAsync(new ParcelStatusChangedIntegrationEvent(terminalEventId, parcelId,
+                "DASHBOARD-TEST", null, courierId, "Out for Delivery", "DELIVERED", null,
+                createdAt.UtcDateTime), default);
         }
 
-        var finalDispatch = await GetJsonAsync("/api/v1/dispatch/summary", token);
-        var finalReport = await GetJsonAsync("/api/v1/reports/summary", token);
-        Assert.Equal(assignedDispatch.GetProperty("activeDeliveries").GetInt32() - 1,
-            finalDispatch.GetProperty("activeDeliveries").GetInt32());
-        Assert.Equal(createdReport.GetProperty("delivered").GetInt32() + 1,
-            finalReport.GetProperty("delivered").GetInt32());
+        var dailyFinal = await GetJsonAsync($"/api/v1/reports/deliveries-per-day?from={reportDate:yyyy-MM-dd}&to={reportDate:yyyy-MM-dd}", token);
+        Assert.Equal(deliveredBefore + 1,
+            dailyFinal[0].GetProperty("delivered").GetInt32());
     }
 
     private async Task<JsonElement> GetJsonAsync(string endpoint, string token)

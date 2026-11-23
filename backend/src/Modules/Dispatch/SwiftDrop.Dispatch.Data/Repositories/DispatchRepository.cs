@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Data;
 using SwiftDrop.Dispatch.Data.Entities;
 using SwiftDrop.Dispatch.Data.Persistence;
+using SwiftDrop.Dispatch.Contracts;
 using SwiftDrop.SharedKernel.Authorization;
 
 namespace SwiftDrop.Dispatch.Data.Repositories;
@@ -15,6 +16,26 @@ internal sealed class DispatchRepository(DispatchDbContext db) : IDispatchReposi
         if (zoneId.HasValue) query = query.Where(x => x.ZoneId == zoneId.Value);
         if (from.HasValue) query = query.Where(x => x.CreatedAt >= from.Value);
         if (to.HasValue) query = query.Where(x => x.CreatedAt <= to.Value);
+        var total = await query.CountAsync(ct);
+        var items = await query.OrderByDescending(x => x.CreatedAt).ThenBy(x => x.ParcelId)
+            .Skip((page - 1) * pageSize).Take(pageSize).ToListAsync(ct);
+        return (items, total);
+    }
+
+    public async Task<(IReadOnlyList<ParcelAssignment> Items, int Total)> ListParcelsAsync(string? status,
+        string? trackingNumber, int page, int pageSize, CancellationToken ct)
+    {
+        var query = db.Assignments.AsNoTracking();
+        if (!string.IsNullOrWhiteSpace(status))
+        {
+            var normalizedStatus = status.Trim().ToLower();
+            query = query.Where(x => x.CurrentStatus.ToLower() == normalizedStatus);
+        }
+        if (!string.IsNullOrWhiteSpace(trackingNumber))
+        {
+            var normalizedTracking = trackingNumber.Trim().ToLower();
+            query = query.Where(x => x.TrackingNumber.ToLower().Contains(normalizedTracking));
+        }
         var total = await query.CountAsync(ct);
         var items = await query.OrderByDescending(x => x.CreatedAt).ThenBy(x => x.ParcelId)
             .Skip((page - 1) * pageSize).Take(pageSize).ToListAsync(ct);
@@ -97,18 +118,6 @@ internal sealed class DispatchRepository(DispatchDbContext db) : IDispatchReposi
 
     public Task SaveAsync(CancellationToken ct) => db.SaveChangesAsync(ct);
 
-    public async Task SaveAssignmentAndEventAsync(ParcelAssignment assignment, Guid eventId, string routingKey,
-        string payload, DateTimeOffset occurredAt, CancellationToken ct)
-    {
-        db.Assignments.Update(assignment);
-        db.OutboxMessages.Add(new DispatchOutboxMessage
-        {
-            EventId = eventId, RoutingKey = routingKey, Payload = payload,
-            CreatedAt = occurredAt.ToUnixTimeMilliseconds()
-        });
-        await db.SaveChangesAsync(ct);
-    }
-
     public async Task EnqueueOutboxEventAsync(Guid eventId, string routingKey, string payload,
         DateTimeOffset occurredAt, CancellationToken ct)
     {
@@ -146,21 +155,104 @@ internal sealed class DispatchRepository(DispatchDbContext db) : IDispatchReposi
         await using var tx = await db.Database.BeginTransactionAsync(ct);
         if (await db.ProcessedEvents.AnyAsync(x => x.EventId == eventId, ct)) return;
         db.ProcessedEvents.Add(new ProcessedEvent { EventId = eventId, ProcessedAt = DateTimeOffset.UtcNow });
-        if (!await db.Assignments.AnyAsync(x => x.ParcelId == assignment.ParcelId, ct)) db.Assignments.Add(assignment);
+        var existing = await db.Assignments.SingleOrDefaultAsync(x => x.ParcelId == assignment.ParcelId, ct);
+        if (existing is null)
+        {
+            db.Assignments.Add(assignment);
+        }
+        else
+        {
+            var wasTerminal = ParcelDeliveryStatuses.IsTerminal(existing.CurrentStatus);
+            existing.TrackingNumber = assignment.TrackingNumber;
+            if (existing.ZoneId == Guid.Empty) existing.ZoneId = assignment.ZoneId;
+            existing.CreatedAt = assignment.CreatedAt;
+            if (!wasTerminal && assignment.CreatedAt.ToUnixTimeMilliseconds() >= existing.StatusOccurredAtUtc)
+            {
+                existing.CurrentStatus = "Created";
+                existing.StatusOccurredAtUtc = assignment.CreatedAt.ToUnixTimeMilliseconds();
+                if (existing.CourierId is null)
+                    existing.State = AssignmentStates.Unassigned;
+            }
+            existing.Version++;
+        }
         await db.SaveChangesAsync(ct);
         await tx.CommitAsync(ct);
     }
 
-    public async Task ApplyParcelStatusChangedAsync(Guid eventId, Guid parcelId, string status, CancellationToken ct)
+    public async Task ApplyCourierAssignedAsync(Guid eventId, Guid parcelId, string trackingNumber,
+        Guid courierId, DateTimeOffset assignedAtUtc, CancellationToken ct)
     {
         await using var tx = await db.Database.BeginTransactionAsync(ct);
         if (await db.ProcessedEvents.AnyAsync(x => x.EventId == eventId, ct)) return;
-        var assignment = await db.Assignments.SingleOrDefaultAsync(x => x.ParcelId == parcelId, ct)
-            ?? throw new DispatchEventRetryException("Parcel assignment has not arrived yet.");
-        db.ProcessedEvents.Add(new ProcessedEvent { EventId = eventId, ProcessedAt = DateTimeOffset.UtcNow });
-        if (status is "DELIVERED" or "FAILED")
+        var assignment = await db.Assignments.SingleOrDefaultAsync(x => x.ParcelId == parcelId, ct);
+        if (assignment is null)
         {
-            assignment.State = AssignmentStates.Completed;
+            assignment = new ParcelAssignment
+            {
+                ParcelId = parcelId,
+                TrackingNumber = trackingNumber,
+                State = AssignmentStates.Assigned,
+                CourierId = courierId,
+                AssignedAt = assignedAtUtc,
+                CurrentStatus = "Created",
+                StatusOccurredAtUtc = assignedAtUtc.ToUnixTimeMilliseconds(),
+                CreatedAt = assignedAtUtc,
+                Version = 0
+            };
+            db.Assignments.Add(assignment);
+        }
+        else
+        {
+            if (string.IsNullOrWhiteSpace(assignment.TrackingNumber)) assignment.TrackingNumber = trackingNumber;
+            if (assignment.CourierId is null) assignment.CourierId = courierId;
+            if (assignment.AssignedAt is null) assignment.AssignedAt = assignedAtUtc;
+            if (!ParcelDeliveryStatuses.IsTerminal(assignment.CurrentStatus))
+                assignment.State = AssignmentStates.Assigned;
+            assignment.Version++;
+        }
+        db.ProcessedEvents.Add(new ProcessedEvent { EventId = eventId, ProcessedAt = DateTimeOffset.UtcNow });
+        await db.SaveChangesAsync(ct);
+        await tx.CommitAsync(ct);
+    }
+
+    public async Task ApplyParcelStatusChangedAsync(ParcelStatusChangedMessage message, CancellationToken ct)
+    {
+        await using var tx = await db.Database.BeginTransactionAsync(ct);
+        if (await db.ProcessedEvents.AnyAsync(x => x.EventId == message.EventId, ct)) return;
+        db.ProcessedEvents.Add(new ProcessedEvent { EventId = message.EventId, ProcessedAt = DateTimeOffset.UtcNow });
+        var assignment = await db.Assignments.SingleOrDefaultAsync(x => x.ParcelId == message.ParcelId, ct);
+        if (assignment is null)
+        {
+            assignment = new ParcelAssignment
+            {
+                ParcelId = message.ParcelId,
+                TrackingNumber = message.TrackingNumber,
+                ZoneId = Guid.Empty,
+                CreatedAt = message.OccurredAtUtc,
+                State = message.CourierId.HasValue ? AssignmentStates.Assigned : AssignmentStates.Unassigned,
+                CourierId = message.CourierId,
+                CurrentStatus = message.Status,
+                StatusOccurredAtUtc = message.OccurredAtUtc.ToUnixTimeMilliseconds(),
+                Version = 0
+            };
+            if (ParcelDeliveryStatuses.IsTerminal(message.Status)) assignment.State = AssignmentStates.Completed;
+            db.Assignments.Add(assignment);
+        }
+        else if (message.OccurredAtUtc.ToUnixTimeMilliseconds() >= assignment.StatusOccurredAtUtc &&
+                 !(ParcelDeliveryStatuses.IsTerminal(assignment.CurrentStatus) &&
+                   !ParcelDeliveryStatuses.IsTerminal(message.Status)))
+        {
+            assignment.TrackingNumber = string.IsNullOrWhiteSpace(assignment.TrackingNumber)
+                ? message.TrackingNumber : assignment.TrackingNumber;
+            assignment.CurrentStatus = message.Status;
+            assignment.StatusOccurredAtUtc = message.OccurredAtUtc.ToUnixTimeMilliseconds();
+            if (assignment.CourierId is null && message.CourierId.HasValue)
+            {
+                assignment.CourierId = message.CourierId;
+                if (assignment.State == AssignmentStates.Unassigned)
+                    assignment.State = AssignmentStates.Assigned;
+            }
+            if (ParcelDeliveryStatuses.IsTerminal(message.Status)) assignment.State = AssignmentStates.Completed;
             assignment.Version++;
         }
         await db.SaveChangesAsync(ct);

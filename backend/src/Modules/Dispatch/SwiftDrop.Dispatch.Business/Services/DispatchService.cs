@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using System.Text.Json;
 using SwiftDrop.Dispatch.Contracts;
 using SwiftDrop.Dispatch.Data.Entities;
 using SwiftDrop.Dispatch.Data.Repositories;
@@ -18,6 +17,21 @@ internal sealed class DispatchService(IDispatchRepository repository,
             page, pageSize, total);
     }
 
+    public async Task<DispatchParcelPage> ListParcelsAsync(string? status, string? trackingNumber,
+        int page, int pageSize, CancellationToken ct)
+    {
+        var (assignments, total) = await repository.ListParcelsAsync(status, trackingNumber, page, pageSize, ct);
+        var courierIds = assignments.Where(x => x.CourierId.HasValue).Select(x => x.CourierId!.Value).Distinct().ToArray();
+        var names = courierIds.Length == 0
+            ? new Dictionary<Guid, string>()
+            : await couriers.GetNamesAsync(courierIds, ct);
+        var items = assignments.Select(x => new DispatchParcelDto(x.ParcelId, x.TrackingNumber,
+            x.CurrentStatus, x.ZoneId, x.CourierId,
+            x.CourierId.HasValue ? names.GetValueOrDefault(x.CourierId.Value, "Unknown courier") : null,
+            x.State, x.CreatedAt, x.AssignedAt)).ToArray();
+        return new(items, page, pageSize, total);
+    }
+
     public async Task<DispatchResult<AssignmentDto>> AssignAsync(Guid parcelId, Guid courierId,
         Guid assignedBy, CancellationToken ct)
     {
@@ -30,28 +44,12 @@ internal sealed class DispatchService(IDispatchRepository repository,
         var courierProfile = await repository.GetCourierProfileAsync(courierId, ct);
         if (courierProfile is null || !courierProfile.IsAvailable)
             return DispatchResult<AssignmentDto>.Fail(DispatchFailure.CourierNotEligible);
-        if (!await parcels.AssignAsync(parcelId, courierId, ct))
+        var parcelAssignment = await parcels.AssignAsync(parcelId, courierId, ct);
+        if (parcelAssignment is null)
             return DispatchResult<AssignmentDto>.Fail(DispatchFailure.ParcelNotAssignable);
 
-        var now = DateTimeOffset.UtcNow;
-        assignment.CourierId = courierId;
-        assignment.AssignedBy = assignedBy;
-        assignment.AssignedAt = now;
-        assignment.State = AssignmentStates.Assigned;
-        assignment.Version++;
-        try
-        {
-            var assignedEvent = new CourierAssignedEvent(Guid.NewGuid(), parcelId, courierId,
-                assignment.TrackingNumber, now);
-            await repository.SaveAssignmentAndEventAsync(assignment, assignedEvent.EventId,
-                "dispatch.courier-assigned", JsonSerializer.Serialize(assignedEvent, JsonSerializerOptions.Web), now, ct);
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            return DispatchResult<AssignmentDto>.Fail(DispatchFailure.ConcurrencyConflict);
-        }
-
-        return DispatchResult<AssignmentDto>.Success(new(parcelId, courierId, assignedBy, now));
+        return DispatchResult<AssignmentDto>.Success(new(parcelId, courierId, assignedBy,
+            parcelAssignment.AssignedAtUtc));
     }
 
     public async Task<CourierProfileResult> RegisterCourierAsync(Guid courierId, Guid? zoneId,

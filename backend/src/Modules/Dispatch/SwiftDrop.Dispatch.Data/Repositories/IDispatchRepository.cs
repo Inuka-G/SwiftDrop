@@ -1,4 +1,5 @@
 using SwiftDrop.Dispatch.Data.Entities;
+using SwiftDrop.Dispatch.Contracts;
 
 namespace SwiftDrop.Dispatch.Data.Repositories;
 
@@ -8,6 +9,8 @@ internal interface IDispatchRepository
 {
     Task<(IReadOnlyList<ParcelAssignment> Items, int Total)> ListUnassignedAsync(Guid? zoneId,
         DateTimeOffset? from, DateTimeOffset? to, int page, int pageSize, CancellationToken ct);
+    Task<(IReadOnlyList<ParcelAssignment> Items, int Total)> ListParcelsAsync(string? status,
+        string? trackingNumber, int page, int pageSize, CancellationToken ct);
     Task<ParcelAssignment?> GetAsync(Guid parcelId, CancellationToken ct);
     Task<CourierProfile?> GetCourierProfileAsync(Guid courierId, CancellationToken ct);
     Task AddCourierProfileAsync(CourierProfile profile, CancellationToken ct);
@@ -19,13 +22,14 @@ internal interface IDispatchRepository
     Task<(int Unassigned, int AvailableCouriers, int CouriersWithActiveDeliveries, int ActiveDeliveries, int TotalCouriers)> GetDashboardSummaryAsync(CancellationToken ct);
     Task SaveChangesAsync(CancellationToken ct);
     Task SaveAsync(CancellationToken ct);
-    Task SaveAssignmentAndEventAsync(ParcelAssignment assignment, Guid eventId, string routingKey, string payload, DateTimeOffset occurredAt, CancellationToken ct);
     Task EnqueueOutboxEventAsync(Guid eventId, string routingKey, string payload, DateTimeOffset occurredAt, CancellationToken ct);
     Task<IReadOnlyList<DispatchOutboxRecord>> GetPendingOutboxAsync(int limit, CancellationToken ct);
     Task MarkOutboxProcessedAsync(Guid eventId, CancellationToken ct);
     Task RecordOutboxFailureAsync(Guid eventId, CancellationToken ct);
     Task AddFromEventAsync(Guid eventId, ParcelAssignment assignment, CancellationToken ct);
-    Task ApplyParcelStatusChangedAsync(Guid eventId, Guid parcelId, string status, CancellationToken ct);
+    Task ApplyCourierAssignedAsync(Guid eventId, Guid parcelId, string trackingNumber, Guid courierId,
+        DateTimeOffset assignedAtUtc, CancellationToken ct);
+    Task ApplyParcelStatusChangedAsync(ParcelStatusChangedMessage message, CancellationToken ct);
     Task ApplyUserRoleChangedAsync(Guid eventId, Guid userId, string role, CancellationToken ct);
     Task ApplyUserStatusChangedAsync(Guid eventId, Guid userId, bool isActive, CancellationToken ct);
 }

@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SwiftDrop.Pricing.Api.Dtos;
 using SwiftDrop.Pricing.Business.Services;
 using SwiftDrop.Pricing.Contracts;
+using SwiftDrop.SharedKernel.Authorization;
 
 namespace SwiftDrop.Pricing.Api.Controllers;
 
@@ -34,7 +36,8 @@ public class ZonesController(IZoneService zones, IPricingService pricing) : Cont
         return Ok(rules);
     }
 
-    [HttpPost]   // TODO: [Authorize(Roles = Roles.Admin)] once Identity is done
+    [HttpPost]
+    [Authorize(Roles = Roles.Admin)]
     [ProducesResponseType<ZoneDto>(StatusCodes.Status201Created)]
     public async Task<IActionResult> Create(CreateZoneRequest req, CancellationToken ct)
     {
@@ -58,6 +61,7 @@ public class ZonesController(IZoneService zones, IPricingService pricing) : Cont
     }
 
     [HttpPut("{id:guid}")]
+    [Authorize(Roles = Roles.Admin)]
     [ProducesResponseType<ZoneDto>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -69,6 +73,7 @@ public class ZonesController(IZoneService zones, IPricingService pricing) : Cont
     }
 
     [HttpPatch("{id:guid}/status")]
+    [Authorize(Roles = Roles.Admin)]
     [ProducesResponseType<ZoneDto>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -80,6 +85,7 @@ public class ZonesController(IZoneService zones, IPricingService pricing) : Cont
     }
 
     [HttpPut("{zoneId:guid}/pricing-rules/{ruleId:guid}")]
+    [Authorize(Roles = Roles.Admin)]
     [ProducesResponseType<PricingRuleDto>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

@@ -29,18 +29,24 @@ public sealed class ParcelAssignmentAndCreationTests : IDisposable
         var assignment = new ParcelAssignmentService(db.Repository, db.Clock);
         var courierId = Guid.NewGuid();
 
-        (await assignment.AssignCourierAsync(parcel.Id, courierId, default)).Should().BeTrue();
-        (await assignment.AssignCourierAsync(parcel.Id, Guid.NewGuid(), default)).Should().BeFalse();
+        var result = await assignment.AssignCourierAsync(parcel.Id, courierId, default);
+        result.Should().NotBeNull();
+        (await assignment.AssignCourierAsync(parcel.Id, Guid.NewGuid(), default)).Should().BeNull();
 
         await using var check = db.NewContext();
         (await check.Parcels.SingleAsync()).CourierId.Should().Be(courierId);
+        var outboxMessage = await check.OutboxMessages.SingleAsync();
+        outboxMessage.RoutingKey.Should().Be(ParcelEventRoutingKeys.CourierAssigned);
+        var assignedEvent = JsonSerializer.Deserialize<CourierAssignedIntegrationEvent>(outboxMessage.Payload, JsonSerializerOptions.Web)!;
+        assignedEvent.EventId.Should().Be(result!.EventId);
+        assignedEvent.CourierId.Should().Be(courierId);
     }
 
     [Fact]
     public async Task Unknown_parcel_cannot_be_assigned()
     {
         var assignment = new ParcelAssignmentService(db.Repository, db.Clock);
-        (await assignment.AssignCourierAsync(Guid.NewGuid(), Guid.NewGuid(), default)).Should().BeFalse();
+        (await assignment.AssignCourierAsync(Guid.NewGuid(), Guid.NewGuid(), default)).Should().BeNull();
     }
 
     [Fact]

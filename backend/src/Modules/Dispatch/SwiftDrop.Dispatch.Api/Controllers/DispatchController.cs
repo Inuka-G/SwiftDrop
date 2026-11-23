@@ -14,8 +14,17 @@ namespace SwiftDrop.Dispatch.Api.Controllers;
 [Authorize(Roles = Roles.DispatcherOrAdmin)]
 [Produces("application/json")]
 public sealed class DispatchController(IDispatchService dispatch, IValidator<ListUnassignedRequest> listValidator,
-    IValidator<AssignCourierRequest> assignValidator) : ControllerBase
+    IValidator<ListParcelsRequest> parcelsValidator, IValidator<AssignCourierRequest> assignValidator) : ControllerBase
 {
+    [HttpGet]
+    public async Task<ActionResult<DispatchParcelPage>> ListParcels([FromQuery] ListParcelsRequest request,
+        CancellationToken ct)
+    {
+        await ValidateAsync(parcelsValidator, request, ct);
+        return Ok(await dispatch.ListParcelsAsync(request.Status, request.TrackingNumber,
+            request.Page, request.PageSize, ct));
+    }
+
     [HttpGet("unassigned")]
     public async Task<ActionResult<UnassignedParcelPage>> List([FromQuery] ListUnassignedRequest request, CancellationToken ct)
     {

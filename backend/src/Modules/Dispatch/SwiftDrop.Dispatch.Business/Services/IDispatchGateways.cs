@@ -16,5 +16,10 @@ internal interface IZoneLookup
 
 internal interface IParcelAssignmentGateway
 {
-    Task<bool> AssignAsync(Guid parcelId, Guid courierId, CancellationToken ct);
+    Task<SwiftDrop.Parcels.Contracts.CourierAssignmentResult?> AssignAsync(Guid parcelId, Guid courierId, CancellationToken ct);
+}
+
+internal interface IDispatchEventPublisher
+{
+    Task PublishAsync(CourierAssignedEvent message, CancellationToken ct);
 }

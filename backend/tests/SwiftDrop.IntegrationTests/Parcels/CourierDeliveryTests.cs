@@ -195,7 +195,7 @@ public sealed class CourierDeliveryTests(SwiftDropApiFactory factory)
 
         var assigned = await scope.ServiceProvider.GetRequiredService<IParcelAssignment>()
             .AssignCourierAsync(parcel.Id, courierId, CancellationToken.None);
-        Assert.True(assigned);
+        Assert.NotNull(assigned);
         return parcel.Id;
     }
 
@@ -204,7 +204,8 @@ public sealed class CourierDeliveryTests(SwiftDropApiFactory factory)
         var deadline = DateTime.UtcNow.AddSeconds(10);
         while (DateTime.UtcNow < deadline)
         {
-            var match = factory.Events.Published.FirstOrDefault(e => e.Payload.Contains(parcelId.ToString()));
+            var match = factory.Events.Published.FirstOrDefault(e =>
+                e.RoutingKey == ParcelEventRoutingKeys.StatusChanged && e.Payload.Contains(parcelId.ToString()));
             if (match != default) return match;
             await Task.Delay(100);
         }

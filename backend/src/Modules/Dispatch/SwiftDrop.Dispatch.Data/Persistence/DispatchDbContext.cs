@@ -19,6 +19,7 @@ internal sealed class DispatchDbContext(DbContextOptions<DispatchDbContext> opti
             e.HasKey(x => x.ParcelId);
             e.Property(x => x.TrackingNumber).HasMaxLength(80).IsRequired();
             e.Property(x => x.State).HasMaxLength(24).IsRequired();
+            e.Property(x => x.CurrentStatus).HasMaxLength(32).HasDefaultValue("Created").IsRequired();
             // Store timestamps as epoch milliseconds so SQLite can filter and sort them.
             e.Property(x => x.CreatedAt).HasConversion(
                 value => value.ToUnixTimeMilliseconds(), value => DateTimeOffset.FromUnixTimeMilliseconds(value));
