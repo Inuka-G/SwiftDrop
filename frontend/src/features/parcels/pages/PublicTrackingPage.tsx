@@ -63,19 +63,32 @@ export function PublicTrackingPage() {
 
     const connection = createSignalRConnection()
     let disposed = false
+    let subscribed = false
+    let subscriptionInProgress: Promise<void> | null = null
+    let initialRetryTimer: ReturnType<typeof setTimeout> | undefined
+    let reconnectGeneration = 0
+
+    const normalizeTrackingNumber = (value: string) =>
+      value.trim().toUpperCase()
 
     const unsubscribeFromEvents = onDeliveryStatusUpdated(
       connection,
       (update) => {
         if (
-          update.trackingNumber.trim().toUpperCase() !==
-          activeTrackingNumber.trim().toUpperCase()
+          normalizeTrackingNumber(update.trackingNumber) !==
+            normalizeTrackingNumber(activeTrackingNumber)
         ) {
           return
         }
 
         setParcel((currentParcel) => {
-          if (!currentParcel) return currentParcel
+          if (
+            !currentParcel ||
+            normalizeTrackingNumber(currentParcel.trackingNumber) !==
+              normalizeTrackingNumber(activeTrackingNumber)
+          ) {
+            return currentParcel
+          }
 
           return {
             ...currentParcel,
@@ -86,26 +99,83 @@ export function PublicTrackingPage() {
       },
     )
 
-    const startConnection = async () => {
-      try {
-        await connection.start()
+    const subscribeToActiveTracking = async () => {
+      if (disposed || connection.state !== 'Connected' || subscribed) return
+      if (subscriptionInProgress) {
+        await subscriptionInProgress
+        if (!subscribed) return subscribeToActiveTracking()
+        return
+      }
 
-        if (disposed) {
-          await connection.stop()
-          return
-        }
+      const generation = reconnectGeneration
+      subscriptionInProgress = connection
+        .invoke('SubscribeToTracking', activeTrackingNumber)
+        .then(() => {
+          if (
+            !disposed &&
+            connection.state === 'Connected' &&
+            generation === reconnectGeneration
+          ) {
+            subscribed = true
+          }
+        })
+        .finally(() => {
+          subscriptionInProgress = null
+        })
 
-        await connection.invoke(
-          'SubscribeToTracking',
-          activeTrackingNumber,
-        )
+      return subscriptionInProgress
+    }
 
-        console.log(
-          `Subscribed to tracking updates: ${activeTrackingNumber}`,
-        )
-      } catch (error) {
+    const handleReconnecting = () => {
+      reconnectGeneration += 1
+      subscribed = false
+    }
+
+    const handleReconnected = () => {
+      subscribed = false
+      void subscribeToActiveTracking().catch((error) => {
         if (!disposed) {
-          console.error('SignalR connection failed:', error)
+          console.error('SignalR tracking resubscription failed:', error)
+        }
+      })
+    }
+
+    const handleClose = () => {
+      subscribed = false
+    }
+
+    connection.onreconnecting(handleReconnecting)
+    connection.onreconnected(handleReconnected)
+    connection.onclose(handleClose)
+
+    const startConnection = async () => {
+      const maxInitialAttempts = 4
+
+      for (let attempt = 1; attempt <= maxInitialAttempts; attempt += 1) {
+        if (disposed) return
+
+        try {
+          if (connection.state === 'Disconnected') {
+            await connection.start()
+          }
+
+          if (disposed) return
+
+          await subscribeToActiveTracking()
+          console.log(`Subscribed to tracking updates: ${activeTrackingNumber}`)
+          return
+        } catch (error) {
+          if (disposed) return
+
+          if (attempt === maxInitialAttempts) {
+            console.error('SignalR connection failed after retries:', error)
+            return
+          }
+
+          const delayMs = Math.min(1000 * 2 ** (attempt - 1), 8000)
+          await new Promise<void>((resolve) => {
+            initialRetryTimer = setTimeout(resolve, delayMs)
+          })
         }
       }
     }
@@ -114,11 +184,12 @@ export function PublicTrackingPage() {
 
     return () => {
       disposed = true
+      if (initialRetryTimer) clearTimeout(initialRetryTimer)
       unsubscribeFromEvents()
 
       void (async () => {
         try {
-          if (connection.state === 'Connected') {
+          if (subscribed && connection.state === 'Connected') {
             await connection.invoke(
               'UnsubscribeFromTracking',
               activeTrackingNumber,
@@ -127,7 +198,9 @@ export function PublicTrackingPage() {
         } catch (error) {
           console.error('SignalR unsubscribe failed:', error)
         } finally {
-          await connection.stop()
+          if (connection.state !== 'Disconnected') {
+            await connection.stop()
+          }
         }
       })()
     }

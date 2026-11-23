@@ -51,8 +51,11 @@ internal sealed class ParcelService(
     private async Task<ParcelCreatedResponse> CreateParcelAsync(Guid? customerId, Guid? merchantId,
         CreateParcelRequest req, CancellationToken ct)
     {
+        if (!Enum.IsDefined(req.ServiceType))
+            throw new BadRequestException("Service type must be Standard (1) or Express (2).");
+
         // 1. Calculate fee using Part 10's Pricing Service
-        var estimate = await pricingService.EstimateAsync(req.ZoneId, req.WeightKg, ServiceType.Standard, ct)
+        var estimate = await pricingService.EstimateAsync(req.ZoneId, req.WeightKg, req.ServiceType, ct)
             ?? throw new BadRequestException("Invalid zone or pricing could not be calculated.");
 
         // 2. Generate unique tracking number: e.g. SD-261108-A9B2
@@ -97,14 +100,18 @@ internal sealed class ParcelService(
                 parcel.CreatedAtUtc);
         }
 
-        await repository.SaveChangesAsync(ct);
-
         if (customerId.HasValue)
         {
-            await eventPublisher.PublishAsync(new ParcelStatusChanged(
+            var statusEvent = new ParcelStatusChanged(
                 parcel.Id, parcel.TrackingNumber, "None", parcel.CurrentStatus, "Parcel created.",
-                customerId, null, null), ct);
+                customerId, null, null)
+            {
+                OccurredOnUtc = parcel.CreatedAtUtc
+            };
+            repository.StageEvent(statusEvent.EventId, "parcel.status.changed", statusEvent, parcel.CreatedAtUtc);
         }
+
+        await repository.SaveChangesAsync(ct);
 
         return new ParcelCreatedResponse(parcel.Id, parcel.TrackingNumber, parcel.EstimatedFee, parcel.CurrentStatus, parcel.CreatedAtUtc);
     }
