@@ -21,7 +21,7 @@ public static class RealtimeModule
             IIntegrationEventHandler<ParcelStatusChanged>,
             ParcelStatusChangedHandler>();
 
-        services.AddEventConsumer<ParcelStatusChanged>("q.realtime");
+        services.AddEventConsumer<ParcelStatusChanged, ParcelStatusChangedHandler>("q.realtime");
 
         return services;
     }
