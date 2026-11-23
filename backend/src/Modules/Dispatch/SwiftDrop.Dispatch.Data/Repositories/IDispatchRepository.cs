@@ -2,6 +2,8 @@ using SwiftDrop.Dispatch.Data.Entities;
 
 namespace SwiftDrop.Dispatch.Data.Repositories;
 
+public sealed record DispatchOutboxRecord(Guid EventId, string RoutingKey, string Payload);
+
 internal interface IDispatchRepository
 {
     Task<(IReadOnlyList<ParcelAssignment> Items, int Total)> ListUnassignedAsync(Guid? zoneId,
@@ -17,6 +19,11 @@ internal interface IDispatchRepository
     Task<(int Unassigned, int AvailableCouriers, int CouriersWithActiveDeliveries, int ActiveDeliveries, int TotalCouriers)> GetDashboardSummaryAsync(CancellationToken ct);
     Task SaveChangesAsync(CancellationToken ct);
     Task SaveAsync(CancellationToken ct);
+    Task SaveAssignmentAndEventAsync(ParcelAssignment assignment, Guid eventId, string routingKey, string payload, DateTimeOffset occurredAt, CancellationToken ct);
+    Task EnqueueOutboxEventAsync(Guid eventId, string routingKey, string payload, DateTimeOffset occurredAt, CancellationToken ct);
+    Task<IReadOnlyList<DispatchOutboxRecord>> GetPendingOutboxAsync(int limit, CancellationToken ct);
+    Task MarkOutboxProcessedAsync(Guid eventId, CancellationToken ct);
+    Task RecordOutboxFailureAsync(Guid eventId, CancellationToken ct);
     Task AddFromEventAsync(Guid eventId, ParcelAssignment assignment, CancellationToken ct);
     Task ApplyParcelStatusChangedAsync(Guid eventId, Guid parcelId, string status, CancellationToken ct);
     Task ApplyUserRoleChangedAsync(Guid eventId, Guid userId, string role, CancellationToken ct);

@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 using SwiftDrop.Dispatch.Contracts;
 using SwiftDrop.Dispatch.Data.Entities;
 using SwiftDrop.Dispatch.Data.Repositories;
@@ -7,7 +8,7 @@ namespace SwiftDrop.Dispatch.Business.Services;
 
 internal sealed class DispatchService(IDispatchRepository repository,
     ICourierEligibilityGateway couriers, IParcelAssignmentGateway parcels,
-    IDispatchEventPublisher events, IZoneLookup zones) : IDispatchService
+    IZoneLookup zones) : IDispatchService
 {
     public async Task<UnassignedParcelPage> ListUnassignedAsync(Guid? zoneId, DateTimeOffset? from,
         DateTimeOffset? to, int page, int pageSize, CancellationToken ct)
@@ -40,15 +41,16 @@ internal sealed class DispatchService(IDispatchRepository repository,
         assignment.Version++;
         try
         {
-            await repository.SaveAsync(ct);
+            var assignedEvent = new CourierAssignedEvent(Guid.NewGuid(), parcelId, courierId,
+                assignment.TrackingNumber, now);
+            await repository.SaveAssignmentAndEventAsync(assignment, assignedEvent.EventId,
+                "dispatch.courier-assigned", JsonSerializer.Serialize(assignedEvent, JsonSerializerOptions.Web), now, ct);
         }
         catch (DbUpdateConcurrencyException)
         {
             return DispatchResult<AssignmentDto>.Fail(DispatchFailure.ConcurrencyConflict);
         }
 
-        await events.PublishAsync(new CourierAssignedEvent(Guid.NewGuid(), parcelId, courierId,
-            assignment.TrackingNumber, now), ct);
         return DispatchResult<AssignmentDto>.Success(new(parcelId, courierId, assignedBy, now));
     }
 
@@ -122,9 +124,13 @@ internal sealed class DispatchService(IDispatchRepository repository,
             ? new Dictionary<Guid, string>()
             : await couriers.GetNamesAsync(ids, ct);
         var workloads = await repository.GetWorkloadsAsync(ids, ct);
+        var eligibleIds = new HashSet<Guid>();
+        foreach (var profile in profiles)
+            if (await couriers.IsEligibleAsync(profile.CourierId, ct)) eligibleIds.Add(profile.CourierId);
         var items = profiles.Select(p => new CourierProfileDto(p.CourierId,
-            names.GetValueOrDefault(p.CourierId, "Unknown courier"), p.ZoneId, p.IsAvailable,
-            p.VehicleType, p.LicensePlate, workloads.GetValueOrDefault(p.CourierId))).ToList();
+            names.GetValueOrDefault(p.CourierId, "Unknown courier"), p.ZoneId,
+            p.IsAvailable && eligibleIds.Contains(p.CourierId), p.VehicleType, p.LicensePlate,
+            workloads.GetValueOrDefault(p.CourierId))).ToList();
         return new(items, page, pageSize, total);
     }
 

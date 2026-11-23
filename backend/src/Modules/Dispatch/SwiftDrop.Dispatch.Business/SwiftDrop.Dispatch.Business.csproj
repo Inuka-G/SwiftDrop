@@ -5,7 +5,9 @@
     <ProjectReference Include="..\SwiftDrop.Dispatch.Contracts\SwiftDrop.Dispatch.Contracts.csproj" />
     <ProjectReference Include="..\..\Parcels\SwiftDrop.Parcels.Contracts\SwiftDrop.Parcels.Contracts.csproj" />
     <ProjectReference Include="..\..\Identity\SwiftDrop.Identity.Contracts\SwiftDrop.Identity.Contracts.csproj" />
+    <ProjectReference Include="..\..\Pricing\SwiftDrop.Pricing.Contracts\SwiftDrop.Pricing.Contracts.csproj" />
     <ProjectReference Include="..\..\..\SharedKernel\SwiftDrop.SharedKernel\SwiftDrop.SharedKernel.csproj" />
+    <ProjectReference Include="..\..\..\SharedKernel\SwiftDrop.SharedKernel.Messaging\SwiftDrop.SharedKernel.Messaging.csproj" />
   </ItemGroup>
 
   <ItemGroup>

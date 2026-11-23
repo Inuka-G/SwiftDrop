@@ -8,6 +8,7 @@ internal sealed class DispatchDbContext(DbContextOptions<DispatchDbContext> opti
     internal DbSet<ParcelAssignment> Assignments => Set<ParcelAssignment>();
     internal DbSet<CourierProfile> CourierProfiles => Set<CourierProfile>();
     internal DbSet<ProcessedEvent> ProcessedEvents => Set<ProcessedEvent>();
+    internal DbSet<DispatchOutboxMessage> OutboxMessages => Set<DispatchOutboxMessage>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -41,6 +42,14 @@ internal sealed class DispatchDbContext(DbContextOptions<DispatchDbContext> opti
         {
             e.ToTable("processed_events");
             e.HasKey(x => x.EventId);
+        });
+        modelBuilder.Entity<DispatchOutboxMessage>(e =>
+        {
+            e.ToTable("outbox_messages");
+            e.HasKey(x => x.EventId);
+            e.Property(x => x.RoutingKey).HasMaxLength(160).IsRequired();
+            e.Property(x => x.Payload).IsRequired();
+            e.HasIndex(x => new { x.ProcessedAt, x.CreatedAt });
         });
     }
 }

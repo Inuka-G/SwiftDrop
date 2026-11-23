@@ -15,12 +15,11 @@ public sealed class DispatchServiceTests
     private readonly Mock<IDispatchRepository> repository = new();
     private readonly Mock<ICourierEligibilityGateway> couriers = new();
     private readonly Mock<IParcelAssignmentGateway> parcels = new();
-    private readonly Mock<IDispatchEventPublisher> events = new();
     private readonly Mock<IZoneLookup> zones = new();
-    private DispatchService Create() => new(repository.Object, couriers.Object, parcels.Object, events.Object, zones.Object);
+    private DispatchService Create() => new(repository.Object, couriers.Object, parcels.Object, zones.Object);
 
     [Fact]
-    public async Task Assign_publishes_event_after_successful_assignment()
+    public async Task Assign_stores_assignment_and_outbox_event_together()
     {
         var parcelId = Guid.NewGuid(); var courierId = Guid.NewGuid();
         var parcel = new ParcelAssignment { ParcelId = parcelId, TrackingNumber = "SD123", State = "UNASSIGNED" };
@@ -29,10 +28,30 @@ public sealed class DispatchServiceTests
         repository.Setup(x => x.GetAsync(parcelId, It.IsAny<CancellationToken>())).ReturnsAsync(parcel);
         couriers.Setup(x => x.IsEligibleAsync(courierId, It.IsAny<CancellationToken>())).ReturnsAsync(true);
         parcels.Setup(x => x.AssignAsync(parcelId, courierId, It.IsAny<CancellationToken>())).ReturnsAsync(true);
+        repository.Setup(x => x.SaveAssignmentAndEventAsync(parcel, It.IsAny<Guid>(), "dispatch.courier-assigned",
+            It.IsAny<string>(), It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
         var result = await Create().AssignAsync(parcelId, courierId, Guid.NewGuid(), default);
         Assert.True(result.IsSuccess);
-        events.Verify(x => x.PublishAsync(It.Is<CourierAssignedEvent>(e => e.ParcelId == parcelId && e.CourierId == courierId),
-            It.IsAny<CancellationToken>()), Times.Once);
+        repository.Verify(x => x.SaveAssignmentAndEventAsync(parcel, It.IsAny<Guid>(), "dispatch.courier-assigned",
+            It.Is<string>(json => json.Contains(parcelId.ToString()) && json.Contains(courierId.ToString())),
+            It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task Courier_list_never_reports_an_inactive_identity_as_available()
+    {
+        var courierId = Guid.NewGuid();
+        repository.Setup(x => x.ListCouriersAsync(null, null, 1, 20, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(((IReadOnlyList<CourierProfile>) [new CourierProfile { CourierId = courierId, IsAvailable = true }], 1));
+        repository.Setup(x => x.GetWorkloadsAsync(It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Dictionary<Guid, int>());
+        couriers.Setup(x => x.GetNamesAsync(It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Dictionary<Guid, string> { [courierId] = "Courier" });
+        couriers.Setup(x => x.IsEligibleAsync(courierId, It.IsAny<CancellationToken>())).ReturnsAsync(false);
+
+        var result = await Create().ListCouriersAsync(null, null, 1, 20, default);
+
+        Assert.False(result.Items.Single().IsAvailable);
     }
 
     [Fact]
@@ -167,10 +186,12 @@ public sealed class DispatchServiceTests
         repository.Setup(x => x.GetCourierProfileAsync(courierId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new CourierProfile { CourierId = courierId, IsAvailable = true });
         parcels.Setup(x => x.AssignAsync(parcelId, courierId, It.IsAny<CancellationToken>())).ReturnsAsync(true);
-        repository.Setup(x => x.SaveAsync(It.IsAny<CancellationToken>())).ThrowsAsync(new DbUpdateConcurrencyException());
+        repository.Setup(x => x.SaveAssignmentAndEventAsync(It.IsAny<ParcelAssignment>(), It.IsAny<Guid>(), It.IsAny<string>(),
+            It.IsAny<string>(), It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>())).ThrowsAsync(new DbUpdateConcurrencyException());
         var result = await Create().AssignAsync(parcelId, courierId, Guid.NewGuid(), default);
         Assert.Equal(DispatchFailure.ConcurrencyConflict, result.Failure);
-        events.Verify(x => x.PublishAsync(It.IsAny<CourierAssignedEvent>(), It.IsAny<CancellationToken>()), Times.Never);
+        repository.Verify(x => x.SaveAssignmentAndEventAsync(It.IsAny<ParcelAssignment>(), It.IsAny<Guid>(),
+            It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -186,6 +207,34 @@ public sealed class DispatchServiceTests
         await consumer.HandleAsync(message, default);
         Assert.Equal(1, await db.Assignments.CountAsync());
         Assert.Equal(1, await db.ProcessedEvents.CountAsync());
+    }
+
+    [Fact]
+    public async Task Assignment_and_outbox_event_are_persisted_together()
+    {
+        var options = new DbContextOptionsBuilder<DispatchDbContext>().UseSqlite("Data Source=:memory:").Options;
+        await using var db = new DispatchDbContext(options);
+        await db.Database.OpenConnectionAsync();
+        await db.Database.EnsureCreatedAsync();
+        var repository = new DispatchRepository(db);
+        var assignment = new ParcelAssignment
+        {
+            ParcelId = Guid.NewGuid(), TrackingNumber = "SD-000001-A1B2C3", ZoneId = Guid.NewGuid(),
+            CreatedAt = DateTimeOffset.UtcNow, State = "UNASSIGNED", Version = 0
+        };
+        db.Assignments.Add(assignment);
+        await db.SaveChangesAsync();
+        assignment.State = "ASSIGNED";
+        assignment.CourierId = Guid.NewGuid();
+        assignment.AssignedBy = Guid.NewGuid();
+        assignment.AssignedAt = DateTimeOffset.UtcNow;
+        assignment.Version++;
+
+        await repository.SaveAssignmentAndEventAsync(assignment, Guid.NewGuid(), "dispatch.courier-assigned",
+            "{}", DateTimeOffset.UtcNow, default);
+
+        Assert.Equal("ASSIGNED", (await repository.GetAsync(assignment.ParcelId, default))?.State);
+        Assert.Single(await repository.GetPendingOutboxAsync(10, default));
     }
 
     [Theory]

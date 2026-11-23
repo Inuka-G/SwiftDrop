@@ -97,6 +97,50 @@ internal sealed class DispatchRepository(DispatchDbContext db) : IDispatchReposi
 
     public Task SaveAsync(CancellationToken ct) => db.SaveChangesAsync(ct);
 
+    public async Task SaveAssignmentAndEventAsync(ParcelAssignment assignment, Guid eventId, string routingKey,
+        string payload, DateTimeOffset occurredAt, CancellationToken ct)
+    {
+        db.Assignments.Update(assignment);
+        db.OutboxMessages.Add(new DispatchOutboxMessage
+        {
+            EventId = eventId, RoutingKey = routingKey, Payload = payload,
+            CreatedAt = occurredAt.ToUnixTimeMilliseconds()
+        });
+        await db.SaveChangesAsync(ct);
+    }
+
+    public async Task EnqueueOutboxEventAsync(Guid eventId, string routingKey, string payload,
+        DateTimeOffset occurredAt, CancellationToken ct)
+    {
+        db.OutboxMessages.Add(new DispatchOutboxMessage
+        {
+            EventId = eventId, RoutingKey = routingKey, Payload = payload,
+            CreatedAt = occurredAt.ToUnixTimeMilliseconds()
+        });
+        await db.SaveChangesAsync(ct);
+    }
+
+    public async Task<IReadOnlyList<DispatchOutboxRecord>> GetPendingOutboxAsync(
+        int limit, CancellationToken ct) => await db.OutboxMessages.AsNoTracking()
+        .Where(x => x.ProcessedAt == null).OrderBy(x => x.CreatedAt).Take(limit)
+        .Select(x => new DispatchOutboxRecord(x.EventId, x.RoutingKey, x.Payload)).ToListAsync(ct);
+
+    public async Task MarkOutboxProcessedAsync(Guid eventId, CancellationToken ct)
+    {
+        var item = await db.OutboxMessages.SingleOrDefaultAsync(x => x.EventId == eventId, ct);
+        if (item is null) return;
+        item.ProcessedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        await db.SaveChangesAsync(ct);
+    }
+
+    public async Task RecordOutboxFailureAsync(Guid eventId, CancellationToken ct)
+    {
+        var item = await db.OutboxMessages.SingleOrDefaultAsync(x => x.EventId == eventId, ct);
+        if (item is null) return;
+        item.Attempts++;
+        await db.SaveChangesAsync(ct);
+    }
+
     public async Task AddFromEventAsync(Guid eventId, ParcelAssignment assignment, CancellationToken ct)
     {
         await using var tx = await db.Database.BeginTransactionAsync(ct);
