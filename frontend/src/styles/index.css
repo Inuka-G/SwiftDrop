@@ -2706,6 +2706,27 @@ h1 {
   background: var(--color-surface-container-low);
 }
 
+.courier-delete-button {
+  display: grid;
+  width: var(--dashboard-measure-2);
+  aspect-ratio: 1;
+  place-items: center;
+  border: 0;
+  border-radius: var(--radius-default);
+  color: var(--color-error);
+  background: transparent;
+  cursor: pointer;
+}
+
+.courier-delete-button:hover {
+  background: var(--color-error-container);
+}
+
+.courier-delete-button:disabled {
+  cursor: wait;
+  opacity: 0.55;
+}
+
 .courier-table-state,
 .courier-empty-state,
 .courier-no-match {

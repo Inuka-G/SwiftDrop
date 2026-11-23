@@ -9,6 +9,7 @@ internal interface IDispatchRepository
     Task<ParcelAssignment?> GetAsync(Guid parcelId, CancellationToken ct);
     Task<CourierProfile?> GetCourierProfileAsync(Guid courierId, CancellationToken ct);
     Task AddCourierProfileAsync(CourierProfile profile, CancellationToken ct);
+    Task<CourierProfileDeleteStatus> DeleteCourierProfileAsync(Guid courierId, CancellationToken ct);
     Task<(IReadOnlyList<CourierProfile> Items, int Total)> ListCouriersAsync(Guid? zoneId, bool? isAvailable,
         int page, int pageSize, CancellationToken ct);
     Task<IReadOnlyDictionary<Guid, int>> GetWorkloadsAsync(IReadOnlyCollection<Guid> courierIds, CancellationToken ct);
@@ -21,3 +22,5 @@ internal interface IDispatchRepository
     Task ApplyUserRoleChangedAsync(Guid eventId, Guid userId, string role, CancellationToken ct);
     Task ApplyUserStatusChangedAsync(Guid eventId, Guid userId, bool isActive, CancellationToken ct);
 }
+
+internal enum CourierProfileDeleteStatus { Deleted, NotFound, HasActiveDeliveries, ConcurrencyConflict }

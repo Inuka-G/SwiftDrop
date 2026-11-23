@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { authService } from '../../../services/auth.service'
 import { COURIER_SEARCH_DEBOUNCE_MS, USE_MOCKS } from '../../../lib/constants'
 import { useCourierWorkload } from '../hooks/useCourierWorkload'
-import { useUpdateCourier } from '../hooks/useCourierMutations'
+import { useDeleteCourier, useUpdateCourier } from '../hooks/useCourierMutations'
 import { CourierToast, type CourierToastMessage } from '../components/CourierToast'
 import { RegisterCourierDialog } from '../components/RegisterCourierDialog'
 import { EditCourierDialog } from '../components/EditCourierDialog'
@@ -39,6 +39,7 @@ export function CourierWorkloadPage() {
   const [mostActiveFirst, setMostActiveFirst] = useState(false)
   const query = useCourierWorkload(dialog !== null)
   const updateMutation = useUpdateCourier()
+  const deleteMutation = useDeleteCourier()
   const couriers = query.data?.items ?? EMPTY_COURIERS
   const totalCount = query.data?.totalCount ?? 0
   const stats = useMemo(() => courierStats(couriers), [couriers])
@@ -95,6 +96,32 @@ export function CourierWorkloadPage() {
     }
   }
 
+  async function deleteRegisteredCourier(courier: CourierDto) {
+    const confirmed = window.confirm(
+      `Remove ${courier.name} from the dispatch courier list? Their SwiftDrop user account will remain. Couriers with active deliveries cannot be removed.`,
+    )
+    if (!confirmed) return
+
+    try {
+      await deleteMutation.mutateAsync(courier.courierId)
+      setToast({ title: 'Courier removed', message: `${courier.name} was removed from the dispatch workload. Their account was kept.`, kind: 'success' })
+    } catch (cause) {
+      const status = axios.isAxiosError(cause) ? cause.response?.status : undefined
+      if (status === 401 || status === 403) {
+        authService.clearAccessToken()
+        window.location.assign('/admin')
+      } else if (status === 409) {
+        await query.refetch()
+        setToast({ title: 'Courier has active deliveries', message: 'Reassign or complete their active deliveries before removing this courier.', kind: 'error' })
+      } else if (status === 404) {
+        await query.refetch()
+        setToast({ title: 'Courier already removed', message: 'The courier list has been refreshed.', kind: 'info' })
+      } else {
+        setToast({ title: 'Removal failed', message: "Couldn't remove this courier. Try again.", kind: 'error' })
+      }
+    }
+  }
+
   async function refreshSelectedCourier(): Promise<CourierDto | null> {
     const result = await query.refetch()
     if (!selectedCourier) return null
@@ -131,7 +158,8 @@ export function CourierWorkloadPage() {
             <thead><tr><th scope="col">Courier</th><th scope="col">Zone</th><th scope="col">Vehicle</th><th scope="col">License plate</th><th scope="col">Availability</th><th scope="col" aria-sort={mostActiveFirst ? 'descending' : 'ascending'}><button type="button" className="courier-sort-heading" onClick={() => setMostActiveFirst((value) => !value)}>Active deliveries <span aria-hidden="true">{mostActiveFirst ? '↓' : '↑'}</span></button></th><th scope="col" className="courier-actions-heading">Actions</th></tr></thead>
             <tbody>{filteredCouriers.map((courier) => {
               const ratio = loadRatio(courier.activeDeliveryCount, maxWorkload)
-              const pending = updateMutation.isPending && updateMutation.variables?.courierId === courier.courierId
+              const pending = (updateMutation.isPending && updateMutation.variables?.courierId === courier.courierId)
+                || (deleteMutation.isPending && deleteMutation.variables === courier.courierId)
               return <tr key={courier.courierId}>
                 <td><span className="courier-person-cell"><span className="courier-avatar">{courierInitials(courier.name)}</span><span><strong title={courier.name}>{courier.name}</strong><small>ID #{shortId(courier.courierId)}</small></span></span></td>
                 <td><span className="courier-zone-chip" title={courier.zoneId ?? undefined}>{courier.zoneId ? shortId(courier.zoneId) : 'No zone'}</span></td>
@@ -139,7 +167,7 @@ export function CourierWorkloadPage() {
                 <td><span className="courier-plate-chip">{courier.licensePlate?.trim() || 'Not set'}</span></td>
                 <td><span className={`courier-availability-badge${courier.isAvailable ? ' is-available' : ''}`}><i aria-hidden="true" />{courier.isAvailable ? 'Available' : 'Unavailable'}</span></td>
                 <td><span className="courier-workload-cell"><strong>{courier.activeDeliveryCount}</strong><span className="courier-load-track"><i className={`is-${loadBand(ratio)}`} style={{ width: `${ratio}%` }} /></span></span></td>
-                <td><span className="courier-row-actions"><button type="button" role="switch" aria-checked={courier.isAvailable} aria-label={`Available for dispatch, ${courier.name}`} title="Unavailable couriers cannot receive new parcels" disabled={pending} className={`courier-toggle${courier.isAvailable ? ' is-on' : ''}${pending ? ' is-pending' : ''}`} onClick={() => void toggleAvailability(courier, !courier.isAvailable)}><i /></button><button type="button" className="courier-edit-button" aria-label={`Edit ${courier.name}`} title={`Edit ${courier.name}`} onClick={(event) => openEdit(courier, event.currentTarget)}>✎</button></span></td>
+                <td><span className="courier-row-actions"><button type="button" role="switch" aria-checked={courier.isAvailable} aria-label={`Available for dispatch, ${courier.name}`} title="Unavailable couriers cannot receive new parcels" disabled={pending} className={`courier-toggle${courier.isAvailable ? ' is-on' : ''}${pending ? ' is-pending' : ''}`} onClick={() => void toggleAvailability(courier, !courier.isAvailable)}><i /></button><button type="button" className="courier-edit-button" aria-label={`Edit ${courier.name}`} title={`Edit ${courier.name}`} onClick={(event) => openEdit(courier, event.currentTarget)}>✎</button><button type="button" className="courier-delete-button" aria-label={`Remove ${courier.name}`} title="Remove from dispatch" disabled={pending} onClick={() => void deleteRegisteredCourier(courier)}>⌫</button></span></td>
               </tr>
             })}</tbody>
           </table></div>
