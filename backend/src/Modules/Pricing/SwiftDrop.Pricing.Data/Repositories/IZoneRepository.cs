@@ -10,7 +10,9 @@ public interface IZoneRepository
     Task<Zone?> GetByIdForUpdateAsync(Guid id, CancellationToken ct);
     Task<PricingRule?> GetPricingRuleAsync(Guid zoneId, ServiceType serviceType, CancellationToken ct);
     Task<PricingRule?> GetPricingRuleForUpdateAsync(Guid zoneId, Guid ruleId, CancellationToken ct);
+    Task<bool> PricingRuleExistsAsync(Guid zoneId, ServiceType serviceType, CancellationToken ct);
     Task AddAsync(Zone zone, CancellationToken ct);
+    Task AddPricingRuleAsync(PricingRule pricingRule, CancellationToken ct);
     Task SaveChangesAsync(CancellationToken ct);
     Task<List<PricingRule>> GetPricingRulesAsync(Guid zoneId, CancellationToken ct);
 }

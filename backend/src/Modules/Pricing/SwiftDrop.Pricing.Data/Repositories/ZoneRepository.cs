@@ -24,8 +24,14 @@ internal sealed class ZoneRepository(PricingDbContext db) : IZoneRepository
         return db.PricingRules.FirstOrDefaultAsync(r => r.Id == ruleId && r.ZoneId == zoneId, ct);
     }
 
+    public Task<bool> PricingRuleExistsAsync(Guid zoneId, ServiceType serviceType, CancellationToken ct) =>
+        db.PricingRules.AnyAsync(r => r.ZoneId == zoneId && r.ServiceType == serviceType, ct);
+
     public async Task AddAsync(Zone zone, CancellationToken ct) =>
         await db.Zones.AddAsync(zone, ct);
+
+    public async Task AddPricingRuleAsync(PricingRule pricingRule, CancellationToken ct) =>
+        await db.PricingRules.AddAsync(pricingRule, ct);
 
     public Task SaveChangesAsync(CancellationToken ct) => db.SaveChangesAsync(ct);
 
