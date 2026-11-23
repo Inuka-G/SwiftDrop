@@ -6,7 +6,7 @@ public sealed record AssignCourierCommand(Guid CourierId, Guid AssignedBy);
 public sealed record AssignmentDto(Guid ParcelId, Guid CourierId, Guid AssignedBy, DateTimeOffset AssignedAt);
 
 public enum DispatchFailure { ParcelNotFound, ParcelNotAssignable, CourierNotEligible, ConcurrencyConflict,
-    CourierAlreadyRegistered, CourierProfileNotFound, ZoneNotFound }
+    CourierAlreadyRegistered, CourierProfileNotFound, CourierHasActiveDeliveries, ZoneNotFound }
 public sealed record DispatchResult<T>(T? Value, DispatchFailure? Failure)
 {
     public bool IsSuccess => Failure is null;
@@ -41,6 +41,7 @@ public interface IDispatchService
         string? licensePlate, CancellationToken ct);
     Task<CourierProfileResult> UpdateCourierAsync(Guid courierId, Guid? zoneId, bool? isAvailable,
         string? vehicleType, string? licensePlate, CancellationToken ct);
+    Task<DispatchResult<bool>> DeleteCourierAsync(Guid courierId, CancellationToken ct);
     Task<CourierProfilePage> ListCouriersAsync(Guid? zoneId, bool? isAvailable, int page, int pageSize, CancellationToken ct);
     Task<CourierDashboardSummary> GetCourierSummaryAsync(CancellationToken ct);
     Task<DispatchDashboardSummary> GetDashboardSummaryAsync(CancellationToken ct);

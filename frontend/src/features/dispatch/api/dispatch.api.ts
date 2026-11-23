@@ -1,7 +1,7 @@
 import { apiClient } from '../../../lib/axios'
 import { USE_MOCKS } from '../../../lib/constants'
 import type { AssignmentDto, CourierDto, CourierPageDto, CourierWorkloadPageDto, DispatchDashboardSummary, DispatchFilters, RegisterCourierRequest, UnassignedParcelPageDto, UpdateCourierRequest } from '../types/dispatch.types'
-import { assignMockParcel, getMockCourierPage, getMockCourierWorkloadPage, getMockUnassigned, registerMockCourier, updateMockCourier } from './dispatch.mocks'
+import { assignMockParcel, deleteMockCourier, getMockCourierPage, getMockCourierWorkloadPage, getMockUnassigned, registerMockCourier, updateMockCourier } from './dispatch.mocks'
 import { filtersToQueryParams } from '../utils/dispatchBoard.utils'
 
 export async function getDispatchSummary(): Promise<DispatchDashboardSummary> {
@@ -59,6 +59,11 @@ export async function updateCourier(courierId: string, request: UpdateCourierReq
   if (USE_MOCKS) return updateMockCourier(courierId, request)
   const { data } = await apiClient.patch<CourierDto>(`/dispatch/couriers/${courierId}`, request)
   return data
+}
+
+export async function deleteCourier(courierId: string): Promise<void> {
+  if (USE_MOCKS) return deleteMockCourier(courierId)
+  await apiClient.delete(`/dispatch/couriers/${courierId}`)
 }
 
 export async function assignParcel(parcelId: string, courierId: string): Promise<AssignmentDto> {

@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using System.Data;
 using SwiftDrop.Dispatch.Data.Entities;
 using SwiftDrop.Dispatch.Data.Persistence;
 using SwiftDrop.SharedKernel.Authorization;
@@ -28,6 +29,29 @@ internal sealed class DispatchRepository(DispatchDbContext db) : IDispatchReposi
 
     public async Task AddCourierProfileAsync(CourierProfile profile, CancellationToken ct) =>
         await db.CourierProfiles.AddAsync(profile, ct);
+
+    public async Task<CourierProfileDeleteStatus> DeleteCourierProfileAsync(Guid courierId, CancellationToken ct)
+    {
+        await using var transaction = await db.Database.BeginTransactionAsync(IsolationLevel.Serializable, ct);
+        var profile = await db.CourierProfiles.SingleOrDefaultAsync(x => x.CourierId == courierId, ct);
+        if (profile is null) return CourierProfileDeleteStatus.NotFound;
+
+        var hasActiveDeliveries = await db.Assignments.AnyAsync(x =>
+            x.CourierId == courierId && x.State == AssignmentStates.Assigned, ct);
+        if (hasActiveDeliveries) return CourierProfileDeleteStatus.HasActiveDeliveries;
+
+        db.CourierProfiles.Remove(profile);
+        try
+        {
+            await db.SaveChangesAsync(ct);
+            await transaction.CommitAsync(ct);
+            return CourierProfileDeleteStatus.Deleted;
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            return CourierProfileDeleteStatus.ConcurrencyConflict;
+        }
+    }
 
     public async Task<(IReadOnlyList<CourierProfile> Items, int Total)> ListCouriersAsync(Guid? zoneId, bool? isAvailable,
         int page, int pageSize, CancellationToken ct)
