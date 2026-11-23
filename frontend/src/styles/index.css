@@ -2722,6 +2722,16 @@ h1 {
   background: var(--color-error-container);
 }
 
+.courier-delete-button svg {
+  width: 17px;
+  height: 17px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+
 .courier-delete-button:disabled {
   cursor: wait;
   opacity: 0.55;
