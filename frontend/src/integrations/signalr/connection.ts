@@ -9,6 +9,7 @@ export function createSignalRConnection(accessToken?: string) {
   return new HubConnectionBuilder()
     .withUrl(hubUrl, {
       accessTokenFactory: () => accessToken ?? '',
+      withCredentials: true,
     })
     .withAutomaticReconnect()
     .configureLogging(LogLevel.Warning)

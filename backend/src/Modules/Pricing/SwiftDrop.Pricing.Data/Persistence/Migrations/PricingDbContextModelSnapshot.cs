@@ -49,6 +49,9 @@ namespace SwiftDrop.Pricing.Data.Persistence.Migrations
 
                     b.HasIndex("ZoneId");
 
+                    b.HasIndex("ZoneId", "ServiceType")
+                        .IsUnique();
+
                     b.ToTable("pricing_rules", (string)null);
                 });
 
@@ -100,4 +103,3 @@ namespace SwiftDrop.Pricing.Data.Persistence.Migrations
         }
     }
 }
-
