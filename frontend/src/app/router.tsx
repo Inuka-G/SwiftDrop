@@ -83,7 +83,7 @@ export const router = createBrowserRouter([
   // Admin routes
   {
     path: 'admin',
-    element: <AdminLayout />,
+    element: <RequireRole roles={[ROLES.admin, ROLES.dispatcher]}><AdminLayout /></RequireRole>,
     children: [
       { index: true, element: <AdminDashboardPage /> },
       { path: 'merchants', element: <AdminMerchantQueuePage /> },
