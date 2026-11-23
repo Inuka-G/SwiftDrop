@@ -75,6 +75,15 @@ export function updateMockCourier(courierId: string, request: UpdateCourierReque
   return { ...courier }
 }
 
+export function deleteMockCourier(courierId: string): void {
+  const courierIndex = mockCouriers.findIndex((candidate) => candidate.courierId === courierId)
+  if (courierIndex < 0) throw Object.assign(new Error('Courier not found.'), { response: { status: 404 } })
+  if (mockCouriers[courierIndex].activeDeliveryCount > 0) {
+    throw Object.assign(new Error('Courier has active deliveries.'), { response: { status: 409 } })
+  }
+  mockCouriers.splice(courierIndex, 1)
+}
+
 export function assignMockParcel(parcelId: string, courierId: string): AssignmentDto {
   const parcelIndex = parcels.findIndex((parcel) => parcel.parcelId === parcelId)
   if (parcelIndex < 0) throw Object.assign(new Error('Parcel is no longer in the queue.'), { response: { status: 409 } })
