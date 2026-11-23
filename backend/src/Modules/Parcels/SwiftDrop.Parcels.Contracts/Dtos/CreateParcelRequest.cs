@@ -1,3 +1,5 @@
+using SwiftDrop.Pricing.Contracts;
+
 namespace SwiftDrop.Parcels.Contracts.Dtos;
 
 public sealed record CreateParcelRequest(
@@ -10,5 +12,6 @@ public sealed record CreateParcelRequest(
     string RecipientPhone,
     decimal WeightKg,
     string SizeCategory,
-    string PaymentMethod = "COD"
+    string PaymentMethod = "COD",
+    ServiceType ServiceType = ServiceType.Standard
 );

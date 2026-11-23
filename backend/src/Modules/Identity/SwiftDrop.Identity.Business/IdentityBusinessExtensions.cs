@@ -24,6 +24,7 @@ public static class IdentityBusinessExtensions
         services.AddScoped<IUserAdministrationService, UserAdministrationService>();
         services.AddScoped<IIdentityEventPublisher, UnconfiguredIdentityEventPublisher>();
         services.AddScoped<IUserEmailDirectory, UserEmailDirectory>();
+        services.AddScoped<IIdentityUserDirectory, IdentityUserDirectory>();
         return services;
     }
 

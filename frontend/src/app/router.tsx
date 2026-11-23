@@ -54,21 +54,12 @@ export const router = createBrowserRouter([
   {
     element: <AppLayout />,
     children: [
-      {
-        path: 'customer',
-        element: import.meta.env.DEV ? (
-          <CustomerDashboardPage />
-        ) : (
-          <RequireRole roles={[ROLES.customer]}>
-            <CustomerDashboardPage />
-          </RequireRole>
-        ),
-      },
-      { path: 'book', element: <CreateBookingPage /> },
-      { path: 'history', element: <CustomerHistoryPage /> },
-      { path: 'track', element: <PublicTrackingPage /> }, // Public Tracking (No login required)
-      { path: 'track/:trackingNumber', element: <PublicTrackingPage /> }, // Public Tracking (No login required)
-      { path: 'assistant', element: <AIAssistantPage /> },
+      { path: "customer", element: <RequireRole roles={[ROLES.customer]}><CustomerDashboardPage /></RequireRole> },
+      { path: "book", element: <RequireRole roles={[ROLES.customer]}><CreateBookingPage /></RequireRole> },
+      { path: "history", element: <RequireRole roles={[ROLES.customer]}><CustomerHistoryPage /></RequireRole> },
+      { path: "track", element: <PublicTrackingPage /> }, // Public Tracking (No login required)
+      { path: "track/:trackingNumber", element: <PublicTrackingPage /> }, // Public Tracking (No login required)
+      { path: "assistant", element: <AIAssistantPage /> },
     ],
   },
 
@@ -92,7 +83,7 @@ export const router = createBrowserRouter([
   // Admin routes
   {
     path: 'admin',
-    element: <AdminLayout />,
+    element: <RequireRole roles={[ROLES.admin, ROLES.dispatcher]}><AdminLayout /></RequireRole>,
     children: [
       { index: true, element: <AdminDashboardPage /> },
       { path: 'merchants', element: <AdminMerchantQueuePage /> },

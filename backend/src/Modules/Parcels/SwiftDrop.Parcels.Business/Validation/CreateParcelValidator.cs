@@ -1,5 +1,6 @@
 using FluentValidation;
 using SwiftDrop.Parcels.Contracts.Dtos;
+using SwiftDrop.Pricing.Contracts;
 
 namespace SwiftDrop.Parcels.Business.Validation;
 
@@ -8,6 +9,8 @@ public sealed class CreateParcelValidator : AbstractValidator<CreateParcelReques
     public CreateParcelValidator()
     {
         RuleFor(x => x.ZoneId).NotEmpty().WithMessage("Zone is required.");
+        RuleFor(x => x.ServiceType).IsInEnum()
+            .WithMessage("Service type must be Standard (1) or Express (2).");
 
         RuleFor(x => x.PickupAddress).NotEmpty().MaximumLength(500);
         RuleFor(x => x.PickupContactName).NotEmpty().MaximumLength(150);

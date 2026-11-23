@@ -1,6 +1,9 @@
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using FluentAssertions;
 using SwiftDrop.Parcels.Business.Validation;
 using SwiftDrop.Parcels.Contracts.Dtos;
+using SwiftDrop.Pricing.Contracts;
 using Xunit;
 
 namespace SwiftDrop.Parcels.UnitTests;
@@ -30,6 +33,46 @@ public sealed class CreateParcelValidatorTests
         var result = await _validator.ValidateAsync(request);
 
         result.IsValid.Should().BeTrue();
+    }
+
+    [Fact]
+    public void JsonBinding_ShouldDefaultOmittedServiceTypeToStandard()
+    {
+        var options = new JsonSerializerOptions(JsonSerializerDefaults.Web);
+        var json = JsonSerializer.SerializeToNode(CreateValidRequest(), options)!.AsObject();
+        json.Remove("serviceType");
+
+        var request = json.Deserialize<CreateParcelRequest>(options);
+
+        request.Should().NotBeNull();
+        request!.ServiceType.Should().Be(ServiceType.Standard);
+    }
+
+    [Theory]
+    [InlineData(1, ServiceType.Standard)]
+    [InlineData(2, ServiceType.Express)]
+    public void JsonBinding_ShouldAcceptNumericServiceTypes(int numericValue, ServiceType expected)
+    {
+        var options = new JsonSerializerOptions(JsonSerializerDefaults.Web);
+        var json = JsonSerializer.Serialize(CreateValidRequest() with { ServiceType = expected }, options);
+        using var document = JsonDocument.Parse(json);
+
+        document.RootElement.GetProperty("serviceType").GetInt32().Should().Be(numericValue);
+        JsonSerializer.Deserialize<CreateParcelRequest>(json, options)!.ServiceType.Should().Be(expected);
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(3)]
+    [InlineData(99)]
+    public async Task Validate_ShouldFail_WhenServiceTypeIsUnsupported(int invalidValue)
+    {
+        var request = CreateValidRequest() with { ServiceType = (ServiceType)invalidValue };
+
+        var result = await _validator.ValidateAsync(request);
+
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e => e.PropertyName == nameof(CreateParcelRequest.ServiceType));
     }
 
     [Theory]

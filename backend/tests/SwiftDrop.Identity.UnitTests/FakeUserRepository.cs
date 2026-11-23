@@ -23,6 +23,10 @@ internal sealed class FakeUserRepository : IUserRepository
     public Task<User?> GetByIdAsync(Guid id, CancellationToken ct) =>
         Task.FromResult(Users.FirstOrDefault(u => u.Id == id));
 
+    public Task<IReadOnlyDictionary<Guid, string>> GetNamesAsync(IReadOnlyCollection<Guid> userIds, CancellationToken ct) =>
+        Task.FromResult<IReadOnlyDictionary<Guid, string>>(Users.Where(u => userIds.Contains(u.Id))
+            .ToDictionary(u => u.Id, u => u.FullName));
+
     public Task<User?> FindByProviderAsync(string provider, string providerUserId, CancellationToken ct) =>
         Task.FromResult(Users.FirstOrDefault(u => u.AuthProvider == provider && u.ProviderUserId == providerUserId));
 

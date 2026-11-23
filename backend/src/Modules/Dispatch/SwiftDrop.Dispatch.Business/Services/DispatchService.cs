@@ -101,6 +101,18 @@ internal sealed class DispatchService(IDispatchRepository repository,
         return await ToDtoAsync(profile, ct);
     }
 
+    public async Task<DispatchResult<bool>> DeleteCourierAsync(Guid courierId, CancellationToken ct)
+    {
+        var result = await repository.DeleteCourierProfileAsync(courierId, ct);
+        return result switch
+        {
+            CourierProfileDeleteStatus.Deleted => DispatchResult<bool>.Success(true),
+            CourierProfileDeleteStatus.NotFound => DispatchResult<bool>.Fail(DispatchFailure.CourierProfileNotFound),
+            CourierProfileDeleteStatus.HasActiveDeliveries => DispatchResult<bool>.Fail(DispatchFailure.CourierHasActiveDeliveries),
+            _ => DispatchResult<bool>.Fail(DispatchFailure.ConcurrencyConflict),
+        };
+    }
+
     public async Task<CourierProfilePage> ListCouriersAsync(Guid? zoneId, bool? isAvailable,
         int page, int pageSize, CancellationToken ct)
     {

@@ -48,11 +48,20 @@ public sealed class CouriersController(IDispatchService dispatch,
         return Ok(result.Profile);
     }
 
+    [HttpDelete("{courierId:guid}")]
+    public async Task<IActionResult> Delete(Guid courierId, CancellationToken ct)
+    {
+        var result = await dispatch.DeleteCourierAsync(courierId, ct);
+        if (!result.IsSuccess) throw ToException(result.Failure!.Value);
+        return NoContent();
+    }
+
     private static Exception ToException(DispatchFailure failure) => failure switch
     {
         DispatchFailure.CourierAlreadyRegistered => new ConflictException("Courier profile already exists."),
         DispatchFailure.CourierProfileNotFound => new NotFoundException("Courier profile was not found."),
         DispatchFailure.CourierNotEligible => new ForbiddenException("User is not an active courier."),
+        DispatchFailure.CourierHasActiveDeliveries => new ConflictException("Courier cannot be removed while active deliveries are assigned. Reassign or complete the deliveries first."),
         DispatchFailure.ZoneNotFound => new NotFoundException("Zone was not found."),
         DispatchFailure.ConcurrencyConflict => new ConflictException("Courier profile changed concurrently. Reload and try again."),
         _ => new BadRequestException("Courier profile request is invalid.")
