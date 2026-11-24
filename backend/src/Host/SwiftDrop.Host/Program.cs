@@ -44,8 +44,11 @@ builder.Services.AddRealtimeModule();
 
 builder.Services.AddRabbitMq(builder.Configuration);
 builder.Services.PostConfigure<RabbitMqOptions>(options =>
-    options.RequiredOutboxRoutes = [.. options.RequiredOutboxRoutes,
-        SwiftDrop.Parcels.Contracts.Events.ParcelEventRoutingKeys.StatusChanged]);
+    options.RequiredOutboxRoutes = options.RequiredOutboxRoutes
+        .Concat([SwiftDrop.Parcels.Contracts.Events.ParcelEventRoutingKeys.Created,
+            SwiftDrop.Parcels.Contracts.Events.ParcelEventRoutingKeys.StatusChanged,
+            SwiftDrop.Parcels.Contracts.Events.ParcelEventRoutingKeys.CourierAssigned])
+        .Distinct(StringComparer.Ordinal).ToArray());
 builder.Services.AddNotificationsModule(builder.Configuration);
 builder.Services.AddWebhooksModule(builder.Configuration);
 

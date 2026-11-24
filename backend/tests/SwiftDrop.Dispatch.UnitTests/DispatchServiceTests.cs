@@ -15,12 +15,34 @@ public sealed class DispatchServiceTests
     private readonly Mock<IDispatchRepository> repository = new();
     private readonly Mock<ICourierEligibilityGateway> couriers = new();
     private readonly Mock<IParcelAssignmentGateway> parcels = new();
-    private readonly Mock<IDispatchEventPublisher> events = new();
     private readonly Mock<IZoneLookup> zones = new();
-    private DispatchService Create() => new(repository.Object, couriers.Object, parcels.Object, events.Object, zones.Object);
+    private readonly Mock<SwiftDrop.Parcels.Contracts.IParcelDispatchDirectory> parcelDirectory = new();
+    private DispatchService Create() => new(repository.Object, couriers.Object, parcels.Object, zones.Object, parcelDirectory.Object);
 
     [Fact]
-    public async Task Assign_publishes_event_after_successful_assignment()
+    public async Task Unassigned_list_reconciles_current_parcels_before_querying_dispatch_projection()
+    {
+        var snapshot = new SwiftDrop.Parcels.Contracts.DispatchableParcelSnapshot(
+            Guid.NewGuid(), "SD-TEST-1", Guid.NewGuid(), DateTimeOffset.UtcNow, "Created", null, null, 1m, "Small");
+        parcelDirectory.Setup(x => x.GetDispatchSnapshotAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync((IReadOnlyList<SwiftDrop.Parcels.Contracts.DispatchableParcelSnapshot>)[snapshot]);
+        repository.Setup(x => x.ListUnassignedAsync(null, null, null, 1, 20, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(((IReadOnlyList<ParcelAssignment>)[new ParcelAssignment
+            {
+                ParcelId = snapshot.ParcelId, TrackingNumber = snapshot.TrackingNumber,
+                ZoneId = snapshot.ZoneId, State = "UNASSIGNED", CreatedAt = snapshot.CreatedAtUtc
+            }], 1));
+
+        var result = await Create().ListUnassignedAsync(null, null, null, 1, 20, default);
+
+        repository.Verify(x => x.ReconcileParcelsAsync(
+            It.Is<IReadOnlyCollection<SwiftDrop.Parcels.Contracts.DispatchableParcelSnapshot>>(items => items.Single().ParcelId == snapshot.ParcelId),
+            It.IsAny<CancellationToken>()), Times.Once);
+        Assert.Equal(snapshot.ParcelId, result.Items.Single().ParcelId);
+    }
+
+    [Fact]
+    public async Task Assign_delegates_authoritative_write_to_parcels_and_returns_its_timestamp()
     {
         var parcelId = Guid.NewGuid(); var courierId = Guid.NewGuid();
         var parcel = new ParcelAssignment { ParcelId = parcelId, TrackingNumber = "SD123", State = "UNASSIGNED" };
@@ -28,11 +50,34 @@ public sealed class DispatchServiceTests
             .ReturnsAsync(new CourierProfile { CourierId = courierId, IsAvailable = true });
         repository.Setup(x => x.GetAsync(parcelId, It.IsAny<CancellationToken>())).ReturnsAsync(parcel);
         couriers.Setup(x => x.IsEligibleAsync(courierId, It.IsAny<CancellationToken>())).ReturnsAsync(true);
-        parcels.Setup(x => x.AssignAsync(parcelId, courierId, It.IsAny<CancellationToken>())).ReturnsAsync(true);
+        var assignedAt = DateTimeOffset.UtcNow;
+        parcels.Setup(x => x.AssignAsync(parcelId, courierId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new SwiftDrop.Parcels.Contracts.CourierAssignmentResult(Guid.NewGuid(), assignedAt));
+        repository.Setup(x => x.RecordCourierAssignmentAsync(parcelId, courierId, It.IsAny<Guid>(), assignedAt,
+            It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
         var result = await Create().AssignAsync(parcelId, courierId, Guid.NewGuid(), default);
         Assert.True(result.IsSuccess);
-        events.Verify(x => x.PublishAsync(It.Is<CourierAssignedEvent>(e => e.ParcelId == parcelId && e.CourierId == courierId),
-            It.IsAny<CancellationToken>()), Times.Once);
+        Assert.Equal(assignedAt, result.Value!.AssignedAt);
+        repository.Verify(x => x.RecordCourierAssignmentAsync(parcelId, courierId, result.Value.AssignedBy,
+            assignedAt, It.IsAny<CancellationToken>()), Times.Once);
+        repository.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task Courier_list_never_reports_an_inactive_identity_as_available()
+    {
+        var courierId = Guid.NewGuid();
+        repository.Setup(x => x.ListCouriersAsync(null, null, 1, 20, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(((IReadOnlyList<CourierProfile>) [new CourierProfile { CourierId = courierId, IsAvailable = true }], 1));
+        repository.Setup(x => x.GetWorkloadsAsync(It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Dictionary<Guid, int>());
+        couriers.Setup(x => x.GetNamesAsync(It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Dictionary<Guid, string> { [courierId] = "Courier" });
+        couriers.Setup(x => x.IsEligibleAsync(courierId, It.IsAny<CancellationToken>())).ReturnsAsync(false);
+
+        var result = await Create().ListCouriersAsync(null, null, 1, 20, default);
+
+        Assert.False(result.Items.Single().IsAvailable);
     }
 
     [Fact]
@@ -158,7 +203,7 @@ public sealed class DispatchServiceTests
     }
 
     [Fact]
-    public async Task Assign_returns_conflict_when_version_changed()
+    public async Task Assign_returns_conflict_when_parcels_rejects_assignment_race()
     {
         var parcelId = Guid.NewGuid(); var courierId = Guid.NewGuid();
         repository.Setup(x => x.GetAsync(parcelId, It.IsAny<CancellationToken>()))
@@ -166,11 +211,9 @@ public sealed class DispatchServiceTests
         couriers.Setup(x => x.IsEligibleAsync(courierId, It.IsAny<CancellationToken>())).ReturnsAsync(true);
         repository.Setup(x => x.GetCourierProfileAsync(courierId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new CourierProfile { CourierId = courierId, IsAvailable = true });
-        parcels.Setup(x => x.AssignAsync(parcelId, courierId, It.IsAny<CancellationToken>())).ReturnsAsync(true);
-        repository.Setup(x => x.SaveAsync(It.IsAny<CancellationToken>())).ThrowsAsync(new DbUpdateConcurrencyException());
+        parcels.Setup(x => x.AssignAsync(parcelId, courierId, It.IsAny<CancellationToken>())).ReturnsAsync((SwiftDrop.Parcels.Contracts.CourierAssignmentResult?)null);
         var result = await Create().AssignAsync(parcelId, courierId, Guid.NewGuid(), default);
-        Assert.Equal(DispatchFailure.ConcurrencyConflict, result.Failure);
-        events.Verify(x => x.PublishAsync(It.IsAny<CourierAssignedEvent>(), It.IsAny<CancellationToken>()), Times.Never);
+        Assert.Equal(DispatchFailure.ParcelNotAssignable, result.Failure);
     }
 
     [Fact]
@@ -188,9 +231,71 @@ public sealed class DispatchServiceTests
         Assert.Equal(1, await db.ProcessedEvents.CountAsync());
     }
 
+    [Fact]
+    public async Task Parcel_list_returns_assigned_and_completed_rows_with_status_filters_and_pagination()
+    {
+        await using var db = await CreateDatabaseAsync();
+        db.Assignments.AddRange(
+            new ParcelAssignment { ParcelId = Guid.NewGuid(), TrackingNumber = "SD-LIST-1", State = "COMPLETED", CurrentStatus = "Delivered" },
+            new ParcelAssignment { ParcelId = Guid.NewGuid(), TrackingNumber = "SD-LIST-2", State = "COMPLETED", CurrentStatus = "Delivered" },
+            new ParcelAssignment { ParcelId = Guid.NewGuid(), TrackingNumber = "SD-LIST-3", State = "ASSIGNED", CurrentStatus = "In Transit" });
+        await db.SaveChangesAsync();
+
+        var (items, total) = await new DispatchRepository(db).ListParcelsAsync("dElIvErEd", "sd-list", 1, 1, null, default);
+
+        Assert.Equal(2, total);
+        Assert.Single(items);
+        Assert.Equal("Delivered", items[0].CurrentStatus);
+    }
+
+    [Fact]
+    public async Task Courier_assigned_event_updates_projection_idempotently()
+    {
+        var options = new DbContextOptionsBuilder<DispatchDbContext>().UseSqlite("Data Source=:memory:").Options;
+        await using var db = new DispatchDbContext(options);
+        await db.Database.OpenConnectionAsync();
+        await db.Database.EnsureCreatedAsync();
+        var repository = new DispatchRepository(db);
+        var parcelId = Guid.NewGuid();
+        var courierId = Guid.NewGuid();
+        var eventId = Guid.NewGuid();
+        var assignedAt = DateTimeOffset.UtcNow;
+        await repository.ApplyCourierAssignedAsync(eventId, parcelId, "SD-000001-A1B2C3", courierId, assignedAt, default);
+        await repository.ApplyCourierAssignedAsync(eventId, parcelId, "SD-000001-A1B2C3", courierId, assignedAt, default);
+
+        var assignment = await repository.GetAsync(parcelId, default);
+        Assert.Equal("ASSIGNED", assignment!.State);
+        Assert.Equal(courierId, assignment.CourierId);
+        Assert.Single(await db.ProcessedEvents.ToListAsync());
+    }
+
+    [Fact]
+    public async Task Successful_assignment_immediately_removes_parcel_from_unassigned_projection()
+    {
+        await using var db = await CreateDatabaseAsync();
+        var parcelId = Guid.NewGuid();
+        var courierId = Guid.NewGuid();
+        var assignment = new ParcelAssignment
+        {
+            ParcelId = parcelId, TrackingNumber = "SD-ASSIGN-1", State = AssignmentStates.Unassigned
+        };
+        db.Assignments.Add(assignment);
+        await db.SaveChangesAsync();
+
+        await new DispatchRepository(db).RecordCourierAssignmentAsync(parcelId, courierId, Guid.NewGuid(),
+            DateTimeOffset.UtcNow, default);
+
+        Assert.Equal(AssignmentStates.Assigned, assignment.State);
+        Assert.Equal(courierId, assignment.CourierId);
+        var (unassigned, total) = await new DispatchRepository(db)
+            .ListUnassignedAsync(null, null, null, 1, 20, default);
+        Assert.Empty(unassigned);
+        Assert.Equal(0, total);
+    }
+
     [Theory]
-    [InlineData("DELIVERED")]
-    [InlineData("FAILED")]
+    [InlineData("dElIvErEd")]
+    [InlineData("Failed")]
     public async Task Parcel_status_terminal_event_completes_assignment_once(string status)
     {
         await using var db = await CreateDatabaseAsync();
@@ -198,10 +303,12 @@ public sealed class DispatchServiceTests
         db.Assignments.Add(new ParcelAssignment { ParcelId = parcelId, TrackingNumber = "SD123", State = "ASSIGNED" });
         await db.SaveChangesAsync();
         var consumer = new ParcelStatusChangedConsumer(new DispatchRepository(db));
-        var message = new ParcelStatusChangedMessage(Guid.NewGuid(), parcelId, status);
+        var message = new ParcelStatusChangedMessage(Guid.NewGuid(), parcelId, "SD123", null, status,
+            DateTimeOffset.UtcNow.AddSeconds(1));
         await consumer.HandleAsync(message, default);
         await consumer.HandleAsync(message, default);
         Assert.Equal("COMPLETED", (await db.Assignments.SingleAsync()).State);
+        Assert.Equal(status, (await db.Assignments.SingleAsync()).CurrentStatus);
         Assert.Equal(1, await db.ProcessedEvents.CountAsync());
     }
 
@@ -211,19 +318,32 @@ public sealed class DispatchServiceTests
         await using var db = await CreateDatabaseAsync();
         db.Assignments.Add(new ParcelAssignment { ParcelId = Guid.NewGuid(), TrackingNumber = "SD123", State = "ASSIGNED" });
         await db.SaveChangesAsync();
-        var message = new ParcelStatusChangedMessage(Guid.NewGuid(), db.Assignments.Local.Single().ParcelId, "IN_TRANSIT");
+        var message = new ParcelStatusChangedMessage(Guid.NewGuid(), db.Assignments.Local.Single().ParcelId,
+            "SD123", null, "In Transit", DateTimeOffset.UtcNow.AddSeconds(1));
         await new ParcelStatusChangedConsumer(new DispatchRepository(db)).HandleAsync(message, default);
         Assert.Equal("ASSIGNED", (await db.Assignments.SingleAsync()).State);
+        Assert.Equal("In Transit", (await db.Assignments.SingleAsync()).CurrentStatus);
     }
 
     [Fact]
-    public async Task Parcel_status_for_unknown_parcel_throws_for_retry_and_is_not_marked_processed()
+    public async Task Status_before_creation_creates_placeholder_and_later_creation_enriches_it_without_regression()
     {
         await using var db = await CreateDatabaseAsync();
-        var message = new ParcelStatusChangedMessage(Guid.NewGuid(), Guid.NewGuid(), "DELIVERED");
-        await Assert.ThrowsAsync<DispatchEventRetryException>(() =>
-            new ParcelStatusChangedConsumer(new DispatchRepository(db)).HandleAsync(message, default));
-        Assert.Empty(await db.ProcessedEvents.ToListAsync());
+        var repository = new DispatchRepository(db);
+        var parcelId = Guid.NewGuid();
+        var deliveredAt = DateTimeOffset.UtcNow;
+        var statusEvent = new ParcelStatusChangedMessage(Guid.NewGuid(), parcelId, "SD123", null,
+            "Delivered", deliveredAt);
+        await new ParcelStatusChangedConsumer(repository).HandleAsync(statusEvent, default);
+
+        var creationEvent = new ParcelCreatedMessage(Guid.NewGuid(), parcelId, "SD123", Guid.NewGuid(), deliveredAt.AddMinutes(-2));
+        await new ParcelCreatedConsumer(repository).HandleAsync(creationEvent, default);
+
+        var assignment = await db.Assignments.SingleAsync();
+        Assert.Equal("COMPLETED", assignment.State);
+        Assert.Equal("Delivered", assignment.CurrentStatus);
+        Assert.Equal(creationEvent.ZoneId, assignment.ZoneId);
+        Assert.Equal(2, await db.ProcessedEvents.CountAsync());
     }
 
     [Fact]

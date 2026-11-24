@@ -74,7 +74,9 @@ internal sealed class TestCourierIdentityGateway : ICourierEligibilityGateway
 
 internal sealed class TestParcelAssignmentGateway : IParcelAssignmentGateway
 {
-    public Task<bool> AssignAsync(Guid parcelId, Guid courierId, CancellationToken ct) => Task.FromResult(true);
+    public Task<SwiftDrop.Parcels.Contracts.CourierAssignmentResult?> AssignAsync(Guid parcelId, Guid courierId, CancellationToken ct) =>
+        Task.FromResult<SwiftDrop.Parcels.Contracts.CourierAssignmentResult?>(
+            new(Guid.NewGuid(), DateTimeOffset.UtcNow));
 }
 
 internal sealed class TestDispatchEventPublisher : IDispatchEventPublisher

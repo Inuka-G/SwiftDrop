@@ -14,6 +14,8 @@ internal sealed class ParcelCreatedConsumer(IDispatchRepository repository)
             ZoneId = message.ZoneId,
             CreatedAt = message.CreatedAt,
             State = AssignmentStates.Unassigned,
+            CurrentStatus = "Created",
+            StatusOccurredAtUtc = message.CreatedAt.ToUnixTimeMilliseconds(),
             Version = 0
         }, ct);
 }

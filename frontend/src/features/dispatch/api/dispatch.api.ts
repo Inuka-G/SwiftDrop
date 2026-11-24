@@ -1,6 +1,6 @@
 import { apiClient } from '../../../lib/axios'
 import { USE_MOCKS } from '../../../lib/constants'
-import type { AssignmentDto, CourierDto, CourierPageDto, CourierWorkloadPageDto, DispatchDashboardSummary, DispatchFilters, RegisterCourierRequest, UnassignedParcelPageDto, UpdateCourierRequest } from '../types/dispatch.types'
+import type { AssignmentDto, CourierDto, CourierPageDto, CourierWorkloadPageDto, DispatchDashboardSummary, DispatchFilters, DispatchParcelPageDto, RegisterCourierRequest, UnassignedParcelPageDto, UpdateCourierRequest } from '../types/dispatch.types'
 import { assignMockParcel, deleteMockCourier, getMockCourierPage, getMockCourierWorkloadPage, getMockUnassigned, registerMockCourier, updateMockCourier } from './dispatch.mocks'
 import { filtersToQueryParams } from '../utils/dispatchBoard.utils'
 
@@ -18,6 +18,13 @@ export async function getUnassignedParcelsPage(filters: DispatchFilters, page: n
   if (USE_MOCKS) return getMockUnassigned({ from: params.from ?? '', to: params.to ?? '' }, page, pageSize)
   const { data } = await apiClient.get<UnassignedParcelPageDto>('/dispatch/parcels/unassigned', {
     params,
+  })
+  return data
+}
+
+export async function getDispatchParcelsPage(page: number, pageSize: number, assignmentState?: string): Promise<DispatchParcelPageDto> {
+  const { data } = await apiClient.get<DispatchParcelPageDto>('/dispatch/parcels', {
+    params: { page, pageSize, assignmentState },
   })
   return data
 }

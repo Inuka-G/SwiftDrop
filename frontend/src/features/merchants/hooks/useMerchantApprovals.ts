@@ -2,7 +2,12 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { approveMerchant, getPendingMerchants, rejectMerchant } from '../api/merchantApprovals.api'
 
 export function usePendingMerchants() {
-  return useQuery({ queryKey: ['merchants', 'pendingApprovals'], queryFn: getPendingMerchants, retry: 1 })
+  return useQuery({
+    queryKey: ['merchants', 'pendingApprovals'],
+    queryFn: getPendingMerchants,
+    retry: 1,
+    refetchInterval: 10_000,
+  })
 }
 
 function useInvalidateApprovals() {

@@ -8,6 +8,7 @@ export function useAssignParcel() {
     onSuccess: async () => {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ['dispatch', 'unassigned'] }),
+        queryClient.invalidateQueries({ queryKey: ['dispatch', 'parcels'] }),
         queryClient.invalidateQueries({ queryKey: ['dispatch', 'couriers'] }),
         queryClient.invalidateQueries({ queryKey: ['dispatch', 'summary'] }),
       ])
