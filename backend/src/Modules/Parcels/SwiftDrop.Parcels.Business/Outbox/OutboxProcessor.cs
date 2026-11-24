@@ -14,7 +14,6 @@ public sealed class OutboxOptions
 
     public int PollingIntervalMs { get; set; } = 2000;
     public int BatchSize { get; set; } = 50;
-    public int MaxAttempts { get; set; } = 10;
 }
 
 /// Sends one batch of pending outbox messages to the broker.
@@ -28,7 +27,7 @@ internal sealed class OutboxDispatcher(
     public async Task<int> DispatchPendingAsync(CancellationToken ct)
     {
         var settings = options.Value;
-        var batch = await outbox.GetPendingAsync(settings.BatchSize, settings.MaxAttempts, ct);
+        var batch = await outbox.GetPendingAsync(settings.BatchSize, ct);
         var sent = 0;
 
         foreach (var message in batch)

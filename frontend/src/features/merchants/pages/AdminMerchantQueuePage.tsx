@@ -1,69 +1,39 @@
-import { useEffect, useState } from 'react'
-import { merchantApi } from '../api/merchant.api'
+import { useState } from 'react'
+import { useApproveMerchant, usePendingMerchants, useRejectMerchant } from '../hooks/useMerchantApprovals'
 import type { MerchantApprovalQueueItemDto } from '../types/merchant.types'
 import './AdminMerchantQueuePage.css'
 
 export function AdminMerchantQueuePage() {
-  const [queue, setQueue] = useState<MerchantApprovalQueueItemDto[]>([])
-  const [loading, setLoading] = useState(true)
-  const [actionId, setActionId] = useState<string | null>(null)
+  const query = usePendingMerchants()
+  const approve = useApproveMerchant()
+  const reject = useRejectMerchant()
+  const queue = query.data ?? []
+  const actionId = (approve.isPending ? approve.variables : undefined)
+    ?? (reject.isPending ? reject.variables : undefined)
+    ?? null
+  const loading = query.isLoading
   const [alert, setAlert] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
 
-  useEffect(() => {
-    loadPendingQueue()
-  }, [])
-
   async function loadPendingQueue() {
-    setLoading(true)
     setAlert(null)
     try {
-      const items = await merchantApi.getPendingMerchants()
-      setQueue(items)
+      await query.refetch()
     } catch {
-      // Demo preview fallback when running offline or without seeded admin data
-      setQueue([
-        {
-          id: 'b8109d73-7729-4a0b-857c-2b63486c99f1',
-          businessName: 'Ceylon Threads Apparel PVT LTD',
-          businessRegNumber: 'PV-00284918-LK',
-          status: 'Pending',
-          userId: 'user-001',
-          createdAtUtc: new Date().toISOString(),
-        },
-        {
-          id: 'c9210e84-8830-5b1c-968d-3c74597da0e2',
-          businessName: 'Lanka Spice Exports',
-          businessRegNumber: 'PV-00395819-LK',
-          status: 'Pending',
-          userId: 'user-002',
-          createdAtUtc: new Date(Date.now() - 3600000 * 3).toISOString(),
-        },
-      ])
-    } finally {
-      setLoading(false)
+      setAlert({ type: 'error', message: 'Could not load pending merchant applications. Check your admin session and backend, then try again.' })
     }
   }
 
   async function handleApprove(merchant: MerchantApprovalQueueItemDto) {
-    setActionId(merchant.id)
     setAlert(null)
 
     try {
-      await merchantApi.approveMerchant(merchant.id)
-      setQueue((prev) => prev.filter((m) => m.id !== merchant.id))
+      await approve.mutateAsync(merchant.id)
       setAlert({
         type: 'success',
         message: `Successfully approved "${merchant.businessName}". Their account is now active and dispatch rails are enabled.`,
       })
     } catch {
-      // Local optimistic update for UI preview
-      setQueue((prev) => prev.filter((m) => m.id !== merchant.id))
-      setAlert({
-        type: 'success',
-        message: `Successfully approved "${merchant.businessName}". (Preview Mode)`,
-      })
-    } finally {
-      setActionId(null)
+      setAlert({ type: 'error', message: `Could not approve "${merchant.businessName}". The application is still pending; refresh and try again.` })
     }
   }
 
@@ -72,24 +42,16 @@ export function AdminMerchantQueuePage() {
       return
     }
 
-    setActionId(merchant.id)
     setAlert(null)
 
     try {
-      await merchantApi.rejectMerchant(merchant.id)
-      setQueue((prev) => prev.filter((m) => m.id !== merchant.id))
+      await reject.mutateAsync(merchant.id)
       setAlert({
         type: 'success',
         message: `Application for "${merchant.businessName}" has been rejected.`,
       })
     } catch {
-      setQueue((prev) => prev.filter((m) => m.id !== merchant.id))
-      setAlert({
-        type: 'success',
-        message: `Application for "${merchant.businessName}" has been rejected. (Preview Mode)`,
-      })
-    } finally {
-      setActionId(null)
+      setAlert({ type: 'error', message: `Could not reject "${merchant.businessName}". The application is still pending; refresh and try again.` })
     }
   }
 
@@ -107,12 +69,12 @@ export function AdminMerchantQueuePage() {
             type="button"
             className="admin-refresh-btn"
             onClick={loadPendingQueue}
-            disabled={loading}
+            disabled={query.isFetching}
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67" />
             </svg>
-            <span>{loading ? 'Refreshing...' : 'Refresh Queue'}</span>
+            <span>{query.isFetching ? 'Refreshing...' : 'Refresh Queue'}</span>
           </button>
         </div>
       </section>
@@ -129,6 +91,12 @@ export function AdminMerchantQueuePage() {
             <polyline points="20 6 9 17 4 12" />
           </svg>
           <span>{alert.message}</span>
+        </div>
+      )}
+
+      {query.isError && !alert && (
+        <div className="admin-alert-banner admin-alert-banner--error" role="alert">
+          <span>Could not load pending applications from the server. Use Refresh Queue to retry.</span>
         </div>
       )}
 
@@ -151,7 +119,11 @@ export function AdminMerchantQueuePage() {
               </tr>
             </thead>
             <tbody>
-              {queue.length === 0 ? (
+              {loading ? (
+                <tr><td colSpan={5} className="admin-empty-queue">Loading pending applications…</td></tr>
+              ) : query.isError ? (
+                <tr><td colSpan={5} className="admin-empty-queue">Pending applications could not be loaded. Refresh the queue to try again.</td></tr>
+              ) : queue.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="admin-empty-queue">
                     <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -207,19 +179,19 @@ export function AdminMerchantQueuePage() {
                         <button
                           type="button"
                           className="admin-approve-btn"
-                          disabled={actionId === merchant.id}
+                          disabled={actionId === merchant.id || Boolean(actionId)}
                           onClick={() => handleApprove(merchant)}
                         >
                           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                             <polyline points="20 6 9 17 4 12" />
                           </svg>
-                          <span>{actionId === merchant.id ? 'Approving...' : 'Approve'}</span>
+                          <span>{approve.isPending && approve.variables === merchant.id ? 'Approving...' : 'Approve'}</span>
                         </button>
 
                         <button
                           type="button"
                           className="admin-reject-btn"
-                          disabled={actionId === merchant.id}
+                          disabled={actionId === merchant.id || Boolean(actionId)}
                           onClick={() => handleReject(merchant)}
                         >
                           <span>Reject</span>

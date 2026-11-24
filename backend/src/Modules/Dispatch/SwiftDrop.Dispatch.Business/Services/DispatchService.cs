@@ -2,16 +2,19 @@ using Microsoft.EntityFrameworkCore;
 using SwiftDrop.Dispatch.Contracts;
 using SwiftDrop.Dispatch.Data.Entities;
 using SwiftDrop.Dispatch.Data.Repositories;
+using SwiftDrop.Parcels.Contracts;
 
 namespace SwiftDrop.Dispatch.Business.Services;
 
 internal sealed class DispatchService(IDispatchRepository repository,
     ICourierEligibilityGateway couriers, IParcelAssignmentGateway parcels,
-    IZoneLookup zones) : IDispatchService
+    IZoneLookup zones, IParcelDispatchDirectory parcelDirectory) : IDispatchService
 {
     public async Task<UnassignedParcelPage> ListUnassignedAsync(Guid? zoneId, DateTimeOffset? from,
         DateTimeOffset? to, int page, int pageSize, CancellationToken ct)
     {
+        var currentCreatedParcels = await parcelDirectory.GetCreatedUnassignedAsync(ct);
+        await repository.ReconcileUnassignedAsync(currentCreatedParcels, ct);
         var (items, total) = await repository.ListUnassignedAsync(zoneId, from, to, page, pageSize, ct);
         return new(items.Select(x => new UnassignedParcelDto(x.ParcelId, x.TrackingNumber, x.ZoneId, x.CreatedAt)).ToList(),
             page, pageSize, total);

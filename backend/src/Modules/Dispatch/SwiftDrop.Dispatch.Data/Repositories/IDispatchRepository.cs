@@ -1,5 +1,6 @@
 using SwiftDrop.Dispatch.Data.Entities;
 using SwiftDrop.Dispatch.Contracts;
+using SwiftDrop.Parcels.Contracts;
 
 namespace SwiftDrop.Dispatch.Data.Repositories;
 
@@ -9,6 +10,7 @@ internal interface IDispatchRepository
 {
     Task<(IReadOnlyList<ParcelAssignment> Items, int Total)> ListUnassignedAsync(Guid? zoneId,
         DateTimeOffset? from, DateTimeOffset? to, int page, int pageSize, CancellationToken ct);
+    Task ReconcileUnassignedAsync(IReadOnlyCollection<DispatchableParcelSnapshot> parcels, CancellationToken ct);
     Task<(IReadOnlyList<ParcelAssignment> Items, int Total)> ListParcelsAsync(string? status,
         string? trackingNumber, int page, int pageSize, CancellationToken ct);
     Task<ParcelAssignment?> GetAsync(Guid parcelId, CancellationToken ct);

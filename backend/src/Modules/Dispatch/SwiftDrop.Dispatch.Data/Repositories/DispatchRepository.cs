@@ -4,6 +4,7 @@ using SwiftDrop.Dispatch.Data.Entities;
 using SwiftDrop.Dispatch.Data.Persistence;
 using SwiftDrop.Dispatch.Contracts;
 using SwiftDrop.SharedKernel.Authorization;
+using SwiftDrop.Parcels.Contracts;
 
 namespace SwiftDrop.Dispatch.Data.Repositories;
 
@@ -20,6 +21,40 @@ internal sealed class DispatchRepository(DispatchDbContext db) : IDispatchReposi
         var items = await query.OrderByDescending(x => x.CreatedAt).ThenBy(x => x.ParcelId)
             .Skip((page - 1) * pageSize).Take(pageSize).ToListAsync(ct);
         return (items, total);
+    }
+
+    public async Task ReconcileUnassignedAsync(IReadOnlyCollection<DispatchableParcelSnapshot> parcels, CancellationToken ct)
+    {
+        foreach (var parcel in parcels)
+        {
+            var assignment = await db.Assignments.SingleOrDefaultAsync(x => x.ParcelId == parcel.ParcelId, ct);
+            if (assignment is null)
+            {
+                db.Assignments.Add(new ParcelAssignment
+                {
+                    ParcelId = parcel.ParcelId,
+                    TrackingNumber = parcel.TrackingNumber,
+                    ZoneId = parcel.ZoneId,
+                    CreatedAt = parcel.CreatedAtUtc,
+                    State = AssignmentStates.Unassigned,
+                    CurrentStatus = "Created",
+                    StatusOccurredAtUtc = parcel.CreatedAtUtc.ToUnixTimeMilliseconds(),
+                    Version = 0
+                });
+                continue;
+            }
+
+            // Parcels returns only live Created parcels. Preserve any assignment
+            // or newer lifecycle state already recorded by Dispatch.
+            if (assignment.CourierId is null && assignment.State == AssignmentStates.Unassigned)
+            {
+                assignment.TrackingNumber = parcel.TrackingNumber;
+                assignment.ZoneId = parcel.ZoneId;
+                assignment.CreatedAt = parcel.CreatedAtUtc;
+            }
+        }
+
+        await db.SaveChangesAsync(ct);
     }
 
     public async Task<(IReadOnlyList<ParcelAssignment> Items, int Total)> ListParcelsAsync(string? status,

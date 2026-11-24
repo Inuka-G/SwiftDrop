@@ -16,7 +16,30 @@ public sealed class DispatchServiceTests
     private readonly Mock<ICourierEligibilityGateway> couriers = new();
     private readonly Mock<IParcelAssignmentGateway> parcels = new();
     private readonly Mock<IZoneLookup> zones = new();
-    private DispatchService Create() => new(repository.Object, couriers.Object, parcels.Object, zones.Object);
+    private readonly Mock<SwiftDrop.Parcels.Contracts.IParcelDispatchDirectory> parcelDirectory = new();
+    private DispatchService Create() => new(repository.Object, couriers.Object, parcels.Object, zones.Object, parcelDirectory.Object);
+
+    [Fact]
+    public async Task Unassigned_list_reconciles_current_parcels_before_querying_dispatch_projection()
+    {
+        var snapshot = new SwiftDrop.Parcels.Contracts.DispatchableParcelSnapshot(
+            Guid.NewGuid(), "SD-TEST-1", Guid.NewGuid(), DateTimeOffset.UtcNow);
+        parcelDirectory.Setup(x => x.GetCreatedUnassignedAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync((IReadOnlyList<SwiftDrop.Parcels.Contracts.DispatchableParcelSnapshot>)[snapshot]);
+        repository.Setup(x => x.ListUnassignedAsync(null, null, null, 1, 20, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(((IReadOnlyList<ParcelAssignment>)[new ParcelAssignment
+            {
+                ParcelId = snapshot.ParcelId, TrackingNumber = snapshot.TrackingNumber,
+                ZoneId = snapshot.ZoneId, State = "UNASSIGNED", CreatedAt = snapshot.CreatedAtUtc
+            }], 1));
+
+        var result = await Create().ListUnassignedAsync(null, null, null, 1, 20, default);
+
+        repository.Verify(x => x.ReconcileUnassignedAsync(
+            It.Is<IReadOnlyCollection<SwiftDrop.Parcels.Contracts.DispatchableParcelSnapshot>>(items => items.Single().ParcelId == snapshot.ParcelId),
+            It.IsAny<CancellationToken>()), Times.Once);
+        Assert.Equal(snapshot.ParcelId, result.Items.Single().ParcelId);
+    }
 
     [Fact]
     public async Task Assign_delegates_authoritative_write_to_parcels_and_returns_its_timestamp()

@@ -14,8 +14,10 @@ namespace SwiftDrop.Parcels.Business.Services;
 internal sealed class ParcelService(
     IParcelRepository repository,
     IPricingService pricingService,
-    IEventPublisher eventPublisher) : IParcelService
+    IEventPublisher eventPublisher) : IParcelService, IParcelDispatchDirectory
 {
+    public Task<IReadOnlyList<DispatchableParcelSnapshot>> GetCreatedUnassignedAsync(CancellationToken ct) =>
+        repository.GetCreatedUnassignedAsync(ct);
     public Task<ParcelCreatedResponse> CreateParcelAsync(Guid customerId, CreateParcelRequest req, CancellationToken ct) =>
         CreateParcelAsync(customerId, null, req, ct);
 
