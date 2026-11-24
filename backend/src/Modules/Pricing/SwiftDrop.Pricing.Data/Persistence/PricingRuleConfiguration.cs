@@ -15,7 +15,8 @@ internal sealed class PricingRuleConfiguration: IEntityTypeConfiguration<Pricing
         b.Property(p => p.AdditionalKgRate).HasPrecision(10,2).IsRequired();
         b.Property(p => p.ServiceType).HasConversion<string>().HasMaxLength(20).IsRequired();
         b.Property(p => p.IsActive).IsRequired();
-        
+        b.HasIndex(p => p.ZoneId);
+        b.HasIndex(p => new { p.ZoneId, p.ServiceType }).IsUnique();
 
         //One zone can have multiple pricing rules
         b.HasOne(p => p.Zone).WithMany(z => z.PricingRules).HasForeignKey(p => p.ZoneId).OnDelete(DeleteBehavior.Restrict);

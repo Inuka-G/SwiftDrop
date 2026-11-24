@@ -27,6 +27,7 @@ public class ZonesController(IZoneService zones, IPricingService pricing) : Cont
     }
 
     [HttpGet("{id:guid}/pricing-rules")]
+    [Authorize(Roles = Roles.Admin)]
     [ProducesResponseType<IReadOnlyList<PricingRuleDto>>(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetPricingRules(
     Guid id,
@@ -36,6 +37,28 @@ public class ZonesController(IZoneService zones, IPricingService pricing) : Cont
         return Ok(rules);
     }
 
+<<<<<<< HEAD
+=======
+    [HttpPost("{zoneId:guid}/pricing-rules")]
+    [Authorize(Roles = Roles.Admin)]
+    [ProducesResponseType<PricingRuleDto>(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> CreatePricingRule(Guid zoneId, CreatePricingRuleRequest req, CancellationToken ct)
+    {
+        var created = await zones.CreatePricingRuleAsync(zoneId, new CreatePricingRuleCommand(
+            (ServiceType)req.ServiceType!.Value,
+            req.BaseRate!.Value,
+            req.AdditionalKgRate!.Value,
+            req.IsActive!.Value), ct);
+
+        return created is null
+            ? NotFound()
+            : CreatedAtAction(nameof(GetPricingRules), new { id = zoneId }, created);
+    }
+
+>>>>>>> origin/dev
     [HttpPost]
     [Authorize(Roles = Roles.Admin)]
     [ProducesResponseType<ZoneDto>(StatusCodes.Status201Created)]

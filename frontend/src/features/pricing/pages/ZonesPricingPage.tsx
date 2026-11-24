@@ -31,7 +31,7 @@ type RateFormState = {
   expressBaseRate: string
   expressAdditionalKgRate: string
 }
-type SaveFailure = { operation: 'zone' | 'activation' | 'standard' | 'express'; message: string }
+type SaveFailure = { operation: 'zone' | 'activation' | 'standard' | 'express'; action?: 'create' | 'update'; message: string }
 type SaveOutcome = { saved: string[]; failed: SaveFailure[]; created?: boolean; zoneBaseline?: ZoneDto }
 
 function pricingUpdateErrorMessage(serviceType: 'Standard' | 'Express', status?: number): string {
@@ -43,6 +43,27 @@ function pricingUpdateErrorMessage(serviceType: 'Standard' | 'Express', status?:
   if (status === 401) return `Your session expired while updating the ${serviceType} pricing rule.`
   if (status === undefined) return `Could not reach the pricing service while updating the ${serviceType} rule. Check your connection and try again.`
   return `The ${serviceType} pricing rule could not be updated (HTTP ${status}). Try again.`
+}
+
+function pricingCreateErrorMessage(serviceType: 'Standard' | 'Express', status?: number): string {
+  if (status === 400) return `${serviceType} rates were rejected. Check the rate values and service type.`
+  if (status === 404) return `The zone for the ${serviceType} rule was not found.`
+  if (status === 409) return `A ${serviceType} pricing rule already exists. The page will refresh its rules; retry to update it if needed.`
+  if (status === 500) return `The pricing service encountered a server error while creating the ${serviceType} rule. Refresh the rules before retrying.`
+  if (status === 403) return `You don't have permission to create the ${serviceType} pricing rule.`
+  if (status === 401) return `Your session expired while creating the ${serviceType} pricing rule.`
+  if (status === undefined) return `Could not reach the pricing service while creating the ${serviceType} rule. Refresh the rules before retrying.`
+  return `The ${serviceType} pricing rule could not be created (HTTP ${status}). Refresh the rules before retrying.`
+}
+
+function isValidRatePair(base: string, additional: string): boolean {
+  const isValidRate = (text: string) => {
+    if (!text.trim()) return false
+    const value = Number(text)
+    return Number.isFinite(value) && value >= 0 && value <= 99_999_999.99 &&
+      Math.abs(value * 100 - Math.round(value * 100)) < 1e-8
+  }
+  return isValidRate(base) && isValidRate(additional)
 }
 
 const EMPTY_ZONES: ZoneDto[] = []
@@ -78,7 +99,9 @@ function Modal({
       overlay?.parentElement?.children ?? [],
     ).filter(
       (node): node is HTMLElement =>
-        node instanceof HTMLElement && node !== overlay,
+        node instanceof HTMLElement &&
+        node !== overlay &&
+        !node.classList.contains('zones-overlay'),
     )
 
     const priorInert = inertSiblings.map((node) => node.inert)
@@ -193,6 +216,12 @@ function ZoneFormDialog({
   onError: (message: string) => void
 }) {
   const queryClient = useQueryClient()
+  const [createdZone, setCreatedZone] = useState<ZoneDto | null>(null)
+  const currentZone = zone ?? createdZone
+  const dialogOpenerRef = useMemo<RefObject<HTMLElement | null>>(
+    () => ({ current: opener }),
+    [opener],
+  )
 
   const [form, setForm] = useState<FormState>({
     zoneName: zone?.zoneName ?? '',
@@ -203,15 +232,20 @@ function ZoneFormDialog({
   const [active, setActive] = useState(zone?.isActive ?? true)
   const [error, setError] = useState('')
   const [rateError, setRateError] = useState('')
-  const [rates, setRates] = useState<RateFormState | null>(null)
+  const [rates, setRates] = useState<RateFormState | null>(zone ? null : {
+    standardBaseRate: '',
+    standardAdditionalKgRate: '',
+    expressBaseRate: '',
+    expressAdditionalKgRate: '',
+  })
   const [confirmDeactivate, setConfirmDeactivate] = useState(false)
   const activeToggleRef = useRef<HTMLButtonElement>(null)
   const ratesInitializedRef = useRef(false)
 
   const pricingRulesQuery = useQuery({
-    queryKey: ['zone-pricing-rules', zone?.id],
-    queryFn: () => zonesApi.getPricingRules(zone!.id),
-    enabled: Boolean(zone),
+    queryKey: ['zone-pricing-rules', currentZone?.id],
+    queryFn: () => zonesApi.getPricingRules(currentZone!.id),
+    enabled: Boolean(currentZone),
     staleTime: 30_000,
   })
 
@@ -219,42 +253,29 @@ function ZoneFormDialog({
   const expressRule = pricingRulesQuery.data?.find((rule) => rule.serviceType === 'Express')
 
   useEffect(() => {
-    if (ratesInitializedRef.current || !standardRule || !expressRule) return
+    if (ratesInitializedRef.current || !currentZone || !pricingRulesQuery.isSuccess) return
     ratesInitializedRef.current = true
     setRates({
-      standardBaseRate: String(standardRule.baseRate),
-      standardAdditionalKgRate: String(standardRule.additionalKgRate),
-      expressBaseRate: String(expressRule.baseRate),
-      expressAdditionalKgRate: String(expressRule.additionalKgRate),
+      standardBaseRate: standardRule ? String(standardRule.baseRate) : '',
+      standardAdditionalKgRate: standardRule ? String(standardRule.additionalKgRate) : '',
+      expressBaseRate: expressRule ? String(expressRule.baseRate) : '',
+      expressAdditionalKgRate: expressRule ? String(expressRule.additionalKgRate) : '',
     })
-  }, [standardRule, expressRule])
+  }, [currentZone, pricingRulesQuery.isSuccess, standardRule, expressRule])
 
   const mutation = useMutation({
     mutationFn: async (value: FormState): Promise<SaveOutcome> => {
-      if (!zone) {
-        try {
-          await zonesApi.create({
-            zoneName: value.zoneName.trim(),
-            description: value.description.trim() || null,
-          })
-          return { saved: ['Zone'], failed: [], created: true }
-        } finally {
-          await Promise.all([
-            queryClient.invalidateQueries({ queryKey: ZONES_QUERY_KEY }),
-            queryClient.invalidateQueries({ queryKey: ['zone-pricing-rules'] }),
-          ])
-        }
-      }
-
       const saved: string[] = []
       const failed: SaveFailure[] = []
-      const baselineAfter = { ...(zoneBaseline ?? zone) }
       let serverUpdateAttempted = false
+      let targetZone = currentZone
+      let createdDuringSave = false
 
-      const runUpdate = async (
+      const runOperation = async (
         operation: SaveFailure['operation'],
         label: string,
         update: () => Promise<unknown>,
+        createPricingRule = false,
       ): Promise<boolean> => {
         serverUpdateAttempted = true
         try {
@@ -272,8 +293,11 @@ function ZoneFormDialog({
               : null
           failed.push({
             operation,
+            ...(pricingService ? { action: createPricingRule ? 'create' as const : 'update' as const } : {}),
             message: pricingService
-              ? pricingUpdateErrorMessage(pricingService, status)
+              ? createPricingRule
+                ? pricingCreateErrorMessage(pricingService, status)
+                : pricingUpdateErrorMessage(pricingService, status)
               : zoneErrorMessage(status),
           })
           return false
@@ -281,10 +305,33 @@ function ZoneFormDialog({
       }
 
       try {
+        if (!targetZone) {
+          if (!ratesValid) {
+            const message = 'Enter non-negative values for all four rates before creating the zone.'
+            failed.push({ operation: 'standard', action: 'create', message }, { operation: 'express', action: 'create', message })
+            return { saved, failed }
+          }
+
+          serverUpdateAttempted = true
+          targetZone = await zonesApi.create({
+            zoneName: value.zoneName.trim(),
+            description: value.description.trim() || null,
+          })
+          createdDuringSave = true
+          saved.push('Zone')
+          setCreatedZone(targetZone)
+          setZoneBaseline(targetZone)
+          setActive(targetZone.isActive)
+          // The entered values are the baseline for rule creation; do not replace them
+          // when the newly-created zone's rule query completes after a partial failure.
+          ratesInitializedRef.current = true
+        }
+
+        const baselineAfter = { ...(zoneBaseline ?? targetZone) }
         const zoneDetailsChanged = value.zoneName.trim() !== baselineAfter.zoneName ||
           (value.description.trim() || '') !== (baselineAfter.description ?? '')
         if (zoneDetailsChanged) {
-          const detailsSaved = await runUpdate('zone', 'Zone details', () => zonesApi.update(zone.id, {
+          const detailsSaved = await runOperation('zone', 'Zone details', () => zonesApi.update(targetZone!.id, {
             zoneName: value.zoneName.trim(),
             description: value.description.trim() || null,
           }))
@@ -295,50 +342,68 @@ function ZoneFormDialog({
         }
 
         if (active !== baselineAfter.isActive) {
-          const activationSaved = await runUpdate('activation', 'Zone status', () => zonesApi.setActive(zone.id, { isActive: active }))
+          const activationSaved = await runOperation('activation', 'Zone status', () => zonesApi.setActive(targetZone!.id, { isActive: active }))
           if (activationSaved) baselineAfter.isActive = active
         }
 
-        const standardRateChanged = Boolean(rates && standardRule && (
-          Number(rates.standardBaseRate) !== standardRule.baseRate ||
-          Number(rates.standardAdditionalKgRate) !== standardRule.additionalKgRate
-        ))
-        const expressRateChanged = Boolean(rates && expressRule && (
-          Number(rates.expressBaseRate) !== expressRule.baseRate ||
-          Number(rates.expressAdditionalKgRate) !== expressRule.additionalKgRate
-        ))
+        const standardPairEntered = Boolean(rates && (rates.standardBaseRate.trim() || rates.standardAdditionalKgRate.trim()))
+        const expressPairEntered = Boolean(rates && (rates.expressBaseRate.trim() || rates.expressAdditionalKgRate.trim()))
+        const standardRateChanged = Boolean(rates && (standardRule
+          ? Number(rates.standardBaseRate) !== standardRule.baseRate || Number(rates.standardAdditionalKgRate) !== standardRule.additionalKgRate
+          : standardPairEntered))
+        const expressRateChanged = Boolean(rates && (expressRule
+          ? Number(rates.expressBaseRate) !== expressRule.baseRate || Number(rates.expressAdditionalKgRate) !== expressRule.additionalKgRate
+          : expressPairEntered))
         const hasRateChanges = standardRateChanged || expressRateChanged
-
-        if (hasRateChanges && pricingRulesQuery.isError) {
+        if (!createdDuringSave && hasRateChanges && pricingRulesQuery.isError) {
           const message = 'Pricing rules could not be refreshed. No pricing update was sent; retry loading the rules before editing rates.'
-          if (standardRateChanged) failed.push({ operation: 'standard', message })
-          if (expressRateChanged) failed.push({ operation: 'express', message })
-        } else if (hasRateChanges && !ratesValid) {
-          const message = 'Rate values must be non-negative numbers. Pricing changes were not sent.'
-          if (standardRateChanged) failed.push({ operation: 'standard', message })
-          if (expressRateChanged) failed.push({ operation: 'express', message })
-        } else if (rates && ratesValid) {
-          if (standardRateChanged && standardRule) {
-            await runUpdate('standard', 'Standard pricing', () => zonesApi.updateRate(zone.id, standardRule.id, {
-              baseRate: Number(rates.standardBaseRate),
-              additionalKgRate: Number(rates.standardAdditionalKgRate),
-            }))
+          if (standardRateChanged) failed.push({ operation: 'standard', action: standardRule ? 'update' : 'create', message })
+          if (expressRateChanged) failed.push({ operation: 'express', action: expressRule ? 'update' : 'create', message })
+        } else if (rates) {
+          if (standardRateChanged) {
+            if (!isValidRatePair(rates.standardBaseRate, rates.standardAdditionalKgRate)) {
+              failed.push({ operation: 'standard', action: standardRule ? 'update' : 'create', message: 'Enter valid non-negative Standard rates with at most two decimal places.' })
+            } else if (standardRule) {
+              await runOperation('standard', 'Standard pricing', () => zonesApi.updateRate(targetZone!.id, standardRule.id, {
+                baseRate: Number(rates.standardBaseRate),
+                additionalKgRate: Number(rates.standardAdditionalKgRate),
+              }))
+            } else {
+              await runOperation('standard', 'Standard pricing', () => zonesApi.createRate(targetZone!.id, {
+                serviceType: 1,
+                baseRate: Number(rates.standardBaseRate),
+                additionalKgRate: Number(rates.standardAdditionalKgRate),
+                isActive: true,
+              }), true)
+            }
           }
-          if (expressRateChanged && expressRule) {
-            await runUpdate('express', 'Express pricing', () => zonesApi.updateRate(zone.id, expressRule.id, {
-              baseRate: Number(rates.expressBaseRate),
-              additionalKgRate: Number(rates.expressAdditionalKgRate),
-            }))
+          if (expressRateChanged) {
+            if (!isValidRatePair(rates.expressBaseRate, rates.expressAdditionalKgRate)) {
+              failed.push({ operation: 'express', action: expressRule ? 'update' : 'create', message: 'Enter valid non-negative Express rates with at most two decimal places.' })
+            } else if (expressRule) {
+              await runOperation('express', 'Express pricing', () => zonesApi.updateRate(targetZone!.id, expressRule.id, {
+                baseRate: Number(rates.expressBaseRate),
+                additionalKgRate: Number(rates.expressAdditionalKgRate),
+              }))
+            } else {
+              await runOperation('express', 'Express pricing', () => zonesApi.createRate(targetZone!.id, {
+                serviceType: 2,
+                baseRate: Number(rates.expressBaseRate),
+                additionalKgRate: Number(rates.expressAdditionalKgRate),
+                isActive: true,
+              }), true)
+            }
           }
         }
 
-        return { saved, failed, zoneBaseline: baselineAfter }
+        return { saved, failed, zoneBaseline: baselineAfter, created: createdDuringSave }
       } finally {
         if (serverUpdateAttempted) {
-          await Promise.all([
+          const invalidations = [
             queryClient.invalidateQueries({ queryKey: ZONES_QUERY_KEY }),
-            queryClient.invalidateQueries({ queryKey: ['zone-pricing-rules', zone.id] }),
-          ])
+          ]
+          if (targetZone) invalidations.push(queryClient.invalidateQueries({ queryKey: ['zone-pricing-rules', targetZone.id] }))
+          await Promise.all(invalidations)
         }
       }
     },
@@ -348,9 +413,9 @@ function ZoneFormDialog({
       setRateError('')
       if (outcome.zoneBaseline) setZoneBaseline(outcome.zoneBaseline)
       if (outcome.failed.length > 0) {
-        const messages = outcome.failed.map(({ operation, message }) => {
-          if (operation === 'standard') return `Standard pricing update failed: ${message}`
-          if (operation === 'express') return `Express pricing update failed: ${message}`
+        const messages = outcome.failed.map(({ operation, action, message }) => {
+          if (operation === 'standard') return `Standard pricing ${action ?? 'update'} failed: ${message}`
+          if (operation === 'express') return `Express pricing ${action ?? 'update'} failed: ${message}`
           if (operation === 'activation') return `Zone status update failed: ${message}`
           return `Zone details update failed: ${message}`
         })
@@ -360,7 +425,7 @@ function ZoneFormDialog({
         ].filter(Boolean).join(' ')
         const pricingFailures = outcome.failed.filter(({ operation }) => operation === 'standard' || operation === 'express')
         if (pricingFailures.length) {
-          setRateError(pricingFailures.map(({ operation, message }) => `${operation === 'standard' ? 'Standard' : 'Express'} pricing update failed: ${message}`).join(' '))
+          setRateError(pricingFailures.map(({ operation, action, message }) => `${operation === 'standard' ? 'Standard' : 'Express'} pricing ${action ?? 'update'} failed: ${message}`).join(' '))
         }
         const zoneFailures = outcome.failed.filter(({ operation }) => operation === 'zone' || operation === 'activation')
         if (zoneFailures.length) setError(zoneFailures.map(({ message }) => message).join(' '))
@@ -369,7 +434,9 @@ function ZoneFormDialog({
       }
 
       const pricingSaved = outcome.saved.some((item) => item === 'Standard pricing' || item === 'Express pricing')
-      onSaved(outcome.created ? 'Zone created' : pricingSaved ? 'Zone and pricing updated' : 'Zone updated')
+      onSaved(outcome.created
+        ? pricingSaved ? 'Zone and pricing rules created' : 'Zone created'
+        : pricingSaved ? 'Zone and pricing updated' : 'Zone updated')
     },
 
     onError: (failure: unknown) => {
@@ -390,23 +457,25 @@ function ZoneFormDialog({
     Boolean(form.zoneName.trim()) &&
     form.zoneName.trim().length <= ZONE_NAME_MAX_LENGTH
 
-  const rateValues = rates ? Object.values(rates).map(Number) : []
   const ratesValid =
     rates !== null &&
-    Object.values(rates).every((value) => value.trim() !== '') &&
-    rateValues.every((value) => Number.isFinite(value) && value >= 0)
-  const ratesChanged = Boolean(rates && standardRule && expressRule && (
-    Number(rates.standardBaseRate) !== standardRule.baseRate ||
-    Number(rates.standardAdditionalKgRate) !== standardRule.additionalKgRate ||
-    Number(rates.expressBaseRate) !== expressRule.baseRate ||
-    Number(rates.expressAdditionalKgRate) !== expressRule.additionalKgRate
-  ))
+    isValidRatePair(rates.standardBaseRate, rates.standardAdditionalKgRate) &&
+    isValidRatePair(rates.expressBaseRate, rates.expressAdditionalKgRate)
+  const standardPairEntered = Boolean(rates && (rates.standardBaseRate.trim() || rates.standardAdditionalKgRate.trim()))
+  const expressPairEntered = Boolean(rates && (rates.expressBaseRate.trim() || rates.expressAdditionalKgRate.trim()))
+  const standardRateChanged = Boolean(rates && (standardRule
+    ? Number(rates.standardBaseRate) !== standardRule.baseRate || Number(rates.standardAdditionalKgRate) !== standardRule.additionalKgRate
+    : standardPairEntered))
+  const expressRateChanged = Boolean(rates && (expressRule
+    ? Number(rates.expressBaseRate) !== expressRule.baseRate || Number(rates.expressAdditionalKgRate) !== expressRule.additionalKgRate
+    : expressPairEntered))
+  const ratesChanged = standardRateChanged || expressRateChanged
 
   const changed =
-    !zone ||
-    form.zoneName.trim() !== (zoneBaseline?.zoneName ?? zone.zoneName) ||
+    !currentZone ||
+    form.zoneName.trim() !== (zoneBaseline?.zoneName ?? currentZone.zoneName) ||
     (form.description.trim() || '') !== (zoneBaseline?.description ?? '') ||
-    active !== (zoneBaseline?.isActive ?? zone.isActive) ||
+    active !== (zoneBaseline?.isActive ?? currentZone.isActive) ||
     ratesChanged
 
   async function submit(event: FormEvent<HTMLFormElement>) {
@@ -415,6 +484,11 @@ function ZoneFormDialog({
 
     if (!nameValid) {
       setError('Enter a zone name up to 100 characters.')
+      return
+    }
+
+    if (!currentZone && !ratesValid) {
+      setRateError('Enter all four non-negative rates with at most two decimal places before creating the zone.')
       return
     }
 
@@ -427,14 +501,14 @@ function ZoneFormDialog({
 
   return (
     <Modal
-      title={zone ? 'Edit zone' : 'Add New Delivery Zone'}
+      title={currentZone ? 'Edit zone' : 'Add New Delivery Zone'}
       subtitle={
-        zone
+        currentZone
           ? "Update the zone's name, rates or status"
           : 'Set the zone name and its shipping rates'
       }
       onClose={cancel}
-      closeRef={{ current: opener }}
+      closeRef={dialogOpenerRef}
       footer={
         <>
           <button
@@ -451,12 +525,12 @@ function ZoneFormDialog({
             form="zone-form"
             className="zones-button zones-button-primary"
             disabled={
-              !changed || !nameValid || mutation.isPending
+              !changed || !nameValid || (!currentZone && !ratesValid) || mutation.isPending
             }
           >
             {mutation.isPending
               ? 'Saving…'
-              : zone
+              : currentZone
                 ? 'Save changes'
                 : '＋ Create zone'}
           </button>
@@ -522,18 +596,21 @@ function ZoneFormDialog({
             <span>Standard · Express</span>
           </div>
 
-          {!zone ? (
-            <p>Initial Standard and Express pricing rules cannot be created yet. Backend support is required to add pricing rules for a new zone.</p>
+          {!currentZone ? (
+            <p>Set the initial Standard and Express rates for this zone. The zone will be created first, followed by its pricing rules.</p>
           ) : pricingRulesQuery.isLoading ? (
             <p role="status">Loading pricing rules…</p>
           ) : pricingRulesQuery.isError ? (
             <div role="alert">
-              <p>Pricing rules could not be loaded.</p>
+              <p>Pricing rules could not be loaded. Rate changes are unavailable until the rules refresh succeeds.</p>
               <button type="button" className="zones-button zones-button-muted" onClick={() => void pricingRulesQuery.refetch()}>Try again</button>
             </div>
           ) : !standardRule || !expressRule ? (
-            <p role="alert">This zone does not have both Standard and Express pricing rules. Editing requires existing rules; initial rule creation needs backend support.</p>
-          ) : rates ? (
+            <p role="status">{!standardRule && !expressRule
+              ? 'This zone has no pricing rules yet. Enter rates to create Standard and Express rules.'
+              : `This zone is missing its ${!standardRule ? 'Standard' : 'Express'} rule. Enter rates to create the missing rule.`}</p>
+          ) : null}
+          {rates && (!currentZone || pricingRulesQuery.isSuccess) ? (
             <div className="zones-form">
               {([
                 ['standardBaseRate', 'Standard base rate'],
@@ -550,7 +627,7 @@ function ZoneFormDialog({
                     inputMode="decimal"
                     required
                     aria-label={label}
-                    aria-invalid={Boolean(rateError) || (rates[field].trim() !== '' && (!Number.isFinite(Number(rates[field])) || Number(rates[field]) < 0))}
+                    aria-invalid={Boolean(rateError) || (rates[field].trim() !== '' && (!Number.isFinite(Number(rates[field])) || Number(rates[field]) < 0 || Number(rates[field]) > 99_999_999.99))}
                     value={rates[field]}
                     disabled={mutation.isPending}
                     onChange={(event) => {
@@ -566,9 +643,9 @@ function ZoneFormDialog({
                 </small>
               )}
             </div>
-          ) : (
+          ) : currentZone && !pricingRulesQuery.isError && !pricingRulesQuery.isLoading ? (
             <p role="status">Preparing pricing rules…</p>
-          )}
+          ) : null}
         </section>
 
         <div className="zones-active-card">
@@ -588,7 +665,7 @@ function ZoneFormDialog({
             aria-label="Zone active"
             disabled={mutation.isPending}
             onClick={() => {
-              if (zone?.isActive && active) {
+              if (currentZone?.isActive && active) {
                 setConfirmDeactivate(true)
               } else {
                 setActive(!active)
@@ -600,10 +677,10 @@ function ZoneFormDialog({
         </div>
       </form>
 
-      {confirmDeactivate && zone && (
+      {confirmDeactivate && currentZone && (
         <Modal
           title="Deactivate zone"
-          subtitle={`${zone.zoneName} will no longer be used for new parcels.`}
+          subtitle={`${currentZone.zoneName} will no longer be used for new parcels.`}
           onClose={() => setConfirmDeactivate(false)}
           closeRef={activeToggleRef}
           footer={
@@ -652,12 +729,17 @@ function DeactivateDialog({
   busy: boolean
   opener: HTMLElement | null
 }) {
+  const dialogOpenerRef = useMemo<RefObject<HTMLElement | null>>(
+    () => ({ current: opener }),
+    [opener],
+  )
+
   return (
     <Modal
       title="Deactivate zone"
       subtitle={`${zone.zoneName} will no longer be used for new parcels.`}
       onClose={close}
-      closeRef={{ current: opener }}
+      closeRef={dialogOpenerRef}
       footer={
         <>
           <button
