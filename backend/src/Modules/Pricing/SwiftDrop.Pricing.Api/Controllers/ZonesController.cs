@@ -37,8 +37,6 @@ public class ZonesController(IZoneService zones, IPricingService pricing) : Cont
         return Ok(rules);
     }
 
-<<<<<<< HEAD
-=======
     [HttpPost("{zoneId:guid}/pricing-rules")]
     [Authorize(Roles = Roles.Admin)]
     [ProducesResponseType<PricingRuleDto>(StatusCodes.Status201Created)]
@@ -58,7 +56,6 @@ public class ZonesController(IZoneService zones, IPricingService pricing) : Cont
             : CreatedAtAction(nameof(GetPricingRules), new { id = zoneId }, created);
     }
 
->>>>>>> origin/dev
     [HttpPost]
     [Authorize(Roles = Roles.Admin)]
     [ProducesResponseType<ZoneDto>(StatusCodes.Status201Created)]

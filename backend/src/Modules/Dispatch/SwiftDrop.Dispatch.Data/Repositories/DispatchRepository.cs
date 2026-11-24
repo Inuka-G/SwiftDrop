@@ -37,12 +37,14 @@ internal sealed class DispatchRepository(DispatchDbContext db) : IDispatchReposi
                     TrackingNumber = parcel.TrackingNumber,
                     ZoneId = parcel.ZoneId,
                     CreatedAt = parcel.CreatedAtUtc,
-                    State = parcel.CourierId.HasValue
-                        ? (ParcelDeliveryStatuses.IsTerminal(parcel.CurrentStatus) ? AssignmentStates.Completed : AssignmentStates.Assigned)
-                        : (ParcelDeliveryStatuses.IsTerminal(parcel.CurrentStatus) ? AssignmentStates.Completed : AssignmentStates.Unassigned),
+                    State = ParcelDeliveryStatuses.IsTerminal(parcel.CurrentStatus)
+                        ? AssignmentStates.Completed
+                        : parcel.CourierId.HasValue ? AssignmentStates.Assigned : AssignmentStates.Unassigned,
                     CurrentStatus = parcel.CurrentStatus,
                     CourierId = parcel.CourierId,
                     AssignedAt = parcel.AssignedAtUtc,
+                    WeightKg = parcel.WeightKg,
+                    SizeCategory = parcel.SizeCategory,
                     StatusOccurredAtUtc = (parcel.AssignedAtUtc ?? parcel.CreatedAtUtc).ToUnixTimeMilliseconds(),
                     Version = 0
                 });
@@ -52,27 +54,36 @@ internal sealed class DispatchRepository(DispatchDbContext db) : IDispatchReposi
             // Parcels is the assignment and lifecycle source of truth. Reconcile
             // stale event-fed rows to the current Parcels state without regressing
             // a newer Dispatch status event.
+            var changed = assignment.TrackingNumber != parcel.TrackingNumber ||
+                assignment.ZoneId != parcel.ZoneId || assignment.CreatedAt != parcel.CreatedAtUtc ||
+                assignment.CourierId != parcel.CourierId || assignment.AssignedAt != parcel.AssignedAtUtc ||
+                assignment.WeightKg != parcel.WeightKg || assignment.SizeCategory != parcel.SizeCategory;
             assignment.TrackingNumber = parcel.TrackingNumber;
             assignment.ZoneId = parcel.ZoneId;
             assignment.CreatedAt = parcel.CreatedAtUtc;
             assignment.CourierId = parcel.CourierId;
             assignment.AssignedAt = parcel.AssignedAtUtc;
-            if (ParcelDeliveryStatuses.IsTerminal(parcel.CurrentStatus))
-                assignment.State = AssignmentStates.Completed;
-            else if (parcel.CourierId.HasValue)
-                assignment.State = AssignmentStates.Assigned;
-            else if (assignment.State != AssignmentStates.Completed)
-                assignment.State = AssignmentStates.Unassigned;
+            assignment.WeightKg = parcel.WeightKg;
+            assignment.SizeCategory = parcel.SizeCategory;
             if (string.Equals(assignment.CurrentStatus, "Created", StringComparison.OrdinalIgnoreCase) ||
                 assignment.StatusOccurredAtUtc <= (parcel.AssignedAtUtc ?? parcel.CreatedAtUtc).ToUnixTimeMilliseconds())
             {
-                assignment.CurrentStatus = parcel.CourierId.HasValue &&
+                var reconciledStatus = parcel.CourierId.HasValue &&
                     string.Equals(parcel.CurrentStatus, "Created", StringComparison.OrdinalIgnoreCase)
                     ? "Assigned" : parcel.CurrentStatus;
-                assignment.StatusOccurredAtUtc = Math.Max(assignment.StatusOccurredAtUtc,
+                var statusOccurredAt = Math.Max(assignment.StatusOccurredAtUtc,
                     (parcel.AssignedAtUtc ?? parcel.CreatedAtUtc).ToUnixTimeMilliseconds());
+                changed |= assignment.CurrentStatus != reconciledStatus || assignment.StatusOccurredAtUtc != statusOccurredAt;
+                assignment.CurrentStatus = reconciledStatus;
+                assignment.StatusOccurredAtUtc = statusOccurredAt;
             }
-            assignment.Version++;
+            var reconciledState = ParcelDeliveryStatuses.IsTerminal(parcel.CurrentStatus)
+                ? AssignmentStates.Completed
+                : parcel.CourierId.HasValue ? AssignmentStates.Assigned
+                : AssignmentStates.Unassigned;
+            changed |= assignment.State != reconciledState;
+            assignment.State = reconciledState;
+            if (changed) assignment.Version++;
         }
 
         var currentParcelIds = parcels.Select(parcel => parcel.ParcelId).ToArray();
@@ -110,9 +121,13 @@ internal sealed class DispatchRepository(DispatchDbContext db) : IDispatchReposi
             var normalizedAssignmentState = assignmentState.Trim().ToUpperInvariant();
             query = query.Where(x => x.State.ToUpper() == normalizedAssignmentState);
         }
-        var total = await query.CountAsync(ct);
-        var items = await query.OrderByDescending(x => x.CreatedAt).ThenBy(x => x.ParcelId)
-            .Skip((page - 1) * pageSize).Take(pageSize).ToListAsync(ct);
+        var all = await query.OrderByDescending(x => x.CreatedAt).ThenBy(x => x.ParcelId).ToListAsync(ct);
+        // Parcels guarantees tracking-number uniqueness. Collapse duplicates that
+        // may exist in older Dispatch projections while preserving the newest row.
+        var unique = all.GroupBy(x => x.TrackingNumber, StringComparer.OrdinalIgnoreCase)
+            .Select(group => group.First()).ToList();
+        var total = unique.Count;
+        var items = unique.Skip((page - 1) * pageSize).Take(pageSize).ToList();
         return (items, total);
     }
 

@@ -134,14 +134,16 @@ export function DispatchBoardPage() {
         <span className="dispatch-active-queue">{assignedRows.length} assigned</span>
       </div>
       <div className="dispatch-table-scroll"><table className="dispatch-table">
-        <thead><tr><th scope="col">Tracking number</th><th scope="col">Zone</th><th scope="col">Courier</th><th scope="col">Parcel status</th><th scope="col">Assigned at</th></tr></thead>
+        <thead><tr><th scope="col">Tracking number</th><th scope="col">Zone</th><th scope="col">Size</th><th scope="col">Weight (kg)</th><th scope="col">Courier</th><th scope="col">Parcel status</th><th scope="col">Assigned at</th></tr></thead>
         <tbody>
-          {assignedQuery.isLoading && <tr><td colSpan={5}>Loading assigned parcels…</td></tr>}
-          {assignedQuery.isError && <tr><td colSpan={5} role="alert">Assigned parcels could not be loaded. Refresh the page to retry.</td></tr>}
-          {!assignedQuery.isLoading && !assignedQuery.isError && assignedRows.length === 0 && <tr><td colSpan={5} className="dispatch-empty-queue">No parcels are currently assigned.</td></tr>}
+          {assignedQuery.isLoading && <tr><td colSpan={7}>Loading assigned parcels…</td></tr>}
+          {assignedQuery.isError && <tr><td colSpan={7} role="alert">Assigned parcels could not be loaded. Refresh the page to retry.</td></tr>}
+          {!assignedQuery.isLoading && !assignedQuery.isError && assignedRows.length === 0 && <tr><td colSpan={7} className="dispatch-empty-queue">No parcels are currently assigned.</td></tr>}
           {assignedRows.map((parcel) => <tr key={parcel.parcelId}>
             <td><strong>{parcel.trackingNumber}</strong></td>
-            <td><span className="dispatch-zone-chip" title={parcel.zoneId}>{parcelZoneLabel({ parcelId: parcel.parcelId, trackingNumber: parcel.trackingNumber, zoneId: parcel.zoneId, createdAt: parcel.createdAt })}</span></td>
+            <td><span className="dispatch-zone-chip" title={parcel.zoneId}>{parcelZoneLabel({ parcelId: parcel.parcelId, trackingNumber: parcel.trackingNumber, zoneId: parcel.zoneId, createdAt: parcel.createdAt, weightKg: parcel.weightKg, sizeCategory: parcel.sizeCategory })}</span></td>
+            <td><span className="dispatch-size-tag">{parcel.sizeCategory || '—'}</span></td>
+            <td className="dispatch-weight-cell">{parcel.weightKg == null ? '—' : `${parcel.weightKg} kg`}</td>
             <td>{parcel.courierName ?? 'Courier'}</td>
             <td><span className="dispatch-zone-chip">{parcel.status === 'Created' ? 'Assigned' : parcel.status}</span></td>
             <td>{parcel.assignedAt ? formatCreatedAt(parcel.assignedAt) : '—'}</td>

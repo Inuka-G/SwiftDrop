@@ -12,6 +12,8 @@ internal sealed class ParcelAssignment
     public Guid? CourierId { get; set; }
     public Guid? AssignedBy { get; set; }
     public DateTimeOffset? AssignedAt { get; set; }
+    public decimal? WeightKg { get; set; }
+    public string? SizeCategory { get; set; }
     public int Version { get; set; }
 }
 

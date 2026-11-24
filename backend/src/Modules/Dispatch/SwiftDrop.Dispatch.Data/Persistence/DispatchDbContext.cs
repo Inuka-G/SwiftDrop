@@ -20,6 +20,9 @@ internal sealed class DispatchDbContext(DbContextOptions<DispatchDbContext> opti
             e.Property(x => x.TrackingNumber).HasMaxLength(80).IsRequired();
             e.Property(x => x.State).HasMaxLength(24).IsRequired();
             e.Property(x => x.CurrentStatus).HasMaxLength(32).HasDefaultValue("Created").IsRequired();
+            e.Property(x => x.WeightKg).HasPrecision(8, 2);
+            e.Property(x => x.SizeCategory).HasMaxLength(50);
+            e.HasIndex(x => x.TrackingNumber).IsUnique();
             // Store timestamps as epoch milliseconds so SQLite can filter and sort them.
             e.Property(x => x.CreatedAt).HasConversion(
                 value => value.ToUnixTimeMilliseconds(), value => DateTimeOffset.FromUnixTimeMilliseconds(value));

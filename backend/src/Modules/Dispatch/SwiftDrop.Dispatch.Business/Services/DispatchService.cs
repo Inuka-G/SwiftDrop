@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using SwiftDrop.Dispatch.Contracts;
 using SwiftDrop.Dispatch.Data.Entities;
 using SwiftDrop.Dispatch.Data.Repositories;
@@ -8,23 +9,23 @@ namespace SwiftDrop.Dispatch.Business.Services;
 
 internal sealed class DispatchService(IDispatchRepository repository,
     ICourierEligibilityGateway couriers, IParcelAssignmentGateway parcels,
-    IZoneLookup zones, IParcelDispatchDirectory parcelDirectory) : IDispatchService
+    IZoneLookup zones, IParcelDispatchDirectory parcelDirectory,
+    ILogger<DispatchService> logger) : IDispatchService
 {
     public async Task<UnassignedParcelPage> ListUnassignedAsync(Guid? zoneId, DateTimeOffset? from,
         DateTimeOffset? to, int page, int pageSize, CancellationToken ct)
     {
-        var currentParcels = await parcelDirectory.GetDispatchSnapshotAsync(ct);
-        await repository.ReconcileParcelsAsync(currentParcels, ct);
+        await RefreshProjectionAsync(ct);
         var (items, total) = await repository.ListUnassignedAsync(zoneId, from, to, page, pageSize, ct);
-        return new(items.Select(x => new UnassignedParcelDto(x.ParcelId, x.TrackingNumber, x.ZoneId, x.CreatedAt)).ToList(),
+        return new(items.Select(x => new UnassignedParcelDto(x.ParcelId, x.TrackingNumber, x.ZoneId, x.CreatedAt,
+                x.WeightKg, x.SizeCategory)).ToList(),
             page, pageSize, total);
     }
 
     public async Task<DispatchParcelPage> ListParcelsAsync(string? status, string? trackingNumber,
         int page, int pageSize, string? assignmentState, CancellationToken ct)
     {
-        var currentParcels = await parcelDirectory.GetDispatchSnapshotAsync(ct);
-        await repository.ReconcileParcelsAsync(currentParcels, ct);
+        await RefreshProjectionAsync(ct);
         var (assignments, total) = await repository.ListParcelsAsync(status, trackingNumber, page, pageSize, assignmentState, ct);
         var courierIds = assignments.Where(x => x.CourierId.HasValue).Select(x => x.CourierId!.Value).Distinct().ToArray();
         var names = courierIds.Length == 0
@@ -33,7 +34,7 @@ internal sealed class DispatchService(IDispatchRepository repository,
         var items = assignments.Select(x => new DispatchParcelDto(x.ParcelId, x.TrackingNumber,
             x.CurrentStatus, x.ZoneId, x.CourierId,
             x.CourierId.HasValue ? names.GetValueOrDefault(x.CourierId.Value, "Unknown courier") : null,
-            x.State, x.CreatedAt, x.AssignedAt)).ToArray();
+            x.State, x.CreatedAt, x.AssignedAt, x.WeightKg, x.SizeCategory)).ToArray();
         return new(items, page, pageSize, total);
     }
 
@@ -160,5 +161,26 @@ internal sealed class DispatchService(IDispatchRepository repository,
         return CourierProfileResult.Success(new CourierProfileDto(profile.CourierId,
             names.GetValueOrDefault(profile.CourierId, "Unknown courier"), profile.ZoneId, profile.IsAvailable,
             profile.VehicleType, profile.LicensePlate, workloads.GetValueOrDefault(profile.CourierId)));
+    }
+
+    private async Task RefreshProjectionAsync(CancellationToken ct)
+    {
+        try
+        {
+            var currentParcels = await parcelDirectory.GetDispatchSnapshotAsync(ct);
+            await repository.ReconcileParcelsAsync(currentParcels, ct);
+        }
+        catch (OperationCanceledException) when (ct.IsCancellationRequested)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            // Dispatch owns a durable projection and parcel events keep it current.
+            // A temporary Parcels read/reconciliation failure should not make both
+            // Dispatch Board lists unavailable; serve the last synchronized state.
+            logger.LogWarning(ex,
+                "Could not refresh the Dispatch projection from Parcels. Serving the last synchronized Dispatch data.");
+        }
     }
 }

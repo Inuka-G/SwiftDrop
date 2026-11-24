@@ -13,14 +13,13 @@ export interface DispatchDashboardSummary {
   couriersWithActiveDeliveries: number
 }
 
-// These fields mirror the current Dispatch API. Parcel size and weight are not exposed by it.
 export interface UnassignedParcelDto {
   parcelId: string
   trackingNumber: string
   zoneId: string
   createdAt: string
-  sizeCategory?: string | null
-  weightKg?: number | null
+  sizeCategory: string | null
+  weightKg: number | null
 }
 
 export interface UnassignedParcelPageDto {
@@ -40,6 +39,8 @@ export interface DispatchParcelDto {
   assignmentState: string
   createdAt: string
   assignedAt: string | null
+  weightKg: number | null
+  sizeCategory: string | null
 }
 
 export interface DispatchParcelPageDto {

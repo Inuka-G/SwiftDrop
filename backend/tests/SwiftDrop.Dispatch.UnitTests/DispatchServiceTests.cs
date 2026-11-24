@@ -23,7 +23,7 @@ public sealed class DispatchServiceTests
     public async Task Unassigned_list_reconciles_current_parcels_before_querying_dispatch_projection()
     {
         var snapshot = new SwiftDrop.Parcels.Contracts.DispatchableParcelSnapshot(
-            Guid.NewGuid(), "SD-TEST-1", Guid.NewGuid(), DateTimeOffset.UtcNow, "Created", null, null);
+            Guid.NewGuid(), "SD-TEST-1", Guid.NewGuid(), DateTimeOffset.UtcNow, "Created", null, null, 1m, "Small");
         parcelDirectory.Setup(x => x.GetDispatchSnapshotAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync((IReadOnlyList<SwiftDrop.Parcels.Contracts.DispatchableParcelSnapshot>)[snapshot]);
         repository.Setup(x => x.ListUnassignedAsync(null, null, null, 1, 20, It.IsAny<CancellationToken>()))

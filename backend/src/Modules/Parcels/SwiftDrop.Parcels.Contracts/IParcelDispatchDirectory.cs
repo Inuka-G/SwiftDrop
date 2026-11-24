@@ -14,4 +14,6 @@ public sealed record DispatchableParcelSnapshot(
     DateTimeOffset CreatedAtUtc,
     string CurrentStatus,
     Guid? CourierId,
-    DateTimeOffset? AssignedAtUtc);
+    DateTimeOffset? AssignedAtUtc,
+    decimal WeightKg,
+    string SizeCategory);
