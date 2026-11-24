@@ -4,11 +4,14 @@ namespace SwiftDrop.Parcels.Contracts;
 /// consumer queue was unavailable when a ParcelCreated event was published.
 public interface IParcelDispatchDirectory
 {
-    Task<IReadOnlyList<DispatchableParcelSnapshot>> GetCreatedUnassignedAsync(CancellationToken ct);
+    Task<IReadOnlyList<DispatchableParcelSnapshot>> GetDispatchSnapshotAsync(CancellationToken ct);
 }
 
 public sealed record DispatchableParcelSnapshot(
     Guid ParcelId,
     string TrackingNumber,
     Guid ZoneId,
-    DateTimeOffset CreatedAtUtc);
+    DateTimeOffset CreatedAtUtc,
+    string CurrentStatus,
+    Guid? CourierId,
+    DateTimeOffset? AssignedAtUtc);

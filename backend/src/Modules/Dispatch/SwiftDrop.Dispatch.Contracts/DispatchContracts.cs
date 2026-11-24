@@ -41,7 +41,7 @@ public interface IDispatchService
     Task<UnassignedParcelPage> ListUnassignedAsync(Guid? zoneId, DateTimeOffset? from, DateTimeOffset? to,
         int page, int pageSize, CancellationToken ct);
     Task<DispatchParcelPage> ListParcelsAsync(string? status, string? trackingNumber, int page, int pageSize,
-        CancellationToken ct);
+        string? assignmentState, CancellationToken ct);
     Task<DispatchResult<AssignmentDto>> AssignAsync(Guid parcelId, Guid courierId, Guid assignedBy, CancellationToken ct);
     Task<CourierProfileResult> RegisterCourierAsync(Guid courierId, Guid? zoneId, string? vehicleType,
         string? licensePlate, CancellationToken ct);

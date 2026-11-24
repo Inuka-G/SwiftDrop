@@ -22,7 +22,7 @@ public sealed class DispatchController(IDispatchService dispatch, IValidator<Lis
     {
         await ValidateAsync(parcelsValidator, request, ct);
         return Ok(await dispatch.ListParcelsAsync(request.Status, request.TrackingNumber,
-            request.Page, request.PageSize, ct));
+            request.Page, request.PageSize, request.AssignmentState, ct));
     }
 
     [HttpGet("unassigned")]

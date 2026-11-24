@@ -39,12 +39,12 @@ internal sealed class ParcelRepository(ParcelsDbContext db) : IParcelRepository
             .OrderByDescending(p => p.CreatedAtUtc)
             .ToListAsync(ct);
 
-    public async Task<IReadOnlyList<DispatchableParcelSnapshot>> GetCreatedUnassignedAsync(CancellationToken ct) =>
+    public async Task<IReadOnlyList<DispatchableParcelSnapshot>> GetDispatchSnapshotAsync(CancellationToken ct) =>
         await db.Parcels.AsNoTracking()
-            .Where(p => p.CurrentStatus == ParcelStatuses.Created && p.CourierId == null)
             .OrderBy(p => p.CreatedAtUtc)
             .Select(p => new DispatchableParcelSnapshot(p.Id, p.TrackingNumber, p.ZoneId,
-                new DateTimeOffset(p.CreatedAtUtc)))
+                new DateTimeOffset(p.CreatedAtUtc), p.CurrentStatus, p.CourierId,
+                p.AssignedAtUtc.HasValue ? new DateTimeOffset(p.AssignedAtUtc.Value) : null))
             .ToListAsync(ct);
 
     public async Task<IReadOnlyList<Parcel>> GetForCourierAsync(Guid courierId, DateTime closedSinceUtc, CancellationToken ct) =>

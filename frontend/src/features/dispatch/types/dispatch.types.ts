@@ -30,6 +30,25 @@ export interface UnassignedParcelPageDto {
   totalCount: number
 }
 
+export interface DispatchParcelDto {
+  parcelId: string
+  trackingNumber: string
+  status: string
+  zoneId: string
+  courierId: string | null
+  courierName: string | null
+  assignmentState: string
+  createdAt: string
+  assignedAt: string | null
+}
+
+export interface DispatchParcelPageDto {
+  items: DispatchParcelDto[]
+  page: number
+  pageSize: number
+  totalCount: number
+}
+
 // CourierProfileDto uses Name and ActiveDeliveryCount (not the proposed displayName/activeDeliveries).
 export interface CourierDto {
   courierId: string

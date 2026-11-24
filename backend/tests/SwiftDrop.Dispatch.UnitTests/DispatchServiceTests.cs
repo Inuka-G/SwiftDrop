@@ -23,8 +23,8 @@ public sealed class DispatchServiceTests
     public async Task Unassigned_list_reconciles_current_parcels_before_querying_dispatch_projection()
     {
         var snapshot = new SwiftDrop.Parcels.Contracts.DispatchableParcelSnapshot(
-            Guid.NewGuid(), "SD-TEST-1", Guid.NewGuid(), DateTimeOffset.UtcNow);
-        parcelDirectory.Setup(x => x.GetCreatedUnassignedAsync(It.IsAny<CancellationToken>()))
+            Guid.NewGuid(), "SD-TEST-1", Guid.NewGuid(), DateTimeOffset.UtcNow, "Created", null, null);
+        parcelDirectory.Setup(x => x.GetDispatchSnapshotAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync((IReadOnlyList<SwiftDrop.Parcels.Contracts.DispatchableParcelSnapshot>)[snapshot]);
         repository.Setup(x => x.ListUnassignedAsync(null, null, null, 1, 20, It.IsAny<CancellationToken>()))
             .ReturnsAsync(((IReadOnlyList<ParcelAssignment>)[new ParcelAssignment
@@ -35,7 +35,7 @@ public sealed class DispatchServiceTests
 
         var result = await Create().ListUnassignedAsync(null, null, null, 1, 20, default);
 
-        repository.Verify(x => x.ReconcileUnassignedAsync(
+        repository.Verify(x => x.ReconcileParcelsAsync(
             It.Is<IReadOnlyCollection<SwiftDrop.Parcels.Contracts.DispatchableParcelSnapshot>>(items => items.Single().ParcelId == snapshot.ParcelId),
             It.IsAny<CancellationToken>()), Times.Once);
         Assert.Equal(snapshot.ParcelId, result.Items.Single().ParcelId);
@@ -53,9 +53,13 @@ public sealed class DispatchServiceTests
         var assignedAt = DateTimeOffset.UtcNow;
         parcels.Setup(x => x.AssignAsync(parcelId, courierId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new SwiftDrop.Parcels.Contracts.CourierAssignmentResult(Guid.NewGuid(), assignedAt));
+        repository.Setup(x => x.RecordCourierAssignmentAsync(parcelId, courierId, It.IsAny<Guid>(), assignedAt,
+            It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
         var result = await Create().AssignAsync(parcelId, courierId, Guid.NewGuid(), default);
         Assert.True(result.IsSuccess);
         Assert.Equal(assignedAt, result.Value!.AssignedAt);
+        repository.Verify(x => x.RecordCourierAssignmentAsync(parcelId, courierId, result.Value.AssignedBy,
+            assignedAt, It.IsAny<CancellationToken>()), Times.Once);
         repository.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
@@ -237,7 +241,7 @@ public sealed class DispatchServiceTests
             new ParcelAssignment { ParcelId = Guid.NewGuid(), TrackingNumber = "SD-LIST-3", State = "ASSIGNED", CurrentStatus = "In Transit" });
         await db.SaveChangesAsync();
 
-        var (items, total) = await new DispatchRepository(db).ListParcelsAsync("dElIvErEd", "sd-list", 1, 1, default);
+        var (items, total) = await new DispatchRepository(db).ListParcelsAsync("dElIvErEd", "sd-list", 1, 1, null, default);
 
         Assert.Equal(2, total);
         Assert.Single(items);
@@ -263,6 +267,30 @@ public sealed class DispatchServiceTests
         Assert.Equal("ASSIGNED", assignment!.State);
         Assert.Equal(courierId, assignment.CourierId);
         Assert.Single(await db.ProcessedEvents.ToListAsync());
+    }
+
+    [Fact]
+    public async Task Successful_assignment_immediately_removes_parcel_from_unassigned_projection()
+    {
+        await using var db = await CreateDatabaseAsync();
+        var parcelId = Guid.NewGuid();
+        var courierId = Guid.NewGuid();
+        var assignment = new ParcelAssignment
+        {
+            ParcelId = parcelId, TrackingNumber = "SD-ASSIGN-1", State = AssignmentStates.Unassigned
+        };
+        db.Assignments.Add(assignment);
+        await db.SaveChangesAsync();
+
+        await new DispatchRepository(db).RecordCourierAssignmentAsync(parcelId, courierId, Guid.NewGuid(),
+            DateTimeOffset.UtcNow, default);
+
+        Assert.Equal(AssignmentStates.Assigned, assignment.State);
+        Assert.Equal(courierId, assignment.CourierId);
+        var (unassigned, total) = await new DispatchRepository(db)
+            .ListUnassignedAsync(null, null, null, 1, 20, default);
+        Assert.Empty(unassigned);
+        Assert.Equal(0, total);
     }
 
     [Theory]

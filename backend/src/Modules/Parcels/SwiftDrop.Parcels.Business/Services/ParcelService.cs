@@ -16,8 +16,8 @@ internal sealed class ParcelService(
     IPricingService pricingService,
     IEventPublisher eventPublisher) : IParcelService, IParcelDispatchDirectory
 {
-    public Task<IReadOnlyList<DispatchableParcelSnapshot>> GetCreatedUnassignedAsync(CancellationToken ct) =>
-        repository.GetCreatedUnassignedAsync(ct);
+    public Task<IReadOnlyList<DispatchableParcelSnapshot>> GetDispatchSnapshotAsync(CancellationToken ct) =>
+        repository.GetDispatchSnapshotAsync(ct);
     public Task<ParcelCreatedResponse> CreateParcelAsync(Guid customerId, CreateParcelRequest req, CancellationToken ct) =>
         CreateParcelAsync(customerId, null, req, ct);
 

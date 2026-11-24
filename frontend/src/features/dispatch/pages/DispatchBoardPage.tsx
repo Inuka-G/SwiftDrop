@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { authService } from '../../../services/auth.service'
 import { useUnassignedParcels } from '../hooks/useUnassignedParcels'
+import { useDispatchParcels } from '../hooks/useDispatchParcels'
 import { useCouriers } from '../hooks/useCouriers'
 import { AssignCourierDialog } from '../components/AssignCourierDialog'
 import { AssignmentToast } from '../components/AssignmentToast'
@@ -31,6 +32,7 @@ export function DispatchBoardPage() {
   const [clockTime, setClockTime] = useState(0)
   const queryClient = useQueryClient()
   const query = useUnassignedParcels(filters, page, pageSize)
+  const assignedQuery = useDispatchParcels()
   const couriers = useCouriers(false)
   const isValid = isDateRangeValid(filters)
   const data = query.data
@@ -66,10 +68,12 @@ export function DispatchBoardPage() {
   async function refreshBothLists() {
     await Promise.all([
       queryClient.invalidateQueries({ queryKey: ['dispatch', 'unassigned'] }),
+      queryClient.invalidateQueries({ queryKey: ['dispatch', 'parcels'] }),
       queryClient.invalidateQueries({ queryKey: ['dispatch', 'couriers'] }),
       queryClient.invalidateQueries({ queryKey: ['dispatch', 'summary'] }),
     ])
     await query.refetch()
+    await assignedQuery.refetch()
     await couriers.refetch()
   }
 
@@ -79,6 +83,7 @@ export function DispatchBoardPage() {
   }
 
   const rows = data?.items ?? []
+  const assignedRows = (assignedQuery.data?.items ?? []).filter((parcel) => parcel.courierId && parcel.assignmentState === 'ASSIGNED')
   const filtered = Boolean(filters.from || filters.to)
   const showLoading = isValid && query.isLoading
 
@@ -121,6 +126,28 @@ export function DispatchBoardPage() {
         <span className="dispatch-range-label">{range}</span>
         <nav className="dispatch-pagination" aria-label="Parcel pages"><button type="button" className="dispatch-page-control" aria-label="Previous page" disabled={page <= 1} onClick={() => setPage((current) => Math.max(1, current - 1))}>‹ Previous</button>{getPageItems(page, pageCount).map((item, index) => item === 'ellipsis' ? <span className="dispatch-page-ellipsis" key={`ellipsis-${index}`}>…</span> : <button type="button" className={`dispatch-page-number${item === page ? ' is-current' : ''}`} key={item} aria-current={item === page ? 'page' : undefined} onClick={() => setPage(item)}>{item}</button>)}<button type="button" className="dispatch-page-control" aria-label="Next page" disabled={page >= pageCount} onClick={() => setPage((current) => Math.min(pageCount, current + 1))}>Next ›</button></nav>
       </footer>}
+    </section>
+
+    <section className="dispatch-table-card" aria-label="Assigned parcels" style={{ marginTop: '1.5rem' }}>
+      <div className="dispatch-board-title-group" style={{ padding: '1rem 1.25rem' }}>
+        <h2 style={{ margin: 0, fontSize: '1.15rem' }}>Assigned parcels</h2>
+        <span className="dispatch-active-queue">{assignedRows.length} assigned</span>
+      </div>
+      <div className="dispatch-table-scroll"><table className="dispatch-table">
+        <thead><tr><th scope="col">Tracking number</th><th scope="col">Zone</th><th scope="col">Courier</th><th scope="col">Parcel status</th><th scope="col">Assigned at</th></tr></thead>
+        <tbody>
+          {assignedQuery.isLoading && <tr><td colSpan={5}>Loading assigned parcels…</td></tr>}
+          {assignedQuery.isError && <tr><td colSpan={5} role="alert">Assigned parcels could not be loaded. Refresh the page to retry.</td></tr>}
+          {!assignedQuery.isLoading && !assignedQuery.isError && assignedRows.length === 0 && <tr><td colSpan={5} className="dispatch-empty-queue">No parcels are currently assigned.</td></tr>}
+          {assignedRows.map((parcel) => <tr key={parcel.parcelId}>
+            <td><strong>{parcel.trackingNumber}</strong></td>
+            <td><span className="dispatch-zone-chip" title={parcel.zoneId}>{parcelZoneLabel({ parcelId: parcel.parcelId, trackingNumber: parcel.trackingNumber, zoneId: parcel.zoneId, createdAt: parcel.createdAt })}</span></td>
+            <td>{parcel.courierName ?? 'Courier'}</td>
+            <td><span className="dispatch-zone-chip">{parcel.status === 'Created' ? 'Assigned' : parcel.status}</span></td>
+            <td>{parcel.assignedAt ? formatCreatedAt(parcel.assignedAt) : '—'}</td>
+          </tr>)}
+        </tbody>
+      </table></div>
     </section>
 
     {selectedParcel && <AssignCourierDialog parcel={selectedParcel} opener={dialogOpener} onClose={() => setSelectedParcel(null)} onAssigned={setToast} onRefreshList={refreshBothLists} />}

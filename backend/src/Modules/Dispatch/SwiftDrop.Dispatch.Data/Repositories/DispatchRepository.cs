@@ -13,7 +13,8 @@ internal sealed class DispatchRepository(DispatchDbContext db) : IDispatchReposi
     public async Task<(IReadOnlyList<ParcelAssignment> Items, int Total)> ListUnassignedAsync(Guid? zoneId,
         DateTimeOffset? from, DateTimeOffset? to, int page, int pageSize, CancellationToken ct)
     {
-        var query = db.Assignments.AsNoTracking().Where(x => x.State == AssignmentStates.Unassigned);
+        var query = db.Assignments.AsNoTracking().Where(x =>
+            x.State == AssignmentStates.Unassigned && x.CourierId == null);
         if (zoneId.HasValue) query = query.Where(x => x.ZoneId == zoneId.Value);
         if (from.HasValue) query = query.Where(x => x.CreatedAt >= from.Value);
         if (to.HasValue) query = query.Where(x => x.CreatedAt <= to.Value);
@@ -23,7 +24,7 @@ internal sealed class DispatchRepository(DispatchDbContext db) : IDispatchReposi
         return (items, total);
     }
 
-    public async Task ReconcileUnassignedAsync(IReadOnlyCollection<DispatchableParcelSnapshot> parcels, CancellationToken ct)
+    public async Task ReconcileParcelsAsync(IReadOnlyCollection<DispatchableParcelSnapshot> parcels, CancellationToken ct)
     {
         foreach (var parcel in parcels)
         {
@@ -36,29 +37,62 @@ internal sealed class DispatchRepository(DispatchDbContext db) : IDispatchReposi
                     TrackingNumber = parcel.TrackingNumber,
                     ZoneId = parcel.ZoneId,
                     CreatedAt = parcel.CreatedAtUtc,
-                    State = AssignmentStates.Unassigned,
-                    CurrentStatus = "Created",
-                    StatusOccurredAtUtc = parcel.CreatedAtUtc.ToUnixTimeMilliseconds(),
+                    State = parcel.CourierId.HasValue
+                        ? (ParcelDeliveryStatuses.IsTerminal(parcel.CurrentStatus) ? AssignmentStates.Completed : AssignmentStates.Assigned)
+                        : (ParcelDeliveryStatuses.IsTerminal(parcel.CurrentStatus) ? AssignmentStates.Completed : AssignmentStates.Unassigned),
+                    CurrentStatus = parcel.CurrentStatus,
+                    CourierId = parcel.CourierId,
+                    AssignedAt = parcel.AssignedAtUtc,
+                    StatusOccurredAtUtc = (parcel.AssignedAtUtc ?? parcel.CreatedAtUtc).ToUnixTimeMilliseconds(),
                     Version = 0
                 });
                 continue;
             }
 
-            // Parcels returns only live Created parcels. Preserve any assignment
-            // or newer lifecycle state already recorded by Dispatch.
-            if (assignment.CourierId is null && assignment.State == AssignmentStates.Unassigned)
+            // Parcels is the assignment and lifecycle source of truth. Reconcile
+            // stale event-fed rows to the current Parcels state without regressing
+            // a newer Dispatch status event.
+            assignment.TrackingNumber = parcel.TrackingNumber;
+            assignment.ZoneId = parcel.ZoneId;
+            assignment.CreatedAt = parcel.CreatedAtUtc;
+            assignment.CourierId = parcel.CourierId;
+            assignment.AssignedAt = parcel.AssignedAtUtc;
+            if (ParcelDeliveryStatuses.IsTerminal(parcel.CurrentStatus))
+                assignment.State = AssignmentStates.Completed;
+            else if (parcel.CourierId.HasValue)
+                assignment.State = AssignmentStates.Assigned;
+            else if (assignment.State != AssignmentStates.Completed)
+                assignment.State = AssignmentStates.Unassigned;
+            if (string.Equals(assignment.CurrentStatus, "Created", StringComparison.OrdinalIgnoreCase) ||
+                assignment.StatusOccurredAtUtc <= (parcel.AssignedAtUtc ?? parcel.CreatedAtUtc).ToUnixTimeMilliseconds())
             {
-                assignment.TrackingNumber = parcel.TrackingNumber;
-                assignment.ZoneId = parcel.ZoneId;
-                assignment.CreatedAt = parcel.CreatedAtUtc;
+                assignment.CurrentStatus = parcel.CourierId.HasValue &&
+                    string.Equals(parcel.CurrentStatus, "Created", StringComparison.OrdinalIgnoreCase)
+                    ? "Assigned" : parcel.CurrentStatus;
+                assignment.StatusOccurredAtUtc = Math.Max(assignment.StatusOccurredAtUtc,
+                    (parcel.AssignedAtUtc ?? parcel.CreatedAtUtc).ToUnixTimeMilliseconds());
             }
+            assignment.Version++;
+        }
+
+        var currentParcelIds = parcels.Select(parcel => parcel.ParcelId).ToArray();
+        var staleUnassigned = await db.Assignments
+            .Where(assignment => assignment.State == AssignmentStates.Unassigned &&
+                !currentParcelIds.Contains(assignment.ParcelId))
+            .ToListAsync(ct);
+        foreach (var stale in staleUnassigned)
+        {
+            stale.State = AssignmentStates.Assigned;
+            stale.CurrentStatus = string.Equals(stale.CurrentStatus, "Created", StringComparison.OrdinalIgnoreCase)
+                ? "Assigned" : stale.CurrentStatus;
+            stale.Version++;
         }
 
         await db.SaveChangesAsync(ct);
     }
 
     public async Task<(IReadOnlyList<ParcelAssignment> Items, int Total)> ListParcelsAsync(string? status,
-        string? trackingNumber, int page, int pageSize, CancellationToken ct)
+        string? trackingNumber, int page, int pageSize, string? assignmentState, CancellationToken ct)
     {
         var query = db.Assignments.AsNoTracking();
         if (!string.IsNullOrWhiteSpace(status))
@@ -70,6 +104,11 @@ internal sealed class DispatchRepository(DispatchDbContext db) : IDispatchReposi
         {
             var normalizedTracking = trackingNumber.Trim().ToLower();
             query = query.Where(x => x.TrackingNumber.ToLower().Contains(normalizedTracking));
+        }
+        if (!string.IsNullOrWhiteSpace(assignmentState))
+        {
+            var normalizedAssignmentState = assignmentState.Trim().ToUpperInvariant();
+            query = query.Where(x => x.State.ToUpper() == normalizedAssignmentState);
         }
         var total = await query.CountAsync(ct);
         var items = await query.OrderByDescending(x => x.CreatedAt).ThenBy(x => x.ParcelId)
@@ -243,11 +282,35 @@ internal sealed class DispatchRepository(DispatchDbContext db) : IDispatchReposi
             if (assignment.AssignedAt is null) assignment.AssignedAt = assignedAtUtc;
             if (!ParcelDeliveryStatuses.IsTerminal(assignment.CurrentStatus))
                 assignment.State = AssignmentStates.Assigned;
+            if (string.Equals(assignment.CurrentStatus, "Created", StringComparison.OrdinalIgnoreCase))
+                assignment.CurrentStatus = "Assigned";
             assignment.Version++;
         }
         db.ProcessedEvents.Add(new ProcessedEvent { EventId = eventId, ProcessedAt = DateTimeOffset.UtcNow });
         await db.SaveChangesAsync(ct);
         await tx.CommitAsync(ct);
+    }
+
+    public async Task RecordCourierAssignmentAsync(Guid parcelId, Guid courierId, Guid assignedBy,
+        DateTimeOffset assignedAtUtc, CancellationToken ct)
+    {
+        var assignment = await db.Assignments.SingleOrDefaultAsync(x => x.ParcelId == parcelId, ct);
+        if (assignment is null)
+            throw new InvalidOperationException("The dispatch projection for this parcel is missing.");
+
+        // Parcels is authoritative for whether the assignment succeeds. Once it
+        // does, update the local board immediately instead of waiting for RabbitMQ.
+        if (assignment.State != AssignmentStates.Unassigned)
+            throw new InvalidOperationException("The parcel is no longer unassigned in Dispatch.");
+
+        assignment.CourierId = courierId;
+        assignment.AssignedBy = assignedBy;
+        assignment.AssignedAt = assignedAtUtc;
+        assignment.State = AssignmentStates.Assigned;
+        if (string.Equals(assignment.CurrentStatus, "Created", StringComparison.OrdinalIgnoreCase))
+            assignment.CurrentStatus = "Assigned";
+        assignment.Version++;
+        await db.SaveChangesAsync(ct);
     }
 
     public async Task ApplyParcelStatusChangedAsync(ParcelStatusChangedMessage message, CancellationToken ct)

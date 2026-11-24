@@ -9,7 +9,7 @@ public interface IParcelRepository
     Task<Parcel?> GetByIdAsync(Guid id, CancellationToken ct);
     Task<Parcel?> GetByTrackingNumberAsync(string trackingNumber, CancellationToken ct);
     Task<IReadOnlyList<Parcel>> GetByCustomerIdAsync(Guid customerId, CancellationToken ct);
-    Task<IReadOnlyList<DispatchableParcelSnapshot>> GetCreatedUnassignedAsync(CancellationToken ct);
+    Task<IReadOnlyList<DispatchableParcelSnapshot>> GetDispatchSnapshotAsync(CancellationToken ct);
     Task<Parcel?> GetMerchantOrderAsync(Guid merchantId, Guid parcelId, CancellationToken ct);
     Task<(IReadOnlyList<Parcel> Items, int TotalCount)> ListMerchantOrdersAsync(
         Guid merchantId, string? status, int offset, int limit, CancellationToken ct);

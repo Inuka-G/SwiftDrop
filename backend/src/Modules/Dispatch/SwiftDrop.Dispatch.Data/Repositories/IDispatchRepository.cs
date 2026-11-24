@@ -10,9 +10,9 @@ internal interface IDispatchRepository
 {
     Task<(IReadOnlyList<ParcelAssignment> Items, int Total)> ListUnassignedAsync(Guid? zoneId,
         DateTimeOffset? from, DateTimeOffset? to, int page, int pageSize, CancellationToken ct);
-    Task ReconcileUnassignedAsync(IReadOnlyCollection<DispatchableParcelSnapshot> parcels, CancellationToken ct);
+    Task ReconcileParcelsAsync(IReadOnlyCollection<DispatchableParcelSnapshot> parcels, CancellationToken ct);
     Task<(IReadOnlyList<ParcelAssignment> Items, int Total)> ListParcelsAsync(string? status,
-        string? trackingNumber, int page, int pageSize, CancellationToken ct);
+        string? trackingNumber, int page, int pageSize, string? assignmentState, CancellationToken ct);
     Task<ParcelAssignment?> GetAsync(Guid parcelId, CancellationToken ct);
     Task<CourierProfile?> GetCourierProfileAsync(Guid courierId, CancellationToken ct);
     Task AddCourierProfileAsync(CourierProfile profile, CancellationToken ct);
@@ -30,6 +30,8 @@ internal interface IDispatchRepository
     Task RecordOutboxFailureAsync(Guid eventId, CancellationToken ct);
     Task AddFromEventAsync(Guid eventId, ParcelAssignment assignment, CancellationToken ct);
     Task ApplyCourierAssignedAsync(Guid eventId, Guid parcelId, string trackingNumber, Guid courierId,
+        DateTimeOffset assignedAtUtc, CancellationToken ct);
+    Task RecordCourierAssignmentAsync(Guid parcelId, Guid courierId, Guid assignedBy,
         DateTimeOffset assignedAtUtc, CancellationToken ct);
     Task ApplyParcelStatusChangedAsync(ParcelStatusChangedMessage message, CancellationToken ct);
     Task ApplyUserRoleChangedAsync(Guid eventId, Guid userId, string role, CancellationToken ct);

@@ -13,17 +13,19 @@ internal sealed class DispatchService(IDispatchRepository repository,
     public async Task<UnassignedParcelPage> ListUnassignedAsync(Guid? zoneId, DateTimeOffset? from,
         DateTimeOffset? to, int page, int pageSize, CancellationToken ct)
     {
-        var currentCreatedParcels = await parcelDirectory.GetCreatedUnassignedAsync(ct);
-        await repository.ReconcileUnassignedAsync(currentCreatedParcels, ct);
+        var currentParcels = await parcelDirectory.GetDispatchSnapshotAsync(ct);
+        await repository.ReconcileParcelsAsync(currentParcels, ct);
         var (items, total) = await repository.ListUnassignedAsync(zoneId, from, to, page, pageSize, ct);
         return new(items.Select(x => new UnassignedParcelDto(x.ParcelId, x.TrackingNumber, x.ZoneId, x.CreatedAt)).ToList(),
             page, pageSize, total);
     }
 
     public async Task<DispatchParcelPage> ListParcelsAsync(string? status, string? trackingNumber,
-        int page, int pageSize, CancellationToken ct)
+        int page, int pageSize, string? assignmentState, CancellationToken ct)
     {
-        var (assignments, total) = await repository.ListParcelsAsync(status, trackingNumber, page, pageSize, ct);
+        var currentParcels = await parcelDirectory.GetDispatchSnapshotAsync(ct);
+        await repository.ReconcileParcelsAsync(currentParcels, ct);
+        var (assignments, total) = await repository.ListParcelsAsync(status, trackingNumber, page, pageSize, assignmentState, ct);
         var courierIds = assignments.Where(x => x.CourierId.HasValue).Select(x => x.CourierId!.Value).Distinct().ToArray();
         var names = courierIds.Length == 0
             ? new Dictionary<Guid, string>()
@@ -50,6 +52,9 @@ internal sealed class DispatchService(IDispatchRepository repository,
         var parcelAssignment = await parcels.AssignAsync(parcelId, courierId, ct);
         if (parcelAssignment is null)
             return DispatchResult<AssignmentDto>.Fail(DispatchFailure.ParcelNotAssignable);
+
+        await repository.RecordCourierAssignmentAsync(parcelId, courierId, assignedBy,
+            parcelAssignment.AssignedAtUtc, ct);
 
         return DispatchResult<AssignmentDto>.Success(new(parcelId, courierId, assignedBy,
             parcelAssignment.AssignedAtUtc));
