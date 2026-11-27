@@ -55,8 +55,8 @@ internal sealed class ZoneService(IZoneRepository repo) : IZoneService
 
     public async Task<PricingRuleDto?> UpdatePricingRuleAsync(Guid zoneId, Guid ruleId, UpdatePricingRuleCommand cmd, CancellationToken ct)
     {
-        if(cmd.BaseRate < 0 || cmd.AdditionalKgRate <0)
-            throw new ArgumentException ("Pricing rates cannot be negative.");
+        ValidatePricingValue(cmd.BaseRate, nameof(cmd.BaseRate));
+        ValidatePricingValue(cmd.AdditionalKgRate, nameof(cmd.AdditionalKgRate));
 
         var rule = await repo.GetPricingRuleForUpdateAsync(zoneId, ruleId, ct);
 

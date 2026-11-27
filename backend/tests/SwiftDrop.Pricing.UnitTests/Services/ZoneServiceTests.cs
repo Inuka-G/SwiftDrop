@@ -285,7 +285,7 @@ public class ZoneServiceTests
         var ruleId = Guid.NewGuid();
 
         var rule = new PricingRule(zoneId, 500m, 100m, ServiceType.Standard);
-        var command = new UpdatePricingRuleCommand(600m, 150m);
+        var command = new UpdatePricingRuleCommand(99_999_999.99m, 0.01m);
 
         var repoMock = new Mock<IZoneRepository>();
 
@@ -302,8 +302,8 @@ public class ZoneServiceTests
 
         // Assert
         result.Should().NotBeNull();
-        result!.BaseRate.Should().Be(600m);
-        result.AdditionalKgRate.Should().Be(150m);
+        result!.BaseRate.Should().Be(99_999_999.99m);
+        result.AdditionalKgRate.Should().Be(0.01m);
         result.ZoneId.Should().Be(zoneId);
 
         repoMock.Verify(repo => repo.SaveChangesAsync(
@@ -311,7 +311,7 @@ public class ZoneServiceTests
     }
 
     [Fact]
-    public async Task UpdatePricingRuleAsync_ShouldThrowException_WhenBaseRateIsNegative()
+    public async Task UpdatePricingRuleAsync_ShouldRejectNegativeRates()
     {
         // Arrange
         var repoMock = new Mock<IZoneRepository>();
@@ -323,13 +323,12 @@ public class ZoneServiceTests
             Guid.NewGuid(), Guid.NewGuid(), command, CancellationToken.None);
 
         // Assert
-        await act.Should()
-            .ThrowAsync<ArgumentException>()
-            .WithMessage("Pricing rates cannot be negative.");
+        await act.Should().ThrowAsync<BadRequestException>()
+            .WithMessage("BaseRate must be between 0 and 99,999,999.99 with no more than two decimal places.");
     }
 
     [Fact]
-    public async Task UpdatePricingRuleAsync_ShouldThrowException_WhenAdditionalKgRateIsNegative()
+    public async Task UpdatePricingRuleAsync_ShouldRejectNegativeAdditionalRate()
     {
         // Arrange
         var repoMock = new Mock<IZoneRepository>();
@@ -341,9 +340,44 @@ public class ZoneServiceTests
             Guid.NewGuid(), Guid.NewGuid(), command, CancellationToken.None);
 
         // Assert
-        await act.Should()
-            .ThrowAsync<ArgumentException>()
-            .WithMessage("Pricing rates cannot be negative.");
+        await act.Should().ThrowAsync<BadRequestException>()
+            .WithMessage("AdditionalKgRate must be between 0 and 99,999,999.99 with no more than two decimal places.");
+    }
+
+    [Theory]
+    [InlineData("100000000", "80", "BaseRate")]
+    [InlineData("600", "100000000", "AdditionalKgRate")]
+    public async Task UpdatePricingRuleAsync_ShouldRejectRatesAboveMaximum(
+        string baseRate, string additionalKgRate, string invalidField)
+    {
+        var repository = new Mock<IZoneRepository>();
+        var service = new ZoneService(repository.Object);
+        var act = () => service.UpdatePricingRuleAsync(Guid.NewGuid(), Guid.NewGuid(),
+            new UpdatePricingRuleCommand(decimal.Parse(baseRate, System.Globalization.CultureInfo.InvariantCulture),
+                decimal.Parse(additionalKgRate, System.Globalization.CultureInfo.InvariantCulture)), CancellationToken.None);
+
+        await act.Should().ThrowAsync<BadRequestException>()
+            .WithMessage($"{invalidField} must be between 0 and 99,999,999.99 with no more than two decimal places.");
+        repository.Verify(repo => repo.GetPricingRuleForUpdateAsync(
+            It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Theory]
+    [InlineData("600.001", "80", "BaseRate")]
+    [InlineData("600", "80.001", "AdditionalKgRate")]
+    public async Task UpdatePricingRuleAsync_ShouldRejectMoreThanTwoDecimalPlaces(
+        string baseRate, string additionalKgRate, string invalidField)
+    {
+        var repository = new Mock<IZoneRepository>();
+        var service = new ZoneService(repository.Object);
+        var act = () => service.UpdatePricingRuleAsync(Guid.NewGuid(), Guid.NewGuid(),
+            new UpdatePricingRuleCommand(decimal.Parse(baseRate, System.Globalization.CultureInfo.InvariantCulture),
+                decimal.Parse(additionalKgRate, System.Globalization.CultureInfo.InvariantCulture)), CancellationToken.None);
+
+        await act.Should().ThrowAsync<BadRequestException>()
+            .WithMessage($"{invalidField} must be between 0 and 99,999,999.99 with no more than two decimal places.");
+        repository.Verify(repo => repo.GetPricingRuleForUpdateAsync(
+            It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
