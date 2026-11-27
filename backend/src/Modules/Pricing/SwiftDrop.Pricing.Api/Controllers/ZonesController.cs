@@ -70,8 +70,8 @@ public class ZonesController(IZoneService zones, IPricingService pricing) : Cont
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Estimate(Guid id, [FromQuery] decimal weightKg, [FromQuery] ServiceType serviceType, CancellationToken ct)
     {
-        if (weightKg <= 0)
-            return BadRequest ("Parcel weight must be greater than zero.");
+        if (weightKg <= 0 || weightKg > 50)
+            return BadRequest("Parcel weight must be greater than zero and no more than 50 kg.");
 
         if (!Enum.IsDefined(serviceType))
             return BadRequest("Invalid service type. Use Standard or Express.");
