@@ -1,25 +1,49 @@
 import { useState } from 'react'
+import { merchantApi } from '../api/merchant.api'
 import { useApproveMerchant, usePendingMerchants, useRejectMerchant } from '../hooks/useMerchantApprovals'
-import type { MerchantApprovalQueueItemDto } from '../types/merchant.types'
+import type { MerchantApprovalQueueItemDto, MerchantDto } from '../types/merchant.types'
 import './AdminMerchantQueuePage.css'
+
+const REG_TYPE_LABELS: Record<string, string> = {
+  BRN: 'Business Registration Number (BRN)',
+  CRN: 'Company Registration Number (CRN)',
+  TIN: 'Tax Identification Number (TIN - 9 digits)',
+}
 
 export function AdminMerchantQueuePage() {
   const query = usePendingMerchants()
   const approve = useApproveMerchant()
   const reject = useRejectMerchant()
-  const queue = query.data ?? []
-  const actionId = (approve.isPending ? approve.variables : undefined)
-    ?? (reject.isPending ? reject.variables : undefined)
-    ?? null
+  const queue: MerchantApprovalQueueItemDto[] = query.data ?? []
+  const actionId =
+    (approve.isPending ? approve.variables : undefined) ??
+    (reject.isPending ? reject.variables : undefined) ??
+    null
   const loading = query.isLoading
   const [alert, setAlert] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
+  const [selectedApp, setSelectedApp] = useState<MerchantApprovalQueueItemDto | null>(null)
+  const [selectedFullDetail, setSelectedFullDetail] = useState<MerchantDto | null>(null)
+
+  async function openApplicationDetails(merchant: MerchantApprovalQueueItemDto) {
+    setSelectedApp(merchant)
+    setSelectedFullDetail(null)
+    try {
+      const full = await merchantApi.getMerchantById(merchant.id)
+      setSelectedFullDetail(full)
+    } catch {
+      // Fallback to queue item details if GET /merchants/{id} fails
+    }
+  }
 
   async function loadPendingQueue() {
     setAlert(null)
     try {
       await query.refetch()
     } catch {
-      setAlert({ type: 'error', message: 'Could not load pending merchant applications. Check your admin session and backend, then try again.' })
+      setAlert({
+        type: 'error',
+        message: 'Could not load pending merchant applications. Check your admin session and backend, then try again.',
+      })
     }
   }
 
@@ -28,12 +52,16 @@ export function AdminMerchantQueuePage() {
 
     try {
       await approve.mutateAsync(merchant.id)
+      setSelectedApp(null)
       setAlert({
         type: 'success',
         message: `Successfully approved "${merchant.businessName}". Their account is now active and dispatch rails are enabled.`,
       })
     } catch {
-      setAlert({ type: 'error', message: `Could not approve "${merchant.businessName}". The application is still pending; refresh and try again.` })
+      setAlert({
+        type: 'error',
+        message: `Could not approve "${merchant.businessName}". The application is still pending; refresh and try again.`,
+      })
     }
   }
 
@@ -46,12 +74,16 @@ export function AdminMerchantQueuePage() {
 
     try {
       await reject.mutateAsync(merchant.id)
+      setSelectedApp(null)
       setAlert({
         type: 'success',
         message: `Application for "${merchant.businessName}" has been rejected.`,
       })
     } catch {
-      setAlert({ type: 'error', message: `Could not reject "${merchant.businessName}". The application is still pending; refresh and try again.` })
+      setAlert({
+        type: 'error',
+        message: `Could not reject "${merchant.businessName}". The application is still pending; refresh and try again.`,
+      })
     }
   }
 
@@ -178,6 +210,18 @@ export function AdminMerchantQueuePage() {
                       <div className="admin-btn-group">
                         <button
                           type="button"
+                          className="admin-view-btn"
+                          onClick={() => openApplicationDetails(merchant)}
+                        >
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                            <circle cx="12" cy="12" r="3" />
+                          </svg>
+                          <span>View Application</span>
+                        </button>
+
+                        <button
+                          type="button"
                           className="admin-approve-btn"
                           disabled={actionId === merchant.id || Boolean(actionId)}
                           onClick={() => handleApprove(merchant)}
@@ -205,6 +249,133 @@ export function AdminMerchantQueuePage() {
           </table>
         </div>
       </section>
+
+      {/* View Application Details Modal */}
+      {selectedApp && (
+        <div className="admin-app-modal-backdrop" onClick={() => setSelectedApp(null)}>
+          <div className="admin-app-modal" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
+            <div className="admin-app-modal__header">
+              <div>
+                <h3>Merchant Application Details</h3>
+                <p>Verify business registration credentials before approving access to SwiftDrop.</p>
+              </div>
+              <button
+                type="button"
+                className="admin-app-modal__close"
+                aria-label="Close application view"
+                onClick={() => setSelectedApp(null)}
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="admin-app-details-grid">
+              <div className="admin-app-detail-item admin-app-detail-item--full">
+                <span className="admin-app-detail-label">Registered Business / Organization Name</span>
+                <span className="admin-app-detail-value" style={{ fontSize: '1.1rem' }}>
+                  {selectedFullDetail?.businessName ?? selectedApp.businessName}
+                </span>
+              </div>
+
+              <div className="admin-app-detail-item">
+                <span className="admin-app-detail-label">Registration Type</span>
+                <span className="admin-app-detail-value">
+                  {REG_TYPE_LABELS[(selectedFullDetail?.businessRegType ?? selectedApp.businessRegType ?? 'BRN') as string] ??
+                    (selectedFullDetail?.businessRegType ?? selectedApp.businessRegType ?? 'BRN')}
+                </span>
+              </div>
+
+              <div className="admin-app-detail-item">
+                <span className="admin-app-detail-label">Registration / Tax Number</span>
+                <span className="admin-app-detail-value">
+                  <code
+                    style={{
+                      fontFamily: "var(--font-mono, 'JetBrains Mono', monospace)",
+                      background: '#ffffff',
+                      padding: '0.2rem 0.5rem',
+                      borderRadius: '0.25rem',
+                      color: 'var(--color-primary, #004ac6)',
+                      border: '1px solid #dbe1ff',
+                    }}
+                  >
+                    {selectedFullDetail?.businessRegNumber ?? selectedApp.businessRegNumber}
+                  </code>
+                </span>
+              </div>
+
+              <div className="admin-app-detail-item">
+                <span className="admin-app-detail-label">Application Status</span>
+                <span className="admin-app-detail-value" style={{ color: '#9d4300' }}>
+                  ● {selectedFullDetail?.status ?? selectedApp.status}
+                </span>
+              </div>
+
+              <div className="admin-app-detail-item">
+                <span className="admin-app-detail-label">Submitted At</span>
+                <span className="admin-app-detail-value">
+                  {new Date(selectedFullDetail?.createdAtUtc ?? selectedApp.createdAtUtc).toLocaleString()}
+                </span>
+              </div>
+
+              <div className="admin-app-detail-item admin-app-detail-item--full">
+                <span className="admin-app-detail-label">Configured Webhook Endpoint URL</span>
+                <span className="admin-app-detail-value">
+                  {(selectedFullDetail?.webhookUrl ?? selectedApp.webhookUrl) ? (
+                    <code style={{ fontFamily: "var(--font-mono, 'JetBrains Mono', monospace)", fontSize: '0.84rem' }}>
+                      {selectedFullDetail?.webhookUrl ?? selectedApp.webhookUrl}
+                    </code>
+                  ) : (
+                    <span style={{ color: '#64748b', fontWeight: 400 }}>Not configured (Optional)</span>
+                  )}
+                </span>
+              </div>
+
+              <div className="admin-app-detail-item">
+                <span className="admin-app-detail-label">Application ID</span>
+                <span className="admin-app-detail-value" style={{ fontSize: '0.78rem', fontFamily: 'monospace' }}>
+                  {selectedApp.id}
+                </span>
+              </div>
+
+              <div className="admin-app-detail-item">
+                <span className="admin-app-detail-label">Applicant User ID</span>
+                <span className="admin-app-detail-value" style={{ fontSize: '0.78rem', fontFamily: 'monospace' }}>
+                  {selectedFullDetail?.userId ?? selectedApp.userId ?? 'Unlinked / Guest Submission'}
+                </span>
+              </div>
+            </div>
+
+            <div className="admin-app-modal__actions">
+              <button
+                type="button"
+                className="admin-refresh-btn"
+                onClick={() => setSelectedApp(null)}
+              >
+                Close
+              </button>
+              <button
+                type="button"
+                className="admin-reject-btn"
+                disabled={actionId === selectedApp.id}
+                onClick={() => handleReject(selectedApp)}
+              >
+                Reject Application
+              </button>
+              <button
+                type="button"
+                className="admin-approve-btn"
+                disabled={actionId === selectedApp.id}
+                onClick={() => handleApprove(selectedApp)}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+                <span>{actionId === selectedApp.id ? 'Approving...' : 'Approve Application'}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

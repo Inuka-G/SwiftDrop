@@ -23,7 +23,7 @@ internal sealed class MerchantService(
         if (!validation.IsValid)
             throw new BadRequestException(string.Join(" ", validation.Errors.Select(e => e.ErrorMessage)));
 
-        var existing = await repository.GetByRegNumberAsync(command.BusinessRegNumber, ct);
+        var existing = await repository.GetByRegNumberAsync(command.BusinessRegNumber.Trim(), ct);
         if (existing is not null)
             throw new ConflictException("A merchant with this business registration number already exists.");
 
@@ -34,7 +34,12 @@ internal sealed class MerchantService(
                 throw new ConflictException("You have already registered a merchant account.");
         }
 
-        var merchant = new Merchant(command.BusinessName, command.BusinessRegNumber, userId, command.WebhookUrl);
+        var merchant = new Merchant(
+            command.BusinessName,
+            command.BusinessRegNumber,
+            userId,
+            command.WebhookUrl,
+            command.BusinessRegType);
         await repository.AddAsync(merchant, ct);
         await repository.SaveChangesAsync(ct);
 
@@ -48,7 +53,7 @@ internal sealed class MerchantService(
     {
         var pending = await repository.GetPendingAsync(ct);
         return pending.Select(m => new MerchantApprovalQueueItemDto(
-            m.Id, m.BusinessName, m.BusinessRegNumber, m.Status, m.UserId, m.CreatedAtUtc)).ToList();
+            m.Id, m.BusinessName, m.BusinessRegNumber, m.Status, m.UserId, m.CreatedAtUtc, m.BusinessRegType, m.WebhookUrl)).ToList();
     }
 
     public async Task<MerchantDto> ApproveAsync(Guid merchantId, Guid adminId, CancellationToken ct = default)
@@ -94,6 +99,31 @@ internal sealed class MerchantService(
     {
         var merchant = await repository.GetByUserIdAsync(userId, ct);
         return merchant is null ? null : ToDto(merchant);
+    }
+
+    public async Task<MerchantDto> UpdateProfileAsync(Guid merchantId, UpdateMerchantProfileCommand command, CancellationToken ct = default)
+    {
+        var validation = await validator.ValidateAsync(
+            new RegisterMerchantCommand(command.BusinessName, command.BusinessRegNumber, command.WebhookUrl, command.BusinessRegType),
+            ct);
+        if (!validation.IsValid)
+            throw new BadRequestException(string.Join(" ", validation.Errors.Select(e => e.ErrorMessage)));
+
+        var merchant = await repository.GetByIdAsync(merchantId, ct)
+            ?? throw new NotFoundException("Merchant not found.");
+
+        var normalizedReg = command.BusinessRegNumber.Trim();
+        if (!string.Equals(merchant.BusinessRegNumber, normalizedReg, StringComparison.OrdinalIgnoreCase))
+        {
+            var existing = await repository.GetByRegNumberAsync(normalizedReg, ct);
+            if (existing is not null && existing.Id != merchant.Id)
+                throw new ConflictException("Another merchant with this business registration number already exists.");
+        }
+
+        merchant.UpdateProfile(command.BusinessName, command.BusinessRegType, command.BusinessRegNumber, command.WebhookUrl);
+        await repository.SaveChangesAsync(ct);
+
+        return ToDto(merchant);
     }
 
     public async Task<CreatedApiKeyDto> CreateApiKeyAsync(Guid merchantId, CreateApiKeyCommand command, CancellationToken ct = default)
@@ -247,6 +277,6 @@ internal sealed class MerchantService(
     }
 
     private static MerchantDto ToDto(Merchant m) =>
-        new(m.Id, m.BusinessName, m.BusinessRegNumber, m.Status, m.WebhookUrl, m.UserId, m.ApprovedBy, m.ApprovedAt, m.CreatedAtUtc);
+        new(m.Id, m.BusinessName, m.BusinessRegNumber, m.Status, m.WebhookUrl, m.UserId, m.ApprovedBy, m.ApprovedAt, m.CreatedAtUtc, m.BusinessRegType);
 }
 

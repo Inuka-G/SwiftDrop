@@ -5,7 +5,14 @@ namespace SwiftDrop.Merchants.Business.Dtos;
 public sealed record RegisterMerchantCommand(
     string BusinessName,
     string BusinessRegNumber,
-    string? WebhookUrl);
+    string? WebhookUrl,
+    string BusinessRegType = "BRN");
+
+public sealed record UpdateMerchantProfileCommand(
+    string BusinessName,
+    string BusinessRegNumber,
+    string? WebhookUrl,
+    string BusinessRegType = "BRN");
 
 public sealed record MerchantDto(
     Guid Id,
@@ -16,7 +23,8 @@ public sealed record MerchantDto(
     Guid? UserId,
     Guid? ApprovedBy,
     DateTimeOffset? ApprovedAt,
-    DateTime CreatedAtUtc);
+    DateTime CreatedAtUtc,
+    string BusinessRegType = "BRN");
 
 public sealed record MerchantApprovalQueueItemDto(
     Guid Id,
@@ -24,7 +32,9 @@ public sealed record MerchantApprovalQueueItemDto(
     string BusinessRegNumber,
     string Status,
     Guid? UserId,
-    DateTime CreatedAtUtc);
+    DateTime CreatedAtUtc,
+    string BusinessRegType = "BRN",
+    string? WebhookUrl = null);
 
 public sealed record CreateApiKeyCommand(string Name);
 

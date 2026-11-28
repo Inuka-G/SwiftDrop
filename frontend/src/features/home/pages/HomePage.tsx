@@ -58,7 +58,7 @@ export function HomePage() {
 
         <div className="sd-hero__actions">
           <Link to="/book" className="sd-btn sd-btn--tonal"><TruckIcon /> Send a Parcel</Link>
-          <Link to="/login" className="sd-link sd-link--strong">Sign In to Merchant Hub</Link>
+          <Link to="/merchant/register" className="sd-link sd-link--strong">Sign In to Merchant Hub</Link>
         </div>
       </section>
 

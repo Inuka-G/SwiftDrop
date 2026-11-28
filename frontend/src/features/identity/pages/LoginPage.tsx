@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { getErrorMessage } from '../../../lib/axios'
 import { homePathForRole } from '../../../lib/constants'
+import { merchantApi } from '../../merchants'
 import { BrandMark } from '../components/BrandMark'
 import { FormAlert } from '../components/FormAlert'
 import { FormField } from '../components/FormField'
@@ -22,7 +23,7 @@ export function LoginPage() {
   const [error, setError] = useState<string | null>(notice)
   const [submitting, setSubmitting] = useState(false)
 
-  if (user) return <Navigate to={homePathForRole(user.role)} replace />
+  if (user && !submitting) return <Navigate to={homePathForRole(user.role)} replace />
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault()
@@ -30,6 +31,14 @@ export function LoginPage() {
     setSubmitting(true)
     try {
       const loggedIn = await login(username.trim(), password, remember)
+      if (loggedIn.role === 'CUSTOMER') {
+        const merchant = await merchantApi.getMyMerchantProfile()
+        if (merchant) {
+          const target = merchant.status.toLowerCase() === 'approved' ? '/merchant/portal' : '/merchant/status'
+          navigate(target, { replace: true })
+          return
+        }
+      }
       navigate(homePathForRole(loggedIn.role), { replace: true })
     } catch (err) {
       setError(getErrorMessage(err))
