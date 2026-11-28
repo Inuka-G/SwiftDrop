@@ -70,6 +70,20 @@ public sealed class MerchantsController(IMerchantService merchantService) : Cont
         return Ok(merchant);
     }
 
+    [HttpPut("me")]
+    [Authorize]
+    [ProducesResponseType<MerchantDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> UpdateMyMerchantProfile([FromBody] UpdateMerchantProfileCommand command, CancellationToken ct)
+    {
+        var userId = User.GetUserId() ?? throw new UnauthorizedException("The token has no user id.");
+        var merchant = await merchantService.GetByUserIdAsync(userId, ct)
+            ?? throw new NotFoundException("No merchant profile found for current user.");
+
+        var updated = await merchantService.UpdateProfileAsync(merchant.Id, command, ct);
+        return Ok(updated);
+    }
+
     [HttpGet("{id:guid}")]
     [Authorize(Roles = Roles.Admin)]
     [ProducesResponseType<MerchantDto>(StatusCodes.Status200OK)]

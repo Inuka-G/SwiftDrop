@@ -1,6 +1,7 @@
 export interface MerchantApprovalQueueItemDto {
   id: string
   businessName: string
+  businessRegType?: string
   businessRegNumber: string
   status: string
   userId: string | null
@@ -10,6 +11,7 @@ export interface MerchantApprovalQueueItemDto {
 export interface MerchantDto {
   id: string
   businessName: string
+  businessRegType?: string
   businessRegNumber: string
   status: string
   webhookUrl: string | null

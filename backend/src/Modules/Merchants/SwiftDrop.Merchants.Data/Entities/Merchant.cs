@@ -10,6 +10,13 @@ public static class MerchantStatus
     public const string Suspended = "Suspended";
 }
 
+public static class MerchantRegType
+{
+    public const string Brn = "BRN";
+    public const string Crn = "CRN";
+    public const string Tin = "TIN";
+}
+
 public class Merchant : BaseEntity
 {
     private Merchant() { } // Required by Entity Framework
@@ -18,10 +25,15 @@ public class Merchant : BaseEntity
         string businessName,
         string businessRegNumber,
         Guid? userId = null,
-        string? webhookUrl = null)
+        string? webhookUrl = null,
+        string businessRegType = MerchantRegType.Brn)
     {
         BusinessName = businessName.Trim();
-        BusinessRegNumber = businessRegNumber.Trim().ToUpperInvariant();
+        BusinessRegType = string.IsNullOrWhiteSpace(businessRegType)
+            ? MerchantRegType.Brn
+            : businessRegType.Trim().ToUpperInvariant();
+        // Trim leading/trailing whitespace while preserving leading zeros and letters
+        BusinessRegNumber = businessRegNumber.Trim();
         UserId = userId;
         WebhookUrl = webhookUrl;
         Status = MerchantStatus.Pending;
@@ -29,6 +41,7 @@ public class Merchant : BaseEntity
     }
 
     public string BusinessName { get; private set; } = default!;
+    public string BusinessRegType { get; private set; } = MerchantRegType.Brn;
     public string BusinessRegNumber { get; private set; } = default!;
     public string Status { get; private set; } = MerchantStatus.Pending;
     public string? WebhookUrl { get; private set; }
@@ -66,5 +79,19 @@ public class Merchant : BaseEntity
         WebhookSecret = secret;
         UpdatedAtUtc = DateTime.UtcNow;
     }
-}
 
+    public void UpdateProfile(
+        string businessName,
+        string businessRegType,
+        string businessRegNumber,
+        string? webhookUrl)
+    {
+        BusinessName = businessName.Trim();
+        BusinessRegType = string.IsNullOrWhiteSpace(businessRegType)
+            ? MerchantRegType.Brn
+            : businessRegType.Trim().ToUpperInvariant();
+        BusinessRegNumber = businessRegNumber.Trim();
+        WebhookUrl = string.IsNullOrWhiteSpace(webhookUrl) ? null : webhookUrl.Trim();
+        UpdatedAtUtc = DateTime.UtcNow;
+    }
+}

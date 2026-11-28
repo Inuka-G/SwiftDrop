@@ -1,8 +1,11 @@
 export type MerchantStatus = 'Pending' | 'Approved' | 'Rejected' | 'Suspended'
 
+export type BusinessRegType = 'BRN' | 'CRN' | 'TIN'
+
 export interface MerchantDto {
   id: string
   businessName: string
+  businessRegType?: BusinessRegType | string
   businessRegNumber: string
   status: MerchantStatus | string
   webhookUrl: string | null
@@ -14,6 +17,14 @@ export interface MerchantDto {
 
 export interface RegisterMerchantCommand {
   businessName: string
+  businessRegType: BusinessRegType
+  businessRegNumber: string
+  webhookUrl?: string | null
+}
+
+export interface UpdateMerchantProfileCommand {
+  businessName: string
+  businessRegType: BusinessRegType
   businessRegNumber: string
   webhookUrl?: string | null
 }
@@ -21,10 +32,12 @@ export interface RegisterMerchantCommand {
 export interface MerchantApprovalQueueItemDto {
   id: string
   businessName: string
+  businessRegType?: BusinessRegType | string
   businessRegNumber: string
   status: string
   userId: string | null
   createdAtUtc: string
+  webhookUrl?: string | null
 }
 
 export interface ApiKeySummaryDto {

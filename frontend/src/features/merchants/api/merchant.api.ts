@@ -9,6 +9,7 @@ import type {
   MerchantApprovalQueueItemDto,
   MerchantDto,
   RegisterMerchantCommand,
+  UpdateMerchantProfileCommand,
 } from '../types/merchant.types'
 
 export const merchantApi = {
@@ -31,6 +32,18 @@ export const merchantApi = {
     }
   },
 
+  /** Update the currently logged-in user's merchant profile */
+  async updateMyMerchantProfile(command: UpdateMerchantProfileCommand): Promise<MerchantDto> {
+    const response = await apiClient.put<MerchantDto>('/merchants/me', command)
+    return response.data
+  },
+
+  /** Get a specific merchant application by ID (Admin only) */
+  async getMerchantById(id: string): Promise<MerchantDto> {
+    const response = await apiClient.get<MerchantDto>(`/merchants/${id}`)
+    return response.data
+  },
+
   /** Get list of pending merchants (Admin only) */
   async getPendingMerchants(): Promise<MerchantApprovalQueueItemDto[]> {
     const response = await apiClient.get<MerchantApprovalQueueItemDto[]>('/merchants/pending')
@@ -40,6 +53,13 @@ export const merchantApi = {
   /** Approve a pending merchant (Admin only) */
   async approveMerchant(id: string): Promise<MerchantDto> {
     const response = await apiClient.post<MerchantDto>(`/merchants/${id}/approve`)
+    if (response.data.userId) {
+      try {
+        await apiClient.patch(`/users/${response.data.userId}/role`, { role: 'MERCHANT' })
+      } catch {
+        // Role update is best-effort if user already has MERCHANT or ADMIN role
+      }
+    }
     return response.data
   },
 

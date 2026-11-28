@@ -208,3 +208,123 @@
   color: var(--color-on-error-container, #93000a);
 }
 
+.admin-view-btn {
+  padding: 0.45rem 0.9rem;
+  border-radius: 0.375rem;
+  background: var(--color-surface-container-low, #f2f3ff);
+  color: var(--color-primary, #004ac6);
+  border: 1px solid var(--color-surface-container-high, #e2e7ff);
+  font-size: 0.825rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  transition: all 0.15s;
+}
+
+.admin-view-btn:hover {
+  background: var(--color-surface-container-high, #e2e7ff);
+}
+
+/* Application Details Modal */
+.admin-app-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(19, 27, 46, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 999;
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+}
+
+.admin-app-modal {
+  background: #ffffff;
+  border-radius: 1rem;
+  width: 100%;
+  max-width: 580px;
+  padding: 2rem;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.18);
+  display: flex;
+  flex-direction: column;
+  gap: 1.35rem;
+}
+
+.admin-app-modal__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 1px solid var(--color-surface-container-high, #e2e7ff);
+  padding-bottom: 1rem;
+}
+
+.admin-app-modal__header h3 {
+  margin: 0 0 0.25rem;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--color-on-surface, #131b2e);
+}
+
+.admin-app-modal__header p {
+  margin: 0;
+  font-size: 0.86rem;
+  color: var(--color-on-surface-variant, #434655);
+}
+
+.admin-app-modal__close {
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: #64748b;
+  cursor: pointer;
+  padding: 0.2rem 0.5rem;
+}
+
+.admin-app-details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  background: var(--color-surface-container-low, #f2f3ff);
+  padding: 1.25rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--color-surface-container-high, #e2e7ff);
+}
+
+.admin-app-detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.admin-app-detail-item--full {
+  grid-column: 1 / -1;
+}
+
+.admin-app-detail-label {
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748b;
+}
+
+.admin-app-detail-value {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--color-on-surface, #131b2e);
+  word-break: break-all;
+}
+
+.admin-app-modal__actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--color-surface-container-high, #e2e7ff);
+}
+
+

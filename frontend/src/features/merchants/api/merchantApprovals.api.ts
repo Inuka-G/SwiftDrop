@@ -12,6 +12,13 @@ export async function getPendingMerchants(): Promise<MerchantApprovalQueueItemDt
 export async function approveMerchant(id: string): Promise<MerchantDto> {
   if (USE_MOCKS) return reviewMerchantMock(id, 'approve')
   const { data } = await apiClient.post<MerchantDto>(`/merchants/${id}/approve`)
+  if (data.userId) {
+    try {
+      await apiClient.patch(`/users/${data.userId}/role`, { role: 'MERCHANT' })
+    } catch {
+      // Role update is best-effort if user already has MERCHANT or ADMIN role
+    }
+  }
   return data
 }
 

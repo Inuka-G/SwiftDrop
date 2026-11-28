@@ -21,6 +21,15 @@ public static class MerchantsDataExtensions
         using var scope = sp.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<MerchantsDbContext>();
         await db.Database.EnsureCreatedAsync();
+
+        try
+        {
+            await db.Database.ExecuteSqlRawAsync(
+                "ALTER TABLE \"merchants\" ADD COLUMN \"BusinessRegType\" TEXT NOT NULL DEFAULT 'BRN';");
+        }
+        catch
+        {
+            // Column already exists
+        }
     }
 }
-

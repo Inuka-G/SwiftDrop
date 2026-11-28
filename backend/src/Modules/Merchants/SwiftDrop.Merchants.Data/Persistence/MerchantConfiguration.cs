@@ -15,6 +15,11 @@ internal sealed class MerchantConfiguration : IEntityTypeConfiguration<Merchant>
             .HasMaxLength(120)
             .IsRequired();
 
+        builder.Property(x => x.BusinessRegType)
+            .HasMaxLength(32)
+            .HasDefaultValue(MerchantRegType.Brn)
+            .IsRequired();
+
         builder.Property(x => x.BusinessRegNumber)
             .HasMaxLength(60)
             .IsRequired();
@@ -36,4 +41,3 @@ internal sealed class MerchantConfiguration : IEntityTypeConfiguration<Merchant>
         builder.HasIndex(x => x.UserId);
     }
 }
-

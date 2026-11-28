@@ -1,26 +1,144 @@
-import { useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { getErrorMessage } from '../../../lib/axios'
 import { SiteHeader } from '../../home/components/SiteHeader'
 import { FormAlert } from '../../identity/components/FormAlert'
+import { useAuth } from '../../identity/useAuth'
 import { merchantApi } from '../api/merchant.api'
+import type { BusinessRegType } from '../types/merchant.types'
 import './MerchantRegistrationPage.css'
+
+const REG_TYPE_META: Record<
+  BusinessRegType,
+  { label: string; placeholder: string; hint: string }
+> = {
+  BRN: {
+    label: 'Business Registration Number (BRN)',
+    placeholder: 'e.g. WC/12345 or BRN-2026-0142',
+    hint: 'Enter your issued Business Registration Number (alphanumeric and standard separators allowed).',
+  },
+  CRN: {
+    label: 'Company Registration Number',
+    placeholder: 'e.g. PV 00284918',
+    hint: 'Enter your ROC Company Registration Number (leading zeros and letters are preserved).',
+  },
+  TIN: {
+    label: 'Tax Identification Number (TIN)',
+    placeholder: 'e.g. 123456789 (9 digits)',
+    hint: 'Enter your 9-digit IRD Tax Identification Number (numbers only).',
+  },
+}
+
+const TIN_REGEX = /^[0-9]{9}$/
+const GENERAL_REG_CHARS_REGEX = /^[A-Za-z0-9/\-._\s()]+$/
+const ALLOWED_EMAIL_REGEX = /^[A-Za-z0-9._%+-]+@(gmail\.com|yahoo\.com|hotmail\.com)$/i
+const SL_PHONE_REGEX = /^(?:0[0-9]{9}|\+94[0-9]{9})$/
+
+function validateMerchantEmail(rawEmail: string): string | null {
+  const trimmed = rawEmail.trim()
+  if (!trimmed) {
+    return 'Email address is required.'
+  }
+  if (!ALLOWED_EMAIL_REGEX.test(trimmed)) {
+    return 'Email must be a valid address ending with @gmail.com, @yahoo.com, or @hotmail.com.'
+  }
+  return null
+}
+
+function validateSriLankaPhone(rawPhone: string): string | null {
+  const cleaned = rawPhone.trim().replace(/[\s-]/g, '')
+  if (!cleaned) {
+    return 'Phone number is required.'
+  }
+  if (!SL_PHONE_REGEX.test(cleaned)) {
+    return 'Enter a valid Sri Lanka phone number (10 digits starting with 0, e.g. 0771234567, or +94771234567).'
+  }
+  return null
+}
+
+function validateRegistrationNumber(regType: BusinessRegType, rawValue: string): string | null {
+  const trimmed = rawValue.trim()
+
+  if (regType === 'TIN') {
+    if (!trimmed) {
+      return 'Tax Identification Number (TIN) is required.'
+    }
+    if (!TIN_REGEX.test(trimmed)) {
+      return 'Tax Identification Number (TIN) must contain exactly 9 digits (0–9).'
+    }
+    return null
+  }
+
+  if (regType === 'CRN') {
+    if (!trimmed) {
+      return 'Company Registration Number is required.'
+    }
+    if (trimmed.length > 60) {
+      return 'Company Registration Number must not exceed 60 characters.'
+    }
+    if (!GENERAL_REG_CHARS_REGEX.test(trimmed)) {
+      return 'Company Registration Number contains invalid special characters.'
+    }
+    return null
+  }
+
+  // BRN
+  if (!trimmed) {
+    return 'Business Registration Number (BRN) is required.'
+  }
+  if (trimmed.length > 60) {
+    return 'Business Registration Number (BRN) must not exceed 60 characters.'
+  }
+  if (!GENERAL_REG_CHARS_REGEX.test(trimmed)) {
+    return 'Business Registration Number (BRN) contains invalid special characters.'
+  }
+  return null
+}
 
 export function MerchantRegistrationPage() {
   const navigate = useNavigate()
+  const { user, login, signup } = useAuth()
 
   // Form State
   const [businessName, setBusinessName] = useState('')
+  const [businessRegType, setBusinessRegType] = useState<BusinessRegType>('BRN')
   const [businessRegNumber, setBusinessRegNumber] = useState('')
+  const [regNumberError, setRegNumberError] = useState<string | null>(null)
   const [webhookUrl, setWebhookUrl] = useState('')
   const [category, setCategory] = useState('Fashion & Apparel')
-  const [contactName, setContactName] = useState('')
-  const [contactEmail, setContactEmail] = useState('')
+  const [contactName, setContactName] = useState(user?.fullName ?? '')
+  const [contactEmail, setContactEmail] = useState(user?.email ?? '')
+  const [emailError, setEmailError] = useState<string | null>(null)
   const [contactPhone, setContactPhone] = useState('')
+  const [phoneError, setPhoneError] = useState<string | null>(null)
+  const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+
+  useEffect(() => {
+    if (user) {
+      setContactName((prev) => prev || user.fullName)
+      setContactEmail((prev) => prev || user.email)
+    }
+  }, [user])
 
   // UI State
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  function handleRegTypeChange(newType: BusinessRegType) {
+    setBusinessRegType(newType)
+    // Clear previous input and reset validation rules when registration type changes
+    setBusinessRegNumber('')
+    setRegNumberError(null)
+    setError(null)
+  }
+
+  function handleRegNumberChange(value: string) {
+    setBusinessRegNumber(value)
+    if (regNumberError) {
+      setRegNumberError(validateRegistrationNumber(businessRegType, value))
+    }
+  }
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault()
@@ -31,9 +149,35 @@ export function MerchantRegistrationPage() {
       return
     }
 
-    if (!businessRegNumber.trim()) {
-      setError('Business registration or tax number is required.')
+    const regValidationError = validateRegistrationNumber(businessRegType, businessRegNumber)
+    if (regValidationError) {
+      setRegNumberError(regValidationError)
+      setError(regValidationError)
       return
+    }
+    setRegNumberError(null)
+
+    const emailValidationError = validateMerchantEmail(contactEmail)
+    if (emailValidationError) {
+      setEmailError(emailValidationError)
+      setError(emailValidationError)
+      return
+    }
+    setEmailError(null)
+
+    const phoneValidationError = validateSriLankaPhone(contactPhone)
+    if (phoneValidationError) {
+      setPhoneError(phoneValidationError)
+      setError(phoneValidationError)
+      return
+    }
+    setPhoneError(null)
+
+    if (!user) {
+      if (password.length < 5) {
+        setError('Please enter your account password (or a new password of at least 8 characters).')
+        return
+      }
     }
 
     if (webhookUrl.trim()) {
@@ -50,11 +194,26 @@ export function MerchantRegistrationPage() {
     }
 
     setSubmitting(true)
+    const normalizedRegNumber = businessRegNumber.trim()
 
     try {
+      // Ensure user is authenticated so the backend links UserId to the Merchant profile
+      if (!user) {
+        try {
+          await login(contactEmail.trim(), password, true)
+        } catch {
+          await signup({
+            fullName: contactName.trim() || businessName.trim(),
+            email: contactEmail.trim(),
+            password,
+          })
+        }
+      }
+
       await merchantApi.registerMerchant({
         businessName: businessName.trim(),
-        businessRegNumber: businessRegNumber.trim().toUpperCase(),
+        businessRegType,
+        businessRegNumber: normalizedRegNumber,
         webhookUrl: webhookUrl.trim() || null,
       })
 
@@ -63,7 +222,7 @@ export function MerchantRegistrationPage() {
         state: {
           registered: true,
           businessName: businessName.trim(),
-          businessRegNumber: businessRegNumber.trim().toUpperCase(),
+          businessRegNumber: normalizedRegNumber,
         },
       })
     } catch (err) {
@@ -205,19 +364,20 @@ export function MerchantRegistrationPage() {
                   </div>
 
                   <div className="sd-form-field">
-                    <label className="sd-form-label" htmlFor="businessRegNumber">
-                      Business Reg / Tax ID <span className="sd-form-required">*</span>
+                    <label className="sd-form-label" htmlFor="businessRegType">
+                      Registration Type <span className="sd-form-required">*</span>
                     </label>
-                    <input
-                      id="businessRegNumber"
-                      className="sd-form-input"
-                      type="text"
-                      placeholder="e.g. PV-00284918-LK"
-                      value={businessRegNumber}
-                      onChange={(e) => setBusinessRegNumber(e.target.value)}
-                      style={{ textTransform: 'uppercase' }}
+                    <select
+                      id="businessRegType"
+                      className="sd-form-select"
+                      value={businessRegType}
+                      onChange={(e) => handleRegTypeChange(e.target.value as BusinessRegType)}
                       required
-                    />
+                    >
+                      <option value="BRN">Business Registration Number (BRN)</option>
+                      <option value="CRN">Company Registration Number</option>
+                      <option value="TIN">Tax Identification Number (TIN)</option>
+                    </select>
                   </div>
 
                   <div className="sd-form-field">
@@ -236,6 +396,36 @@ export function MerchantRegistrationPage() {
                       <option value="Food & Groceries">Food &amp; Groceries</option>
                       <option value="General Retail">General Retail</option>
                     </select>
+                  </div>
+
+                  <div className="sd-form-field sd-form-field--full">
+                    <label className="sd-form-label" htmlFor="businessRegNumber">
+                      {REG_TYPE_META[businessRegType].label} <span className="sd-form-required">*</span>
+                    </label>
+                    <input
+                      id="businessRegNumber"
+                      className="sd-form-input"
+                      type="text"
+                      inputMode={businessRegType === 'TIN' ? 'numeric' : 'text'}
+                      maxLength={businessRegType === 'TIN' ? 9 : 60}
+                      placeholder={REG_TYPE_META[businessRegType].placeholder}
+                      value={businessRegNumber}
+                      onChange={(e) => handleRegNumberChange(e.target.value)}
+                      onBlur={() => {
+                        if (businessRegNumber.trim()) {
+                          setRegNumberError(validateRegistrationNumber(businessRegType, businessRegNumber))
+                        }
+                      }}
+                      aria-invalid={!!regNumberError}
+                      required
+                    />
+                    {regNumberError ? (
+                      <p className="sd-field__error" role="alert">
+                        {regNumberError}
+                      </p>
+                    ) : (
+                      <p className="sd-form-hint">{REG_TYPE_META[businessRegType].hint}</p>
+                    )}
                   </div>
 
                   <div className="sd-form-field sd-form-field--full">
@@ -281,31 +471,113 @@ export function MerchantRegistrationPage() {
 
                   <div className="sd-form-field">
                     <label className="sd-form-label" htmlFor="contactEmail">
-                      Email Address
+                      Email Address <span className="sd-form-required">*</span>
                     </label>
                     <input
                       id="contactEmail"
                       className="sd-form-input"
                       type="email"
-                      placeholder="operations@ceylonthreads.lk"
+                      placeholder="yourstore@gmail.com"
                       value={contactEmail}
-                      onChange={(e) => setContactEmail(e.target.value)}
+                      onChange={(e) => {
+                        setContactEmail(e.target.value)
+                        if (emailError) setEmailError(validateMerchantEmail(e.target.value))
+                      }}
+                      onBlur={() => {
+                        if (contactEmail.trim()) setEmailError(validateMerchantEmail(contactEmail))
+                      }}
+                      aria-invalid={!!emailError}
+                      required
                     />
+                    {emailError ? (
+                      <p className="sd-field__error" role="alert">
+                        {emailError}
+                      </p>
+                    ) : (
+                      <p className="sd-form-hint">Allowed domains: @gmail.com, @yahoo.com, @hotmail.com</p>
+                    )}
                   </div>
 
                   <div className="sd-form-field">
                     <label className="sd-form-label" htmlFor="contactPhone">
-                      Phone Number
+                      Phone Number <span className="sd-form-required">*</span>
                     </label>
                     <input
                       id="contactPhone"
                       className="sd-form-input"
                       type="tel"
-                      placeholder="+94 77 123 4567"
+                      placeholder="0771234567 or +94771234567"
                       value={contactPhone}
-                      onChange={(e) => setContactPhone(e.target.value)}
+                      onChange={(e) => {
+                        setContactPhone(e.target.value)
+                        if (phoneError) setPhoneError(validateSriLankaPhone(e.target.value))
+                      }}
+                      onBlur={() => {
+                        if (contactPhone.trim()) setPhoneError(validateSriLankaPhone(contactPhone))
+                      }}
+                      aria-invalid={!!phoneError}
+                      required
                     />
+                    {phoneError ? (
+                      <p className="sd-field__error" role="alert">
+                        {phoneError}
+                      </p>
+                    ) : (
+                      <p className="sd-form-hint">Format: 07XXXXXXXX (10 digits) or +947XXXXXXXX</p>
+                    )}
                   </div>
+
+                  {!user && (
+                    <div className="sd-form-field sd-form-field--full">
+                      <label className="sd-form-label" htmlFor="merchantPassword">
+                        Account Password <span className="sd-form-required">*</span>
+                      </label>
+                      <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                        <input
+                          id="merchantPassword"
+                          className="sd-form-input"
+                          style={{ width: '100%', paddingRight: '2.75rem' }}
+                          type={showPassword ? 'text' : 'password'}
+                          autoComplete="new-password"
+                          placeholder="Enter your existing SwiftDrop password (or create a new 8+ char password)"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          required
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword((prev) => !prev)}
+                          aria-label={showPassword ? 'Hide password' : 'Show password'}
+                          title={showPassword ? 'Hide password' : 'Show password'}
+                          style={{
+                            position: 'absolute',
+                            right: '0.75rem',
+                            background: 'transparent',
+                            border: 'none',
+                            cursor: 'pointer',
+                            color: 'var(--color-on-surface-variant, #434655)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            padding: '0.25rem',
+                          }}
+                        >
+                          {showPassword ? (
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M3 3l18 18M10.6 10.6a3 3 0 0 0 4.2 4.2M9.9 5.2A10 10 0 0 1 12 5c6.5 0 10 7 10 7a17 17 0 0 1-3.2 4.2M6.1 6.1C3.4 7.9 2 12 2 12s3.5 7 10 7a9.8 9.8 0 0 0 4.4-1" />
+                            </svg>
+                          ) : (
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" />
+                              <circle cx="12" cy="12" r="3" />
+                            </svg>
+                          )}
+                        </button>
+                      </div>
+                      <p className="sd-form-hint">
+                        Links this merchant business to your SwiftDrop login so you can sign in once approved.
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
 
