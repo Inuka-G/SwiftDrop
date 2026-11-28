@@ -11,7 +11,8 @@ public class PricingRule : BaseEntity
         Guid zoneId,
         decimal baseRate,
         decimal additionalKgRate,
-        ServiceType serviceType
+        ServiceType serviceType,
+        bool isActive = true
     )
 
     {
@@ -19,6 +20,7 @@ public class PricingRule : BaseEntity
         BaseRate = baseRate;
         AdditionalKgRate = additionalKgRate;
         ServiceType = serviceType;
+        IsActive = isActive;
     }
 
     public Guid ZoneId {get; private set;}
@@ -29,7 +31,7 @@ public class PricingRule : BaseEntity
 
     public ServiceType ServiceType {get; private set;}
 
-    public bool IsActive {get; private set;} = true;
+    public bool IsActive {get; private set;}
 
     public Zone Zone {get; private set;} = default!;
 

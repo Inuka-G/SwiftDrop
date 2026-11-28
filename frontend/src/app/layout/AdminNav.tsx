@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { ROLES } from '../../lib/constants'
 import { authService } from '../../services/auth.service'
 
 const navItems = [
@@ -16,6 +17,9 @@ export function AdminNav({ hasConnectionIssue, user, onLogout }: { hasConnection
   const [menuOpen, setMenuOpen] = useState(false)
   const location = useLocation()
   const navigate = useNavigate()
+  const visibleNavItems = navItems.filter(
+    (item) => item.path !== '/admin/pricing' || user?.role === ROLES.admin,
+  )
 
   function logout() {
     authService.clearAccessToken()
@@ -34,7 +38,7 @@ export function AdminNav({ hasConnectionIssue, user, onLogout }: { hasConnection
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" /></svg>
         </button>
         <nav className={`admin-nav${menuOpen ? ' is-open' : ''}`} aria-label="Admin navigation">
-          {navItems.map((item) => item.enabled ? (
+          {visibleNavItems.map((item) => item.enabled ? (
             <Link key={item.path} className={`admin-nav-item${location.pathname === item.path ? ' is-active' : ''}`} to={item.path} aria-current={location.pathname === item.path ? 'page' : undefined} onClick={() => setMenuOpen(false)}>{item.label}</Link>
           ) : (
             <span key={item.path} className="admin-nav-item is-disabled" aria-disabled="true" title="Coming soon">{item.label}<span className="admin-tooltip" role="tooltip">Coming soon</span></span>

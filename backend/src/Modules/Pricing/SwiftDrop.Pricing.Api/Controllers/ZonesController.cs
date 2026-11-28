@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SwiftDrop.Pricing.Api.Dtos;
 using SwiftDrop.Pricing.Business.Services;
 using SwiftDrop.Pricing.Contracts;
+using SwiftDrop.SharedKernel.Authorization;
 
 namespace SwiftDrop.Pricing.Api.Controllers;
 
@@ -25,6 +27,7 @@ public class ZonesController(IZoneService zones, IPricingService pricing) : Cont
     }
 
     [HttpGet("{id:guid}/pricing-rules")]
+    [Authorize(Roles = Roles.Admin)]
     [ProducesResponseType<IReadOnlyList<PricingRuleDto>>(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetPricingRules(
     Guid id,
@@ -34,7 +37,27 @@ public class ZonesController(IZoneService zones, IPricingService pricing) : Cont
         return Ok(rules);
     }
 
-    [HttpPost]   // TODO: [Authorize(Roles = Roles.Admin)] once Identity is done
+    [HttpPost("{zoneId:guid}/pricing-rules")]
+    [Authorize(Roles = Roles.Admin)]
+    [ProducesResponseType<PricingRuleDto>(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> CreatePricingRule(Guid zoneId, CreatePricingRuleRequest req, CancellationToken ct)
+    {
+        var created = await zones.CreatePricingRuleAsync(zoneId, new CreatePricingRuleCommand(
+            (ServiceType)req.ServiceType!.Value,
+            req.BaseRate!.Value,
+            req.AdditionalKgRate!.Value,
+            req.IsActive!.Value), ct);
+
+        return created is null
+            ? NotFound()
+            : CreatedAtAction(nameof(GetPricingRules), new { id = zoneId }, created);
+    }
+
+    [HttpPost]
+    [Authorize(Roles = Roles.Admin)]
     [ProducesResponseType<ZoneDto>(StatusCodes.Status201Created)]
     public async Task<IActionResult> Create(CreateZoneRequest req, CancellationToken ct)
     {
@@ -47,8 +70,8 @@ public class ZonesController(IZoneService zones, IPricingService pricing) : Cont
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Estimate(Guid id, [FromQuery] decimal weightKg, [FromQuery] ServiceType serviceType, CancellationToken ct)
     {
-        if (weightKg <= 0)
-            return BadRequest ("Parcel weight must be greater than zero.");
+        if (weightKg <= 0 || weightKg > 50)
+            return BadRequest("Parcel weight must be greater than zero and no more than 50 kg.");
 
         if (!Enum.IsDefined(serviceType))
             return BadRequest("Invalid service type. Use Standard or Express.");
@@ -58,6 +81,7 @@ public class ZonesController(IZoneService zones, IPricingService pricing) : Cont
     }
 
     [HttpPut("{id:guid}")]
+    [Authorize(Roles = Roles.Admin)]
     [ProducesResponseType<ZoneDto>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -69,6 +93,7 @@ public class ZonesController(IZoneService zones, IPricingService pricing) : Cont
     }
 
     [HttpPatch("{id:guid}/status")]
+    [Authorize(Roles = Roles.Admin)]
     [ProducesResponseType<ZoneDto>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -80,6 +105,7 @@ public class ZonesController(IZoneService zones, IPricingService pricing) : Cont
     }
 
     [HttpPut("{zoneId:guid}/pricing-rules/{ruleId:guid}")]
+    [Authorize(Roles = Roles.Admin)]
     [ProducesResponseType<PricingRuleDto>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

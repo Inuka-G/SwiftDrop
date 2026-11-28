@@ -6,6 +6,7 @@ public static class ParcelEventRoutingKeys
 {
     public const string Created = "parcels.created";
     public const string StatusChanged = "parcels.status-changed";
+    public const string CourierAssigned = "parcels.courier-assigned";
 }
 
 public sealed record ParcelCreatedIntegrationEvent(
@@ -30,3 +31,10 @@ public sealed record ParcelStatusChangedIntegrationEvent(
     string? FailureReason,
     DateTime OccurredAtUtc,
     Guid? MerchantId = null);
+
+public sealed record CourierAssignedIntegrationEvent(
+    Guid EventId,
+    Guid ParcelId,
+    string TrackingNumber,
+    Guid CourierId,
+    DateTime AssignedAtUtc);

@@ -64,19 +64,20 @@ public sealed class OutboxDispatcherTests : IDisposable
     }
 
     [Fact]
-    public async Task Gives_up_after_max_attempts()
+    public async Task Keeps_retrying_until_the_broker_recovers()
     {
         var first = await AddMessageAsync(minutes: 0);
         publisher.FailFor.Add(first);
-        for (var i = 0; i < 3; i++) await Dispatcher(maxAttempts: 3).DispatchPendingAsync(default);
+        for (var i = 0; i < 12; i++) await Dispatcher().DispatchPendingAsync(default);
 
         publisher.FailFor.Clear();
-        (await Dispatcher(maxAttempts: 3).DispatchPendingAsync(default)).Should().Be(0);
+        (await Dispatcher().DispatchPendingAsync(default)).Should().Be(1);
+        publisher.Published.Should().ContainSingle().Which.Should().Be(first);
     }
 
-    private OutboxDispatcher Dispatcher(int maxAttempts = 10) =>
+    private OutboxDispatcher Dispatcher() =>
         new(new OutboxRepository(db.NewContext()), publisher, db.Clock,
-            Options.Create(new OutboxOptions { MaxAttempts = maxAttempts }), NullLogger<OutboxDispatcher>.Instance);
+            Options.Create(new OutboxOptions()), NullLogger<OutboxDispatcher>.Instance);
 
     private async Task<Guid> AddMessageAsync(int minutes)
     {

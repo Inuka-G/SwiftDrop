@@ -7,7 +7,8 @@ export const REPORT_MAX_RANGE_DAYS = 366
 export const REPORT_TABLE_PAGE_SIZE = 10
 export const REPORT_PRESETS = ['last7', 'last30', 'thisMonth'] as const
 export const DISPATCH_OVERDUE_MINUTES = 90
-export const DISPATCH_REFRESH_INTERVAL_MS = 30_000
+// Keep the dispatch queue responsive after a customer booking is projected through RabbitMQ.
+export const DISPATCH_REFRESH_INTERVAL_MS = 5_000
 export const DISPATCH_PAGE_SIZES = [10, 25, 50] as const
 export const DISPATCH_TOAST_DURATION_MS = 5_000
 export const COURIER_VEHICLE_TYPES = ['Motorbike', 'Three-Wheeler', 'Van', 'Light Truck'] as const

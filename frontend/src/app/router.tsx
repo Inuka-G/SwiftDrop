@@ -91,7 +91,7 @@ export const router = createBrowserRouter([
       { path: 'couriers', element: <CourierWorkloadPage /> },
       { path: 'reports', element: <ReportsPage /> },
       { path: 'users', element: <UserManagementPage /> },
-      { path: 'pricing', element: <ZonesPricingPage /> },
+      { path: 'pricing', element: <RequireRole roles={[ROLES.admin]}><ZonesPricingPage /></RequireRole> },
     ],
   },
 ])

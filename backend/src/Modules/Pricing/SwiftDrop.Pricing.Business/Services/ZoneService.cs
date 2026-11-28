@@ -1,5 +1,8 @@
+using Microsoft.EntityFrameworkCore;
+using SwiftDrop.Pricing.Contracts;
 using SwiftDrop.Pricing.Data.Entities;
 using SwiftDrop.Pricing.Data.Repositories;
+using SwiftDrop.SharedKernel.Exceptions;
 
 namespace SwiftDrop.Pricing.Business.Services;
 
@@ -52,8 +55,8 @@ internal sealed class ZoneService(IZoneRepository repo) : IZoneService
 
     public async Task<PricingRuleDto?> UpdatePricingRuleAsync(Guid zoneId, Guid ruleId, UpdatePricingRuleCommand cmd, CancellationToken ct)
     {
-        if(cmd.BaseRate < 0 || cmd.AdditionalKgRate <0)
-            throw new ArgumentException ("Pricing rates cannot be negative.");
+        ValidatePricingValue(cmd.BaseRate, nameof(cmd.BaseRate));
+        ValidatePricingValue(cmd.AdditionalKgRate, nameof(cmd.AdditionalKgRate));
 
         var rule = await repo.GetPricingRuleForUpdateAsync(zoneId, ruleId, ct);
 
@@ -63,6 +66,39 @@ internal sealed class ZoneService(IZoneRepository repo) : IZoneService
         rule.UpdateRates(cmd.BaseRate, cmd.AdditionalKgRate);
 
         await repo.SaveChangesAsync(ct);
+
+        return new PricingRuleDto(rule.Id, rule.ZoneId, rule.BaseRate, rule.AdditionalKgRate, rule.ServiceType, rule.IsActive);
+    }
+
+    public async Task<PricingRuleDto?> CreatePricingRuleAsync(Guid zoneId, CreatePricingRuleCommand cmd, CancellationToken ct)
+    {
+        if (!Enum.IsDefined(cmd.ServiceType))
+            throw new BadRequestException("Invalid service type. Use Standard (1) or Express (2).");
+
+        ValidatePricingValue(cmd.BaseRate, nameof(cmd.BaseRate));
+        ValidatePricingValue(cmd.AdditionalKgRate, nameof(cmd.AdditionalKgRate));
+
+        if (await repo.GetByIdAsync(zoneId, ct) is null)
+            return null;
+
+        if (await repo.PricingRuleExistsAsync(zoneId, cmd.ServiceType, ct))
+            throw DuplicateRule(cmd.ServiceType);
+
+        var rule = new PricingRule(zoneId, cmd.BaseRate, cmd.AdditionalKgRate, cmd.ServiceType, cmd.IsActive);
+        await repo.AddPricingRuleAsync(rule, ct);
+
+        try
+        {
+            await repo.SaveChangesAsync(ct);
+        }
+        catch (DbUpdateException)
+        {
+            // The unique index is the final guard if concurrent requests race past the check above.
+            if (await repo.PricingRuleExistsAsync(zoneId, cmd.ServiceType, ct))
+                throw DuplicateRule(cmd.ServiceType);
+
+            throw;
+        }
 
         return new PricingRuleDto(rule.Id, rule.ZoneId, rule.BaseRate, rule.AdditionalKgRate, rule.ServiceType, rule.IsActive);
     }
@@ -84,4 +120,13 @@ internal sealed class ZoneService(IZoneRepository repo) : IZoneService
 }
 
     private static ZoneDto ToDto(Zone z) => new(z.Id, z.ZoneName, z.Description, z.IsActive);
+
+    private static void ValidatePricingValue(decimal value, string name)
+    {
+        if (value < 0 || value > 99_999_999.99m || decimal.Round(value, 2) != value)
+            throw new BadRequestException($"{name} must be between 0 and 99,999,999.99 with no more than two decimal places.");
+    }
+
+    private static ConflictException DuplicateRule(ServiceType serviceType) =>
+        new($"A {serviceType} pricing rule already exists for this zone.");
 }
